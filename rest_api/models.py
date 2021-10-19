@@ -52,8 +52,27 @@ class User(AbstractUser):
 
 
 class ContractType(models.Model):
-    name = models.TextField("nombre", max_length=5)
+    name = models.TextField("Nombre", max_length=5)
 
 
 class OperationProgramType(models.Model):
-    name = models.TextField("nombre", max_length=10)
+    name = models.TextField("Nombre", max_length=10)
+
+
+class OperationProgramStatus(models.Model):
+    name = models.TextField("Nombre", max_length=50)
+    time_threshold = models.IntegerField()
+
+
+class OperationProgram(models.Model):
+    start_at = models.DateField("Fecha de inicio", unique=True)
+    op_type = models.ForeignKey(OperationProgramType, related_name="Tipo de programa de operación")
+
+
+class Organization(models.Model):
+    name = models.TextField("Nombre", max_length=30)
+    created_at = models.DateTimeField()
+    op_type = models.ForeignKey(OperationProgramType, related_name="Tipo de programa de operación", blank=False)
+    default_counterpart = models.ForeignKey("self", related_name="Contraparte por defecto", blank=True)
+    default_user_contact = models.ForeignKey(User, related_name='Usuario', blank=True)
+
