@@ -132,3 +132,5 @@ dmypy.json
 
 tmp/
 media/
+
+docker_env
