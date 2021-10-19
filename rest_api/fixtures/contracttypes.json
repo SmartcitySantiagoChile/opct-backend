@@ -1,0 +1,23 @@
+[
+  {
+    "model": "rest_api.contracttype",
+    "pk": 1,
+    "fields": {
+      "name": "Antiguo"
+    }
+  },
+  {
+    "model": "rest_api.contracttype",
+    "pk": 2,
+    "fields": {
+      "name": "Nuevo"
+    }
+  },
+  {
+    "model": "rest_api.contracttype",
+    "pk": 3,
+    "fields": {
+      "name": "Ambos"
+    }
+  }
+]

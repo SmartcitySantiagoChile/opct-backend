@@ -51,3 +51,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+
+
+class ContractType(models.Model):
+    name = models.TextField("nombre", max_length=5)
+
