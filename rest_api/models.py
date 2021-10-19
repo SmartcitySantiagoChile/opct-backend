@@ -1,6 +1,4 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
-
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
@@ -56,3 +54,6 @@ class User(AbstractUser):
 class ContractType(models.Model):
     name = models.TextField("nombre", max_length=5)
 
+
+class OperationProgramType(models.Model):
+    name = models.TextField("nombre", max_length=10)

@@ -1,0 +1,23 @@
+[
+  {
+    "model": "rest_api.operationprogramtype",
+    "pk": 1,
+    "fields": {
+      "name": "Base"
+    }
+  },
+  {
+    "model": "rest_api.operationprogramtype",
+    "pk": 2,
+    "fields": {
+      "name": "Modificado"
+    }
+  },
+  {
+    "model": "rest_api.operationprogramtype",
+    "pk": 3,
+    "fields": {
+      "name": "Especial"
+    }
+  }
+]
