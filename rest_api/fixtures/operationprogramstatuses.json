@@ -1,0 +1,34 @@
+[
+  {
+    "model": "rest_api.operationprogramstatus",
+    "pk": 1,
+    "fields": {
+      "name": "Etapa 1: Admisibilidad",
+      "time_threshold": 120
+    }
+  },
+  {
+    "model": "rest_api.operationprogramstatus",
+    "pk": 2,
+    "fields": {
+      "name": "Etapa 2: Revisión general",
+      "time_threshold": 90
+    }
+  },
+  {
+    "model": "rest_api.operationprogramstatus",
+    "pk": 3,
+    "fields": {
+      "name": "Etapa 3: Revisión específica",
+      "time_threshold": 28
+    }
+  },
+  {
+    "model": "rest_api.operationprogramstatus",
+    "pk": 4,
+    "fields": {
+      "name": "Etapa 4: Cerrado",
+      "time_threshold": 0
+    }
+  }
+]
