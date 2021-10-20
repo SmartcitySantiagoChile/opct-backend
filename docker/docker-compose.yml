@@ -41,7 +41,7 @@ services:
       context: ..
       dockerfile: docker/nginx/NginxDockerfile
     ports:
-      - 8000:80
+      - "8000:80"
     volumes:
       - static_volume_opct:/app/static
       - media_volume_opct:/app/media
