@@ -10,17 +10,22 @@ class UserManager(BaseUserManager):
 
     use_in_migrations = True
 
-    def _create_user(self, email, password, **extra_fields):
+    def _create_user(self, email, password, organization, access_to_ops, access_to_organizations, access_to_users,
+                     **extra_fields):
         """Create and save a User with the given email and password."""
         if not email:
             raise ValueError('The given email must be set')
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email, organization=organization, access_to_ops=access_to_ops,
+                          access_to_organizations=access_to_organizations, access_to_users=access_to_users,
+                          **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+
         return user
 
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, password, organization, access_to_ops, access_to_organizations, access_to_users,
+                    **extra_fields):
         """Create and save a regular User with the given email and password."""
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
@@ -89,8 +94,8 @@ class OperationProgram(models.Model):
 class Organization(models.Model):
     name = models.CharField("Nombre", max_length=50)
     created_at = models.DateTimeField("Fecha de creación")
-    op_type = models.ForeignKey(OperationProgramType, related_name="organizations", blank=False,
-                                on_delete=models.PROTECT, verbose_name="Tipo de Programa de Operación")
+    contract_type = models.ForeignKey(ContractType, related_name="organizations", blank=False,
+                                      on_delete=models.PROTECT, verbose_name="Tipo de Contrato")
     default_counterpart = models.ForeignKey("self", related_name="organizations", blank=True, on_delete=models.PROTECT,
                                             verbose_name="Contraparte por defecto")
     default_user_contact = models.ForeignKey("User", blank=True, related_name="organizations", on_delete=models.PROTECT,
@@ -109,16 +114,15 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(_('Correo Electrónico'), unique=True)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, null=False, verbose_name="Organización")
+    access_to_ops = models.BooleanField("Acceso a Programas de Operación", default=False)
+    access_to_organizations = models.BooleanField("Acceso a Organizaciones", default=False)
+    access_to_users = models.BooleanField("Acceso a Usuarios", default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     objects = UserManager()
-
-    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, null=True, verbose_name="Organización")
-    access_to_ops = models.BooleanField("Acceso a Programas de Operación", default=False)
-    access_to_organizations = models.BooleanField("Acceso a Organizaciones", default=False)
-    access_to_users = models.BooleanField("Acceso a Usuarios", default=False)
 
 
 class ChangeOPRequest(models.Model):
