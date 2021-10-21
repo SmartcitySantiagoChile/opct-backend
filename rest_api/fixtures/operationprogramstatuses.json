@@ -4,7 +4,8 @@
     "pk": 1,
     "fields": {
       "name": "Etapa 1: Admisibilidad",
-      "time_threshold": 120
+      "time_threshold": 120,
+      "contract_type": 1
     }
   },
   {
@@ -12,7 +13,8 @@
     "pk": 2,
     "fields": {
       "name": "Etapa 2: Revisión general",
-      "time_threshold": 90
+      "time_threshold": 90,
+      "contract_type": 1
     }
   },
   {
@@ -20,7 +22,8 @@
     "pk": 3,
     "fields": {
       "name": "Etapa 3: Revisión específica",
-      "time_threshold": 28
+      "time_threshold": 28,
+      "contract_type": 1
     }
   },
   {
@@ -28,7 +31,8 @@
     "pk": 4,
     "fields": {
       "name": "Etapa 4: Cerrado",
-      "time_threshold": 0
+      "time_threshold": 0,
+      "contract_type": 1
     }
   },
   {
@@ -36,7 +40,8 @@
     "pk": 4,
     "fields": {
       "name": "Etapa 4: Cerrado",
-      "time_threshold": 0
+      "time_threshold": 0,
+      "contract_type": 2
     }
   },
   {
@@ -44,7 +49,8 @@
     "pk": 5,
     "fields": {
       "name": "Etapa 1: Elaboración General de Propuestas",
-      "time_threshold": 41
+      "time_threshold": 41,
+      "contract_type": 2
     }
   },
   {
@@ -52,7 +58,8 @@
     "pk": 6,
     "fields": {
       "name": "Etapa 2: Evaluación de Admisibilidad",
-      "time_threshold": 37
+      "time_threshold": 37,
+      "contract_type": 2
     }
   },
   {
@@ -60,7 +67,8 @@
     "pk": 7,
     "fields": {
       "name": "Etapa 3: Planificación Táctica",
-      "time_threshold": 31
+      "time_threshold": 31,
+      "contract_type": 2
     }
   },
   {
@@ -68,7 +76,17 @@
     "pk": 8,
     "fields": {
       "name": "Etapa 4: Programación de Transporte",
-      "time_threshold": 13
+      "time_threshold": 13,
+      "contract_type": 2
+    }
+  },
+  {
+    "model": "rest_api.operationprogramstatus",
+    "pk": 9,
+    "fields": {
+      "name": "Etapa 5: Cerrado",
+      "time_threshold": 13,
+      "contract_type": 2
     }
   }
 ]

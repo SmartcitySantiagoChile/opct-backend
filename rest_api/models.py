@@ -24,8 +24,7 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_user(self, email, password, organization, access_to_ops, access_to_organizations, access_to_users,
-                    **extra_fields):
+    def create_user(self, email, password, **extra_fields):
         """Create and save a regular User with the given email and password."""
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
@@ -33,6 +32,10 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, email, password, **extra_fields):
         """Create and save a SuperUser with the given email and password."""
+        extra_fields.setdefault('organization', None)
+        extra_fields.setdefault('access_to_ops', True)
+        extra_fields.setdefault('access_to_organizations', True)
+        extra_fields.setdefault('access_to_users', True)
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -45,7 +48,7 @@ class UserManager(BaseUserManager):
 
 
 class ContractType(models.Model):
-    name = models.CharField("Nombre", max_length=5)
+    name = models.CharField("Nombre", max_length=7)
 
     def __str__(self):
         return str(self.name)
@@ -69,6 +72,8 @@ class OperationProgramType(models.Model):
 class OperationProgramStatus(models.Model):
     name = models.CharField("Nombre", max_length=50)
     time_threshold = models.IntegerField("Días máximos antes de nuevo PO")
+    contract_type = models.ForeignKey(ContractType, related_name="operation_program_statuses", blank=False,
+                                      on_delete=models.PROTECT, verbose_name="Tipo de Contrato")
 
     def __str__(self):
         return str(self.name)
@@ -114,7 +119,8 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(_('Correo Electrónico'), unique=True)
-    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, null=False, verbose_name="Organización")
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, null=True, verbose_name="Organización",
+                                     blank=True)
     access_to_ops = models.BooleanField("Acceso a Programas de Operación", default=False)
     access_to_organizations = models.BooleanField("Acceso a Organizaciones", default=False)
     access_to_users = models.BooleanField("Acceso a Usuarios", default=False)
@@ -125,13 +131,26 @@ class User(AbstractUser):
     objects = UserManager()
 
 
+class ChangeOPRequestStatus(models.Model):
+    name = models.CharField("Nombre", max_length=50)
+    contract_type = models.ForeignKey(ContractType, related_name="change_op_request_statuses", blank=False,
+                                      on_delete=models.PROTECT, verbose_name="Tipo de Contrato")
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = "Estado de solicitud de cambio PO"
+        verbose_name_plural = "Estados de solicitud de cambio PO"
+
+
 class ChangeOPRequest(models.Model):
     created_at = models.DateTimeField("Fecha de Creación", default=timezone.now)
     creator = models.ForeignKey(User, related_name="change_op_requests", on_delete=models.PROTECT, blank=False,
                                 verbose_name="Creador")
     op = models.ForeignKey(OperationProgram, related_name="change_op_requests", on_delete=models.PROTECT,
                            verbose_name="Programa de Operación")
-    status = models.ForeignKey(OperationProgramStatus, related_name="change_op_requests", on_delete=models.PROTECT,
+    status = models.ForeignKey(ChangeOPRequestStatus, related_name="change_op_requests", on_delete=models.PROTECT,
                                verbose_name="Estado")
     counterpart = models.ForeignKey(Organization, related_name="change_op_request", on_delete=models.PROTECT,
                                     verbose_name="Contraparte")
@@ -194,9 +213,9 @@ class ChangeOPRequestMessageFile(models.Model):
 
 class StatusLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    previous_status = models.ForeignKey(OperationProgramStatus, related_name="status_logs", on_delete=models.PROTECT,
+    previous_status = models.ForeignKey(ChangeOPRequestStatus, related_name="+", on_delete=models.PROTECT,
                                         verbose_name="Estado previo")
-    new_status = models.ForeignKey(OperationProgramStatus, related_name="+", on_delete=models.PROTECT,
+    new_status = models.ForeignKey(ChangeOPRequestStatus, related_name="+", on_delete=models.PROTECT,
                                    verbose_name="Estado nuevo")
     change_op_request = models.ForeignKey(ChangeOPRequest, related_name="+", on_delete=models.PROTECT,
                                           verbose_name="Solicitud de cambio de Programa de Operación")

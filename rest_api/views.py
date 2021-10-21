@@ -11,8 +11,9 @@ from rest_framework.status import (HTTP_200_OK)
 
 from rest_api.models import User
 from rest_api.serializers import UserSerializer, GroupSerializer, UserLoginSerializer, UserTokenSerializer
-
 from rqworkers.tasks import send_email_job
+
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -61,6 +62,7 @@ def verify(request):
     return JsonResponse({'user': user,
                          'token': token,
                          'error': None}, status=HTTP_200_OK)
+
 
 @api_view(["GET"])
 @permission_classes((AllowAny,))

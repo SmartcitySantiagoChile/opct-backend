@@ -67,6 +67,12 @@ EMAIL_HOST_PASSWORD=
 SERVER_EMAIL=
 ```
 
+### Load fixtures 
+To initialize the database, you need to load the fixtures.
+
+```
+loaddata contracttypes operationprogramstatuses operationprogramtypes
+```
 ## Test
 
 Run test with:
