@@ -2,10 +2,10 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import ugettext_lazy as _
 
-from .models import User
+from rest_api import models
 
 
-@admin.register(User)
+@admin.register(models.User)
 class UserAdmin(DjangoUserAdmin):
     """Define admin model for custom User model with no email field."""
 
@@ -25,3 +25,15 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
+
+
+admin.site.register(models.ChangeOPRequestFile)
+admin.site.register(models.ChangeOPRequestMessage)
+admin.site.register(models.ChangeOPRequestMessageFile)
+admin.site.register(models.ContractType)
+admin.site.register(models.OPChangeLog)
+admin.site.register(models.OperationProgram)
+admin.site.register(models.OperationProgramStatus)
+admin.site.register(models.OperationProgramType)
+admin.site.register(models.Organization)
+admin.site.register(models.StatusLog)
