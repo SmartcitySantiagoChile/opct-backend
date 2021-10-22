@@ -1,15 +1,15 @@
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User, Group
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from rest_api.models import User as ApiUser
+from rest_api.models import User as ApiUser, OperationProgram, OperationProgramType, Organization, ContractType
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'groups']
+        model = get_user_model()
+        fields = ['url', 'email', 'groups']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
@@ -45,3 +45,29 @@ class UserTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError()
         self.context['user'] = user
         return data
+
+
+class OperationProgramTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OperationProgramType
+        fields = '__all__'
+
+
+class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OperationProgram
+        fields = '__all__'
+
+    op_type = OperationProgramTypeSerializer()
+
+
+class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Organization
+        fields = '__all__'
+
+
+class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ContractType
+        fields = '__all__'

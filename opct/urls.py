@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic.base import RedirectView
 from rest_framework import routers
 
 from opct import settings
@@ -24,15 +25,20 @@ from rest_api.views import login, verify, send_email
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
+router.register(r'operation-programs', views.OperationProgramViewSet)
+router.register(r'operation-program-types', views.OperationProgramTypeViewSet)
+router.register(r'organizations', views.OrganizationViewSet)
+router.register(r'contract-types', views.ContractTypeViewSet)
+
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', RedirectView.as_view(url='/api/')),
     path('admin/', admin.site.urls),
-    path('api/', include('rest_framework.urls', namespace='rest_framework')),
+    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/', include(router.urls)),
     path('api/login', login, name='login'),
     path('api/verify/', verify, name='verify'),
-    path('api/send_mail/', send_email, name='send_email')
-
+    path('api/send-mail/', send_email, name='send-email'),
 ]
 
 if settings.DEBUG:
