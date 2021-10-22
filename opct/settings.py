@@ -142,7 +142,6 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-
 AUTH_USER_MODEL = 'rest_api.User'
 
 # Default primary key field type
@@ -188,7 +187,6 @@ RQ = {
 
 # Custom handler to failed jobs
 RQ_EXCEPTION_HANDLERS = []
-
 
 # Email configuration
 EMAIL_HOST = config('EMAIL_HOST')
