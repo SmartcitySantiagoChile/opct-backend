@@ -132,7 +132,7 @@ class User(AbstractUser):
 
 
 class ChangeOPRequestStatus(models.Model):
-    name = models.CharField("Nombre", max_length=50)
+    name = models.CharField("Nombre", max_length=100)
     contract_type = models.ForeignKey(ContractType, related_name="change_op_request_statuses", blank=False,
                                       on_delete=models.PROTECT, verbose_name="Tipo de Contrato")
 
