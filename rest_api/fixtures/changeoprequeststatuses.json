@@ -1,0 +1,122 @@
+[
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 1,
+    "fields": {
+      "name": "Evaluando admisibilidad",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 2,
+    "fields": {
+      "name": "En revisión general",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 3,
+    "fields": {
+      "name": "Rechazado",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 4,
+    "fields": {
+      "name": "Cerrada por no responder observaciones",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 5,
+    "fields": {
+      "name": "Cerrada por no entrega de alguno de los anexos-po: 1, 2, 3 o 4",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 6,
+    "fields": {
+      "name": "Aceptación preliminar para anexos po: de los anexos-po 1, 2, 3 o 4",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 7,
+    "fields": {
+      "name": "Aprobado para ser incluido en Programa de Operación",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 8,
+    "fields": {
+      "name": "Cerrado por falta de antecedentes",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 9,
+    "fields": {
+      "name": "Aceptado con observaciones",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 10,
+    "fields": {
+      "name": "No se llegó a acuerdo en la modificación",
+      "contract_type": 1
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 11,
+    "fields": {
+      "name": "Evaluando admisibilidad",
+      "contract_type": 2
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 12,
+    "fields": {
+      "name": "Solicitud observada",
+      "contract_type": 2
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 13,
+    "fields": {
+      "name": "Se solicita mayor información",
+      "contract_type": 2
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 14,
+    "fields": {
+      "name": "Cerrada",
+      "contract_type": 2
+    }
+  },
+  {
+    "model": "rest_api.changeoprequeststatus",
+    "pk": 15,
+    "fields": {
+      "name": "Aceptada",
+      "contract_type": 2
+    }
+  }
+]
