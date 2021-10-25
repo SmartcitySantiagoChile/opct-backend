@@ -71,7 +71,7 @@ SERVER_EMAIL=
 To initialize the database, you need to load the fixtures.
 
 ```
-loaddata contracttypes operationprogramstatuses operationprogramtypes
+loaddata contracttypes operationprogramstatuses operationprogramtypes groups grouppermissions changeoprequeststatuses
 ```
 ## Test
 
