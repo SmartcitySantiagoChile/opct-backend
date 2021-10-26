@@ -6,3 +6,5 @@ django-cors-headers==3.10.0
 django-rq==2.4.1
 rq==1.10.0
 redis==3.5.3
+requests==2.26.0
+coverage==6.0.2
