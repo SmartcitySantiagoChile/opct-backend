@@ -5,9 +5,9 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, APIException, NotFound
 from rest_framework.permissions import AllowAny, IsAdminUser
-from rest_framework.status import (HTTP_200_OK)
+from rest_framework.status import (HTTP_200_OK, HTTP_409_CONFLICT)
 
 from rest_api.models import User, OperationProgram, OperationProgramType, Organization, ContractType
 from rest_api.permissions import HasGroupPermission
@@ -23,10 +23,10 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [HasGroupPermission]
-    required_groups = {'GET': ['User Editor'],
-                       'POST': ['User Editor'],
-                       'PUT': ['User Editor'],
-                       'DELETE': ['User Editor']}
+    required_groups = {'GET': ['User'],
+                       'POST': ['User'],
+                       'PUT': ['User'],
+                       'DELETE': ['User']}
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -41,14 +41,25 @@ class GroupViewSet(viewsets.ModelViewSet):
 class OperationProgramViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows Operation Programs to be viewed or edited.
+    Only can delete if does not exist an ChangeOPRequest.
     """
     queryset = OperationProgram.objects.all()
     serializer_class = OperationProgramSerializer
     permission_classes = [HasGroupPermission]
-    required_groups = {'GET': ['Operation Program Editor'],
-                       'POST': ['Operation Program Editor'],
-                       'PUT': ['Operation Program Editor'],
-                       'DELETE': ['Operation Program Editor']}
+    required_groups = {'GET': ['Operation Program'],
+                       'POST': ['Operation Program'],
+                       'PUT': ['Operation Program'],
+                       'DELETE': ['Operation Program']}
+
+    def destroy(self, request, *args, **kwargs):
+        object_key = kwargs.get("pk")
+        operation_program = OperationProgram.objects.get(id=object_key)
+        if operation_program:
+            print(operation_program.change_op_requests.all())
+        else:
+            raise NotFound()
+        raise APIException("Cannot delete", HTTP_409_CONFLICT)
+        # return self.destroy(request, *args, **kwargs)
 
 
 class OperationProgramTypeViewSet(viewsets.ModelViewSet):
@@ -59,10 +70,10 @@ class OperationProgramTypeViewSet(viewsets.ModelViewSet):
     serializer_class = OperationProgramTypeSerializer
     permission_classes = [HasGroupPermission, IsAdminUser]
 
-    required_groups = {'GET': ['Operation Program Editor'],
-                       'POST': ['Operation Program Editor'],
-                       'PUT': ['Operation Program Editor'],
-                       'DELETE': ['Operation Program Editor']}
+    required_groups = {'GET': ['Operation Program'],
+                       'POST': ['Operation Program'],
+                       'PUT': ['Operation Program'],
+                       'DELETE': ['Operation Program']}
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
@@ -73,10 +84,11 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     serializer_class = OrganizationSerializer
     permission_classes = [HasGroupPermission]
 
-    required_groups = {'GET': ['Organization Editor'],
-                       'POST': ['Organization Editor'],
-                       'PUT': ['Organization Editor'],
-                       'DELETE': ['Organization Editor']}
+    required_groups = {'GET': ['Organization'],
+                       'POST': ['Organization'],
+                       'PUT': ['Organization'],
+                       'DELETE': ['Organization']}
+
 
 class ContractTypeViewSet(viewsets.ModelViewSet):
     """

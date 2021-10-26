@@ -3,21 +3,21 @@
     "model": "auth.group",
     "pk": 1,
     "fields": {
-      "name": "Operation Program Editor"
+      "name": "Operation Program"
     }
   },
   {
     "model": "auth.group",
     "pk": 2,
     "fields": {
-      "name": "Organization Editor"
+      "name": "Organization"
     }
   },
   {
     "model": "auth.group",
     "pk": 3,
     "fields": {
-      "name": "User Editor"
+      "name": "User"
     }
   }
 ]
