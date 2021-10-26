@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils import timezone
@@ -19,6 +20,12 @@ class UserManager(BaseUserManager):
         user = self.model(email=email, organization=organization, access_to_ops=access_to_ops,
                           access_to_organizations=access_to_organizations, access_to_users=access_to_users,
                           **extra_fields)
+        if access_to_ops:
+            user.groups.add(Group.objects.get(name="Operation Program"))
+        if access_to_organizations:
+            user.groups.add(Group.objects.get(name="Organization"))
+        if access_to_users:
+            user.groups.add(Group.objects.get(name="User"))
         user.set_password(password)
         user.save(using=self._db)
 

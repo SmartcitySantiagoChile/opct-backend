@@ -29,6 +29,7 @@ class UserAdmin(DjangoUserAdmin):
     ordering = ('email',)
 
 
+admin.site.register(models.ChangeOPRequest)
 admin.site.register(models.ChangeOPRequestFile)
 admin.site.register(models.ChangeOPRequestMessage)
 admin.site.register(models.ChangeOPRequestMessageFile)
