@@ -30,7 +30,6 @@ router.register(r'operation-program-types', views.OperationProgramTypeViewSet)
 router.register(r'organizations', views.OrganizationViewSet)
 router.register(r'contract-types', views.ContractTypeViewSet)
 
-
 urlpatterns = [
     path('', RedirectView.as_view(url='/api/')),
     path('admin/', admin.site.urls),
@@ -38,7 +37,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/login', login, name='login'),
     path('api/verify/', verify, name='verify'),
-    path('api/send-mail/', send_email, name='send-email'),
+    path('api/send-mail/', send_email, name='send-email')
 ]
 
 if settings.DEBUG:

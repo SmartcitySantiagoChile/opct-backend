@@ -48,6 +48,8 @@ class UserTokenSerializer(serializers.Serializer):
 
 
 class OperationProgramTypeSerializer(serializers.HyperlinkedModelSerializer):
+    ordering = ['-name']
+
     class Meta:
         model = OperationProgramType
         fields = '__all__'
@@ -57,8 +59,9 @@ class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OperationProgram
         fields = '__all__'
+        ordering = ['-start_at']
 
-    op_type = OperationProgramTypeSerializer()
+    op_type = OperationProgramTypeSerializer
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):

@@ -5,10 +5,12 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import AuthenticationFailed, APIException, NotFound
+from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.permissions import AllowAny, IsAdminUser
-from rest_framework.status import (HTTP_200_OK, HTTP_409_CONFLICT)
+from rest_framework.response import Response
+from rest_framework.status import (HTTP_200_OK, HTTP_409_CONFLICT, HTTP_204_NO_CONTENT)
 
+from rest_api.exceptions import CustomValidation
 from rest_api.models import User, OperationProgram, OperationProgramType, Organization, ContractType
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import UserSerializer, GroupSerializer, UserLoginSerializer, UserTokenSerializer, \
@@ -43,7 +45,7 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
     API endpoint that allows Operation Programs to be viewed or edited.
     Only can delete if does not exist an ChangeOPRequest.
     """
-    queryset = OperationProgram.objects.all()
+    queryset = OperationProgram.objects.all().order_by('-start_at')
     serializer_class = OperationProgramSerializer
     permission_classes = [HasGroupPermission]
     required_groups = {'GET': ['Operation Program'],
@@ -53,13 +55,17 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         object_key = kwargs.get("pk")
-        operation_program = OperationProgram.objects.get(id=object_key)
-        if operation_program:
-            print(operation_program.change_op_requests.all())
-        else:
+        try:
+            operation_program = OperationProgram.objects.get(id=object_key)
+            change_op_request = operation_program.change_op_requests.all()
+            if change_op_request:
+                raise CustomValidation(detail="Hay solicitudes de cambio asociadas al Programa de Operación",
+                                       field='detail',
+                                       status_code=HTTP_409_CONFLICT)
+            self.perform_destroy(operation_program)
+            return Response(status=HTTP_204_NO_CONTENT)
+        except OperationProgram.DoesNotExist:
             raise NotFound()
-        raise APIException("Cannot delete", HTTP_409_CONFLICT)
-        # return self.destroy(request, *args, **kwargs)
 
 
 class OperationProgramTypeViewSet(viewsets.ModelViewSet):
