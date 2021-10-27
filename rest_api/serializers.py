@@ -3,19 +3,26 @@ from django.contrib.auth.models import Group
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from rest_api.models import User as ApiUser, OperationProgram, OperationProgramType, Organization, ContractType
+from rest_api.models import (
+    User as ApiUser,
+    OperationProgram,
+    OperationProgramType,
+    Organization,
+    ContractType,
+    ChangeOPRequest,
+)
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['url', 'email', 'groups']
+        fields = ["url", "email", "groups"]
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
-        fields = ['url', 'name']
+        fields = ["url", "name"]
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -28,7 +35,7 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(email=email, password=password)
         if not user:
             raise serializers.ValidationError()
-        self.context['user'] = user
+        self.context["user"] = user
         return data
 
 
@@ -38,28 +45,26 @@ class UserTokenSerializer(serializers.Serializer):
 
     def validate(self, data):
         email = data.get("email")
-        token = data.get("token")
         user = ApiUser.objects.get(email=email)
-        token_user = Token.objects.get(key=token)
         if not user:
             raise serializers.ValidationError()
-        self.context['user'] = user
+        self.context["user"] = user
         return data
 
 
 class OperationProgramTypeSerializer(serializers.HyperlinkedModelSerializer):
-    ordering = ['-name']
+    ordering = ["-name"]
 
     class Meta:
         model = OperationProgramType
-        fields = '__all__'
+        fields = "__all__"
 
 
 class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OperationProgram
-        fields = '__all__'
-        ordering = ['-start_at']
+        fields = "__all__"
+        ordering = ["-start_at"]
 
     op_type = OperationProgramTypeSerializer
 
@@ -67,10 +72,16 @@ class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Organization
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ContractType
-        fields = '__all__'
+        fields = "__all__"
+
+
+class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequest
+        fields = "__all__"
