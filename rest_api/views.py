@@ -82,11 +82,12 @@ class OperationProgramTypeViewSet(viewsets.ModelViewSet):
                        'DELETE': ['Operation Program']}
 
 
+
 class OrganizationViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows Organizations  to be viewed or edited.
     """
-    queryset = Organization.objects.all()
+    queryset = Organization.objects.all().order_by("-name")
     serializer_class = OrganizationSerializer
     permission_classes = [HasGroupPermission]
 
@@ -94,6 +95,20 @@ class OrganizationViewSet(viewsets.ModelViewSet):
                        'POST': ['Organization'],
                        'PUT': ['Organization'],
                        'DELETE': ['Organization']}
+
+    def destroy(self, request, *args, **kwargs):
+        object_key = kwargs.get("pk")
+        try:
+            organization = Organization.objects.get(id=object_key)
+            users = organization.user_set.all()
+            if users:
+                raise CustomValidation(detail="Hay usuarios asociados a la Organización",
+                                       field='detail',
+                                       status_code=HTTP_409_CONFLICT)
+            self.perform_destroy(organization)
+            return Response(status=HTTP_204_NO_CONTENT)
+        except Organization.DoesNotExist:
+            raise NotFound()
 
 
 class ContractTypeViewSet(viewsets.ModelViewSet):
