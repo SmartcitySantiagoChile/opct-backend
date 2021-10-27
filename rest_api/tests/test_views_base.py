@@ -17,57 +17,64 @@ class BaseTestCase(APITestCase):
 
     def setUp(self) -> None:
         self.client = APIClient()
-        self.create_op_user()
-        self.create_organization_user()
-        self.create_user_user()
         self.contract_type = ContractType.objects.get(id=1)
-        self.create_default_organization()
+        self.organization_contact_user = self.create_user_user(
+            "contact@opct.com", "testpassword1"
+        )
+        self.organization_base = self.create_organization(
+            "Default", self.contract_type, self.organization_contact_user
+        )
+        self.op_user = self.create_op_user("op@opct.com", "testpassword1")
+        self.organization_user = self.create_organization_user(
+            "organization@opct.com", "testpassword1"
+        )
+        self.user_user = self.create_user_user("user@opct.com", "testpassword1")
 
-    def create_op_user(self):
-        self.op_user_attributes = {
-            "email": "op@opct.com",
-            "password": "testpassword1",
-            "organization": None,
+    @staticmethod
+    def create_op_user(email, password, organization=None):
+        op_user_attributes = {
+            "email": email,
+            "password": password,
+            "organization": organization,
             "access_to_ops": True,
             "access_to_organizations": False,
             "access_to_users": False,
         }
-        self.op_user = get_user_model().objects.create_user(**self.op_user_attributes)
+        return get_user_model().objects.create_user(**op_user_attributes)
 
-    def create_organization_user(self):
-        self.organization_user_attributes = {
-            "email": "organization@opct.com",
-            "password": "testpassword1",
-            "organization": None,
+    @staticmethod
+    def create_organization_user(email, password, organization=None):
+        organization_user_attributes = {
+            "email": email,
+            "password": password,
+            "organization": organization,
             "access_to_ops": False,
             "access_to_organizations": True,
             "access_to_users": False,
         }
-        self.organization_user = get_user_model().objects.create_user(
-            **self.organization_user_attributes
-        )
+        return get_user_model().objects.create_user(**organization_user_attributes)
 
-    def create_user_user(self):
-        self.user_user_attributes = {
-            "email": "user@opct.com",
-            "password": "testpassword1",
-            "organization": None,
+    @staticmethod
+    def create_user_user(email, password, organization=None):
+        user_user_attributes = {
+            "email": email,
+            "password": password,
+            "organization": organization,
             "access_to_ops": False,
             "access_to_organizations": False,
             "access_to_users": True,
         }
-        self.user_user = get_user_model().objects.create_user(
-            **self.user_user_attributes
-        )
+        return get_user_model().objects.create_user(**user_user_attributes)
 
-    def create_default_organization(self):
+    @staticmethod
+    def create_organization(name, contract_type, user_contact):
         organization_params = {
-            "name": "Default",
+            "name": name,
             "created_at": timezone.now(),
-            "contract_type": self.contract_type,
-            "default_user_contact": self.user_user,
+            "contract_type": contract_type,
+            "default_user_contact": user_contact,
         }
-        self.organization_base = Organization.objects.create(**organization_params)
+        return Organization.objects.create(**organization_params)
 
     def login_op_user(self):
         self.client.logout()
