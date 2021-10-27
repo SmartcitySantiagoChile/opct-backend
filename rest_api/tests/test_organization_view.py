@@ -53,16 +53,15 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_update_with_group_permissions(self):
         self.login_organization_user()
-        self.login_organization_user()
 
         self.client.post(
             "/api/organizations/",
             data={
                 "name": "Organization Test 2",
                 "created_at": timezone.now(),
-                "contract_type": "/api/contract-types/1/",
-                "default_counterpart": "/api/organizations/1/",
-                "default_user_contact": "/api/users/1/",
+                "contract_type": f"/api/contract-types/{self.contract_type.id}/",
+                "default_counterpart": f"/api/organizations/{self.organization_base.id}/",
+                "default_user_contact": f"/api/users/{self.organization_user.id}/",
             },
         )
         organization = Organization.objects.get(name="Organization Test 2")
@@ -71,9 +70,9 @@ class OrganizationViewSetTest(BaseTestCase):
             data={
                 "name": "Organization Test 3",
                 "created_at": timezone.now(),
-                "contract_type": "/api/contract-types/1/",
-                "default_counterpart": "/api/organizations/1/",
-                "default_user_contact": "/api/users/1/",
+                "contract_type": f"/api/contract-types/{self.contract_type.id}/",
+                "default_counterpart": f"/api/organizations/{self.organization_base.id}/",
+                "default_user_contact": f"/api/users/{self.organization_user.id}/",
             },
         )
         self.assertEqual(response.status_code, 200)
@@ -93,14 +92,15 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_delete_with_permissions_and_no_users(self):
         self.login_organization_user()
-        self.client.post(
+
+        response = self.client.post(
             "/api/organizations/",
             data={
                 "name": "Organization Test 4",
                 "created_at": timezone.now(),
-                "contract_type": "/api/contract-types/1/",
-                "default_counterpart": "/api/organizations/1/",
-                "default_user_contact": "/api/users/1/",
+                "contract_type": f"/api/contract-types/{self.contract_type.id}/",
+                "default_counterpart": f"/api/organizations/{self.organization_base.id}/",
+                "default_user_contact": f"/api/users/{self.organization_user.id}/",
             },
         )
         organization = Organization.objects.get(name="Organization Test 4")
@@ -120,9 +120,9 @@ class OrganizationViewSetTest(BaseTestCase):
             data={
                 "name": "Organization Test 5",
                 "created_at": timezone.now(),
-                "contract_type": "/api/contract-types/1/",
-                "default_counterpart": "/api/organizations/1/",
-                "default_user_contact": "/api/users/1/",
+                "contract_type": f"/api/contract-types/{self.contract_type.id}/",
+                "default_counterpart": f"/api/organizations/{self.organization_base.id}/",
+                "default_user_contact": f"/api/users/{self.organization_user.id}/",
             },
         )
         organization = Organization.objects.get(name="Organization Test 5")

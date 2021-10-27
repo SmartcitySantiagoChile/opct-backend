@@ -1,14 +1,19 @@
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from rest_framework.test import (APITestCase, APIClient)
+from rest_framework.test import APITestCase, APIClient
 
-from rest_api.models import (ContractType, Organization)
+from rest_api.models import ContractType, Organization
 
 
 class BaseTestCase(APITestCase):
-    fixtures = ['contracttypes.json', 'operationprogramstatuses.json', 'operationprogramtypes.json', 'groups.json',
-                'grouppermissions.json', 'changeoprequeststatuses.json'
-                ]
+    fixtures = [
+        "contracttypes.json",
+        "operationprogramstatuses.json",
+        "operationprogramtypes.json",
+        "groups.json",
+        "grouppermissions.json",
+        "changeoprequeststatuses.json",
+    ]
 
     def setUp(self) -> None:
         self.client = APIClient()
@@ -20,50 +25,47 @@ class BaseTestCase(APITestCase):
 
     def create_op_user(self):
         self.op_user_attributes = {
-            'id': 1,
-            'email': 'op@opct.com',
-            'password': 'testpassword1',
-            'organization': None,
-            'access_to_ops': True,
-            'access_to_organizations': False,
-            'access_to_users': False
-
+            "email": "op@opct.com",
+            "password": "testpassword1",
+            "organization": None,
+            "access_to_ops": True,
+            "access_to_organizations": False,
+            "access_to_users": False,
         }
         self.op_user = get_user_model().objects.create_user(**self.op_user_attributes)
 
     def create_organization_user(self):
         self.organization_user_attributes = {
-            'id': 2,
-            'email': 'organization@opct.com',
-            'password': 'testpassword1',
-            'organization': None,
-            'access_to_ops': False,
-            'access_to_organizations': True,
-            'access_to_users': False
-
+            "email": "organization@opct.com",
+            "password": "testpassword1",
+            "organization": None,
+            "access_to_ops": False,
+            "access_to_organizations": True,
+            "access_to_users": False,
         }
-        self.organization_user = get_user_model().objects.create_user(**self.organization_user_attributes)
+        self.organization_user = get_user_model().objects.create_user(
+            **self.organization_user_attributes
+        )
 
     def create_user_user(self):
         self.user_user_attributes = {
-            'id': 3,
-            'email': 'user@opct.com',
-            'password': 'testpassword1',
-            'organization': None,
-            'access_to_ops': False,
-            'access_to_organizations': False,
-            'access_to_users': True
-
+            "email": "user@opct.com",
+            "password": "testpassword1",
+            "organization": None,
+            "access_to_ops": False,
+            "access_to_organizations": False,
+            "access_to_users": True,
         }
-        self.user_user = get_user_model().objects.create_user(**self.user_user_attributes)
+        self.user_user = get_user_model().objects.create_user(
+            **self.user_user_attributes
+        )
 
     def create_default_organization(self):
         organization_params = {
             "name": "Default",
             "created_at": timezone.now(),
             "contract_type": self.contract_type,
-            "default_user_contact": self.user_user
-
+            "default_user_contact": self.user_user,
         }
         self.organization_base = Organization.objects.create(**organization_params)
 
