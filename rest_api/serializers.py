@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
-from rest_framework.authtoken.models import Token
 
 from rest_api.models import (
     User as ApiUser,
@@ -10,6 +9,7 @@ from rest_api.models import (
     Organization,
     ContractType,
     ChangeOPRequest,
+    ChangeOPRequestStatus,
 )
 
 
@@ -81,7 +81,19 @@ class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = "__all__"
 
 
+class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequestStatus
+        field = "__all__"
+
+
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
         fields = "__all__"
+
+    creator = UserSerializer
+    op = OperationProgramSerializer
+    status = ChangeOPRequestStatusSerializer
+    counterpart = OrganizationSerializer
+    contract_type = ContractTypeSerializer

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.authtoken.models import Token
@@ -18,6 +19,7 @@ from rest_api.models import (
     Organization,
     ContractType,
     ChangeOPRequest,
+    ChangeOPRequestStatus,
 )
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
@@ -30,6 +32,7 @@ from rest_api.serializers import (
     OrganizationSerializer,
     ContractTypeSerializer,
     ChangeOPRequestSerializer,
+    ChangeOPRequestStatusSerializer,
 )
 from rqworkers.tasks import send_email_job
 
@@ -154,6 +157,16 @@ class ContractTypeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
 
 
+class ChangeOPRequestStatusViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows ChangeOPRequestStatus to be viewed, created, updated and delete.
+    """
+
+    queryset = ChangeOPRequestStatus.objects.all()
+    serializer_class = ChangeOPRequestStatusSerializer
+    permission_classes = [IsAdminUser]
+
+
 class ChangeOPRequestViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows Change OP Request to be viewed, created, updated and delete.
@@ -162,6 +175,17 @@ class ChangeOPRequestViewSet(viewsets.ModelViewSet):
     queryset = ChangeOPRequest.objects.all().order_by("-created_at")
     serializer_class = ChangeOPRequestSerializer
     permission_classes = [HasGroupPermission]
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        user_organization = user.organization
+        queryset = self.get_queryset().filter(
+            Q(counterpart=user_organization) | Q(creator=user)
+        )
+        serializer = ChangeOPRequestSerializer(
+            queryset, context={"request": request}, many=True
+        )
+        return Response(serializer.data)
 
 
 @csrf_exempt
