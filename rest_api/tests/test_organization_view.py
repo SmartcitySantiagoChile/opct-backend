@@ -1,145 +1,204 @@
+from django.urls import reverse
 from django.utils import timezone
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_403_FORBIDDEN,
+    HTTP_201_CREATED,
+    HTTP_204_NO_CONTENT,
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
+)
 
 from rest_api.models import Organization
 from .test_views_base import BaseTestCase
 
 
 class OrganizationViewSetTest(BaseTestCase):
+    # ------------------------------ helper methods ------------------------------ #
+    def organization_list(self, client, data, status_code=HTTP_200_OK):
+        url = reverse("organization-list")
+        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
+
+    def organization_retrieve(self, client, pk, status_code=HTTP_200_OK):
+        url = reverse("organization-detail", kwargs=dict(pk=pk))
+        data = dict()
+        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
+
+    def organization_create(self, client, data, status_code=HTTP_201_CREATED):
+        url = reverse("organization-list")
+        return self._make_request(client, self.POST_REQUEST, url, data, status_code)
+
+    def organization_patch(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("organization-detail", kwargs=dict(pk=pk))
+        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
+
+    def organization_delete(self, client, pk, status_code=HTTP_204_NO_CONTENT):
+        url = reverse("organization-detail", kwargs=dict(pk=pk))
+        data = dict()
+        return self._make_request(client, self.DELETE_REQUEST, url, data, status_code)
+
+    # ------------------------------ tests ---------------------------------------- #
     def test_list_with_group_permissions(self):
         self.login_organization_user()
-        response = self.client.get("/api/organizations/")
-        self.assertEqual(response.status_code, 200)
+        self.organization_list(self.client, {})
 
     def test_list_without_group_permissions(self):
         self.login_user_user()
-        response = self.client.get("/api/organizations/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
 
         self.login_op_user()
-        response = self.client.get("/api/organizations/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
 
         self.client.logout()
-        response = self.client.get("/api/organizations/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
+
+    def test_retrieve_with_group_permissions(self):
+        organization = self.create_organization(
+            "Test Organization", self.contract_type, self.organization_contact_user
+        )
+        self.login_organization_user()
+        self.organization_retrieve(self.client, organization.pk)
+        organization.delete()
+
+    def test_retrieve_without_group_permissions(self):
+        organization = self.create_organization(
+            "Test Organization", self.contract_type, self.organization_contact_user
+        )
+
+        self.login_user_user()
+        self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
+
+        self.login_op_user()
+        self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
+
+        self.client.logout()
+        self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
+        organization.delete()
 
     def test_create_with_group_permissions(self):
         self.login_organization_user()
-
-        response = self.client.post(
-            "/api/organizations/",
-            data={
-                "name": "Organization Test",
-                "created_at": timezone.now(),
-                "contract_type": "/api/contract-types/1/",
-                "default_counterpart": "/api/organizations/1/",
-                "default_user_contact": "/api/users/1/",
-            },
+        contract_type_url = reverse("contracttype-detail", kwargs=dict(pk=1))
+        organization_url = reverse(
+            "organization-detail", kwargs=dict(pk=self.organization_base.pk)
         )
-        self.assertEqual(response.status_code, 201)
+        contact_user_url = reverse(
+            "user-detail", kwargs=dict(pk=self.organization_contact_user.pk)
+        )
+        data = {
+            "name": "Organization Test",
+            "created_at": timezone.now(),
+            "contract_type": contract_type_url,
+            "default_counterpart": organization_url,
+            "default_user_contact": contact_user_url,
+        }
+        self.organization_create(self.client, data)
+        Organization.objects.get(name="Organization Test").delete()
 
     def test_create_without_group_permissions(self):
+        contract_type_url = reverse("contracttype-detail", kwargs=dict(pk=1))
+        organization_url = reverse(
+            "organization-detail", kwargs=dict(pk=self.organization_base.pk)
+        )
+        contact_user_url = reverse(
+            "user-detail", kwargs=dict(pk=self.organization_contact_user.pk)
+        )
+        data = {
+            "name": "Organization Test",
+            "created_at": timezone.now(),
+            "contract_type": contract_type_url,
+            "default_counterpart": organization_url,
+            "default_user_contact": contact_user_url,
+        }
         self.login_user_user()
-        response = self.client.post("/api/organizations/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_create(self.client, data, HTTP_403_FORBIDDEN)
 
         self.login_op_user()
-        response = self.client.post("/api/organizations/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_create(self.client, data, HTTP_403_FORBIDDEN)
 
         self.client.logout()
-        response = self.client.post("/api/organizations/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_create(self.client, data, HTTP_403_FORBIDDEN)
 
     def test_update_with_group_permissions(self):
         self.login_organization_user()
-
-        self.client.post(
-            "/api/organizations/",
-            data={
-                "name": "Organization Test 2",
-                "created_at": timezone.now(),
-                "contract_type": f"/api/contract-types/{self.contract_type.id}/",
-                "default_counterpart": f"/api/organizations/{self.organization_base.id}/",
-                "default_user_contact": f"/api/users/{self.organization_user.id}/",
-            },
+        organization = self.create_organization(
+            "Organization Test", self.contract_type, self.organization_contact_user
         )
-        organization = Organization.objects.get(name="Organization Test 2")
-        response = self.client.put(
-            f"/api/organizations/{organization.id}/",
-            data={
-                "name": "Organization Test 3",
-                "created_at": timezone.now(),
-                "contract_type": f"/api/contract-types/{self.contract_type.id}/",
-                "default_counterpart": f"/api/organizations/{self.organization_base.id}/",
-                "default_user_contact": f"/api/users/{self.organization_user.id}/",
-            },
+        contract_type_url = reverse("contracttype-detail", kwargs=dict(pk=1))
+        organization_url = reverse(
+            "organization-detail", kwargs=dict(pk=self.organization_base.pk)
         )
-        self.assertEqual(response.status_code, 200)
+        contact_user_url = reverse(
+            "user-detail", kwargs=dict(pk=self.organization_contact_user.pk)
+        )
+        data = {
+            "name": "Organization Test 2",
+            "created_at": timezone.now(),
+            "contract_type": contract_type_url,
+            "default_counterpart": organization_url,
+            "default_user_contact": contact_user_url,
+        }
+        self.organization_patch(self.client, organization.pk, data)
 
     def test_update_without_group_permissions(self):
+        organization = self.create_organization(
+            "Organization Test", self.contract_type, self.organization_contact_user
+        )
+        contract_type_url = reverse("contracttype-detail", kwargs=dict(pk=1))
+        organization_url = reverse(
+            "organization-detail", kwargs=dict(pk=self.organization_base.pk)
+        )
+        contact_user_url = reverse(
+            "user-detail", kwargs=dict(pk=self.organization_contact_user.pk)
+        )
+        data = {
+            "name": "Organization Test 2",
+            "created_at": timezone.now(),
+            "contract_type": contract_type_url,
+            "default_counterpart": organization_url,
+            "default_user_contact": contact_user_url,
+        }
         self.login_user_user()
-        response = self.client.put("/api/organizations/1/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_patch(self.client, organization.pk, data, HTTP_403_FORBIDDEN)
 
         self.login_op_user()
-        response = self.client.put("/api/organizations/1/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_patch(self.client, organization.pk, data, HTTP_403_FORBIDDEN)
 
         self.client.logout()
-        response = self.client.put("/api/organizations/1/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_patch(self.client, organization.pk, data, HTTP_403_FORBIDDEN)
 
     def test_delete_with_permissions_and_no_users(self):
         self.login_organization_user()
-
-        response = self.client.post(
-            "/api/organizations/",
-            data={
-                "name": "Organization Test 4",
-                "created_at": timezone.now(),
-                "contract_type": f"/api/contract-types/{self.contract_type.id}/",
-                "default_counterpart": f"/api/organizations/{self.organization_base.id}/",
-                "default_user_contact": f"/api/users/{self.organization_user.id}/",
-            },
+        organization = self.create_organization(
+            "Organization Test", self.contract_type, self.organization_contact_user
         )
-        organization = Organization.objects.get(name="Organization Test 4")
-        response = self.client.delete(f"/api/organizations/{organization.id}/")
-        self.assertEqual(response.status_code, 204)
+        self.organization_delete(self.client, organization.pk)
 
     def test_delete_with_permissions_and_not_found(self):
         self.login_organization_user()
-        response = self.client.delete(f"/api/organizations/100/")
-        self.assertEqual(response.status_code, 404)
+        self.organization_delete(self.client, 2, HTTP_404_NOT_FOUND)
 
     def test_delete_with_permissions_with_users(self):
         self.login_organization_user()
-
-        self.client.post(
-            "/api/organizations/",
-            data={
-                "name": "Organization Test 5",
-                "created_at": timezone.now(),
-                "contract_type": f"/api/contract-types/{self.contract_type.id}/",
-                "default_counterpart": f"/api/organizations/{self.organization_base.id}/",
-                "default_user_contact": f"/api/users/{self.organization_user.id}/",
-            },
+        organization = self.create_organization(
+            "Organization Test", self.contract_type, self.organization_contact_user
         )
-        organization = Organization.objects.get(name="Organization Test 5")
         self.organization_user.organization = organization
         self.organization_user.save()
-        response = self.client.delete(f"/api/organizations/{organization.id}/")
-        self.assertEqual(response.status_code, 409)
+        self.organization_delete(self.client, organization.pk, HTTP_409_CONFLICT)
+        self.organization_user.organization = None
+        self.organization_user.save()
+        organization.delete()
 
     def test_delete_without_permissions(self):
         self.login_user_user()
-        response = self.client.delete("/api/organizations/1/")
-        self.assertEqual(response.status_code, 403)
+        organization = self.create_organization(
+            "Organization Test", self.contract_type, self.organization_contact_user
+        )
+        self.organization_delete(self.client, organization.pk, HTTP_403_FORBIDDEN)
 
         self.login_op_user()
-        response = self.client.delete("/api/organizations/1/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_delete(self.client, organization.pk, HTTP_403_FORBIDDEN)
 
         self.client.logout()
-        response = self.client.delete("/api/organizations/1/")
-        self.assertEqual(response.status_code, 403)
+        self.organization_delete(self.client, organization.pk, HTTP_403_FORBIDDEN)
+        organization.delete()
