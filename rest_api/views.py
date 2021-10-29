@@ -1,9 +1,9 @@
 from django.contrib.auth.models import Group
+from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
+from rest_framework import mixins, viewsets
 from rest_framework import permissions
-from rest_framework import viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound
@@ -167,7 +167,13 @@ class ChangeOPRequestStatusViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
 
 
-class ChangeOPRequestViewSet(viewsets.ModelViewSet):
+class ChangeOPRequestViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     """
     API endpoint that allows Change OP Request to be viewed, created, updated and delete.
     """
@@ -175,6 +181,12 @@ class ChangeOPRequestViewSet(viewsets.ModelViewSet):
     queryset = ChangeOPRequest.objects.all().order_by("-created_at")
     serializer_class = ChangeOPRequestSerializer
     permission_classes = [HasGroupPermission]
+
+    required_groups = {
+        "GET": ["Operation Program"],
+        "POST": ["Operation Program"],
+        "PUT": ["Operation Program"],
+    }
 
     def list(self, request, *args, **kwargs):
         user = request.user
