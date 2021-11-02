@@ -193,6 +193,18 @@ class User(AbstractUser):
     )
     access_to_users = models.BooleanField("Acceso a Usuarios", default=False)
 
+    CONTRACT_ADMINISTRATOR = "contract_administrator"
+    PLANNING_TECHNICIAN = "planning_technician"
+    PROSECUTOR = "prosecutor"
+
+    ROLE_CHOICES = [
+        (CONTRACT_ADMINISTRATOR, "Administrador de contrato"),
+        (PLANNING_TECHNICIAN, "Técnico de planificación"),
+        (PROSECUTOR, "Fiscal"),
+    ]
+
+    role = models.CharField("Rol", max_length=30, choices=ROLE_CHOICES)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
