@@ -124,6 +124,21 @@ class OperationProgram(models.Model):
         verbose_name_plural = "Programas de Operación"
 
 
+class CounterPartContact(models.Model):
+    user = models.ForeignKey(
+        "User",
+        related_name="counter_part_contacts",
+        on_delete=models.PROTECT,
+        verbose_name="Contacto de contraparte",
+    )
+    organization = models.ForeignKey(
+        "Organization",
+        related_name="counter_part_contacts",
+        on_delete=models.PROTECT,
+        verbose_name="Organización",
+    )
+
+
 class Organization(models.Model):
     name = models.CharField("Nombre", max_length=50)
     created_at = models.DateTimeField("Fecha de creación")
