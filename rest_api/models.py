@@ -437,3 +437,14 @@ class OPChangeLog(models.Model):
     class Meta:
         verbose_name = "Log de solicitud de cambio de PO"
         verbose_name_plural = "Logs de solicitud de cambio de PO"
+
+
+class OPChangeDateLog(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name="op_change_date_logs",
+        on_delete=models.PROTECT,
+        verbose_name="Usuario",
+    )
+    previous_data = models.JSONField("Datos anteriores")
+    new_data = models.JSONField("Datos nuevos")
