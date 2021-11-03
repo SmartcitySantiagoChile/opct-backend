@@ -157,13 +157,6 @@ class Organization(models.Model):
         verbose_name="Contraparte por defecto",
         null=True,
     )
-    default_user_contact = models.ForeignKey(
-        "User",
-        blank=True,
-        related_name="organizations",
-        on_delete=models.PROTECT,
-        verbose_name="Usuario de contacto por defecto",
-    )
 
     def __str__(self):
         return str(self.name)

@@ -53,17 +53,13 @@ class OrganizationViewSetTest(BaseTestCase):
         self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
 
     def test_retrieve_with_group_permissions(self):
-        organization = self.create_organization(
-            "Test Organization", self.contract_type, self.organization_contact_user
-        )
+        organization = self.create_organization("Test Organization", self.contract_type)
         self.login_organization_user()
         self.organization_retrieve(self.client, organization.pk)
         organization.delete()
 
     def test_retrieve_without_group_permissions(self):
-        organization = self.create_organization(
-            "Test Organization", self.contract_type, self.organization_contact_user
-        )
+        organization = self.create_organization("Test Organization", self.contract_type)
 
         self.login_user_user()
         self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
@@ -81,15 +77,11 @@ class OrganizationViewSetTest(BaseTestCase):
         organization_url = reverse(
             "organization-detail", kwargs=dict(pk=self.organization_base.pk)
         )
-        contact_user_url = reverse(
-            "user-detail", kwargs=dict(pk=self.organization_contact_user.pk)
-        )
         data = {
             "name": "Organization Test",
             "created_at": timezone.now(),
             "contract_type": contract_type_url,
             "default_counterpart": organization_url,
-            "default_user_contact": contact_user_url,
         }
         self.organization_create(self.client, data)
         Organization.objects.get(name="Organization Test").delete()
@@ -99,15 +91,11 @@ class OrganizationViewSetTest(BaseTestCase):
         organization_url = reverse(
             "organization-detail", kwargs=dict(pk=self.organization_base.pk)
         )
-        contact_user_url = reverse(
-            "user-detail", kwargs=dict(pk=self.organization_contact_user.pk)
-        )
         data = {
             "name": "Organization Test",
             "created_at": timezone.now(),
             "contract_type": contract_type_url,
             "default_counterpart": organization_url,
-            "default_user_contact": contact_user_url,
         }
         self.login_user_user()
         self.organization_create(self.client, data, HTTP_403_FORBIDDEN)
@@ -120,42 +108,30 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_update_with_group_permissions(self):
         self.login_organization_user()
-        organization = self.create_organization(
-            "Organization Test", self.contract_type, self.organization_contact_user
-        )
+        organization = self.create_organization("Organization Test", self.contract_type)
         contract_type_url = reverse("contracttype-detail", kwargs=dict(pk=1))
         organization_url = reverse(
             "organization-detail", kwargs=dict(pk=self.organization_base.pk)
-        )
-        contact_user_url = reverse(
-            "user-detail", kwargs=dict(pk=self.organization_contact_user.pk)
         )
         data = {
             "name": "Organization Test 2",
             "created_at": timezone.now(),
             "contract_type": contract_type_url,
             "default_counterpart": organization_url,
-            "default_user_contact": contact_user_url,
         }
         self.organization_patch(self.client, organization.pk, data)
 
     def test_update_without_group_permissions(self):
-        organization = self.create_organization(
-            "Organization Test", self.contract_type, self.organization_contact_user
-        )
+        organization = self.create_organization("Organization Test", self.contract_type)
         contract_type_url = reverse("contracttype-detail", kwargs=dict(pk=1))
         organization_url = reverse(
             "organization-detail", kwargs=dict(pk=self.organization_base.pk)
-        )
-        contact_user_url = reverse(
-            "user-detail", kwargs=dict(pk=self.organization_contact_user.pk)
         )
         data = {
             "name": "Organization Test 2",
             "created_at": timezone.now(),
             "contract_type": contract_type_url,
             "default_counterpart": organization_url,
-            "default_user_contact": contact_user_url,
         }
         self.login_user_user()
         self.organization_patch(self.client, organization.pk, data, HTTP_403_FORBIDDEN)
@@ -168,9 +144,7 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_delete_with_permissions_and_no_users(self):
         self.login_organization_user()
-        organization = self.create_organization(
-            "Organization Test", self.contract_type, self.organization_contact_user
-        )
+        organization = self.create_organization("Organization Test", self.contract_type)
         self.organization_delete(self.client, organization.pk)
 
     def test_delete_with_permissions_and_not_found(self):
@@ -179,9 +153,7 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_delete_with_permissions_with_users(self):
         self.login_organization_user()
-        organization = self.create_organization(
-            "Organization Test", self.contract_type, self.organization_contact_user
-        )
+        organization = self.create_organization("Organization Test", self.contract_type)
         self.organization_user.organization = organization
         self.organization_user.save()
         self.organization_delete(self.client, organization.pk, HTTP_409_CONFLICT)
@@ -191,9 +163,7 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_delete_without_permissions(self):
         self.login_user_user()
-        organization = self.create_organization(
-            "Organization Test", self.contract_type, self.organization_contact_user
-        )
+        organization = self.create_organization("Organization Test", self.contract_type)
         self.organization_delete(self.client, organization.pk, HTTP_403_FORBIDDEN)
 
         self.login_op_user()

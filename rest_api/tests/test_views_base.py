@@ -11,6 +11,7 @@ from rest_api.models import (
     OperationProgramType,
     ChangeOPRequest,
     ChangeOPRequestStatus,
+    CounterPartContact,
 )
 
 
@@ -40,9 +41,10 @@ class BaseTestCase(APITestCase):
         self.organization_contact_user = self.create_user_user(
             "contact@opct.com", "testpassword1"
         )
-        self.organization_base = self.create_organization(
-            "Default", self.contract_type, self.organization_contact_user
-        )
+        self.organization_base = self.create_organization("Default", self.contract_type)
+        CounterPartContact(
+            user=self.organization_contact_user, organization=self.organization_base
+        ).save()
         self.op_user = self.create_op_user("op@opct.com", "testpassword1")
         self.organization_user = self.create_organization_user(
             "organization@opct.com", "testpassword1"
@@ -88,6 +90,7 @@ class BaseTestCase(APITestCase):
             "access_to_ops": True,
             "access_to_organizations": False,
             "access_to_users": False,
+            "role": "Técnico de planificación",
         }
         return get_user_model().objects.create_user(**op_user_attributes)
 
@@ -100,6 +103,7 @@ class BaseTestCase(APITestCase):
             "access_to_ops": False,
             "access_to_organizations": True,
             "access_to_users": False,
+            "role": "Técnico de planificación",
         }
         return get_user_model().objects.create_user(**organization_user_attributes)
 
@@ -112,16 +116,16 @@ class BaseTestCase(APITestCase):
             "access_to_ops": False,
             "access_to_organizations": False,
             "access_to_users": True,
+            "role": "Técnico de planificación",
         }
         return get_user_model().objects.create_user(**user_user_attributes)
 
     @staticmethod
-    def create_organization(name, contract_type, user_contact):
+    def create_organization(name, contract_type):
         organization_params = {
             "name": name,
             "created_at": timezone.now(),
             "contract_type": contract_type,
-            "default_user_contact": user_contact,
         }
         return Organization.objects.create(**organization_params)
 
@@ -148,6 +152,7 @@ class BaseTestCase(APITestCase):
             "counterpart": counter_part,
             "contract_type": contract_type,
             "title": title,
+            "op_release_date": timezone.now(),
         }
         return ChangeOPRequest.objects.create(**params)
 
