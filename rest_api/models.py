@@ -119,6 +119,9 @@ class OperationProgram(models.Model):
     def __str__(self):
         return str(self.start_at)
 
+    def op_change_data_logs(self):
+        OPChangeDataLog.objects.all().filter(op=self)
+
     class Meta:
         verbose_name = "Programa de Operación"
         verbose_name_plural = "Programas de Operación"

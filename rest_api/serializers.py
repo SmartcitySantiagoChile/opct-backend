@@ -10,6 +10,7 @@ from rest_api.models import (
     ContractType,
     ChangeOPRequest,
     ChangeOPRequestStatus,
+    OPChangeDataLog,
 )
 
 
@@ -87,6 +88,12 @@ class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
         field = "__all__"
 
 
+class OPChangeDataLogSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OPChangeDataLog
+        field = "__all__"
+
+
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
@@ -97,3 +104,14 @@ class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     status = ChangeOPRequestStatusSerializer
     counterpart = OrganizationSerializer
     contract_type = ContractTypeSerializer
+
+
+class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OperationProgram
+        fields = ("url", "start_at", "op_type", "op_change_data_logs")
+        ordering = ["-start_at"]
+        depth = 1
+
+    op_type = OperationProgramTypeSerializer
+    op_change_data_logs = OPChangeDataLogSerializer

@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -8,7 +9,7 @@ from rest_framework.status import (
     HTTP_409_CONFLICT,
 )
 
-from rest_api.models import OperationProgram
+from rest_api.models import OperationProgram, OPChangeDataLog
 from .test_views_base import BaseTestCase
 
 
@@ -56,6 +57,21 @@ class OperationProgramViewSetTest(BaseTestCase):
         op = self.create_op("2021-10-29")
         self.login_op_user()
         self.operation_program_retrieve(self.client, op.pk)
+        op.delete()
+
+    def test_retrieve_with_group_permissions_and_logs(self):
+        op = self.create_op("2021-10-29")
+        self.login_op_user()
+        op_change_data_log = OPChangeDataLog(
+            user=self.op_user,
+            op=op,
+            created_at=timezone.now(),
+            previous_data={},
+            new_data={},
+        )
+        op_change_data_log.save()
+        self.operation_program_retrieve(self.client, op.pk)
+        op_change_data_log.delete()
         op.delete()
 
     def test_retrieve_without_group_permissions(self):

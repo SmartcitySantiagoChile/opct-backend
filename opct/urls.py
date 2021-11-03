@@ -31,6 +31,7 @@ router.register(r"organizations", views.OrganizationViewSet)
 router.register(r"contract-types", views.ContractTypeViewSet)
 router.register(r"change-op-requests", views.ChangeOPRequestViewSet),
 router.register(r"change-op-request-statuses", views.ChangeOPRequestStatusViewSet)
+router.register(r"change-op-data-logs", views.OPChangeDataLogViewset)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),

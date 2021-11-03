@@ -20,6 +20,7 @@ from rest_api.models import (
     ContractType,
     ChangeOPRequest,
     ChangeOPRequestStatus,
+    OPChangeDataLog,
 )
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
@@ -33,6 +34,8 @@ from rest_api.serializers import (
     ContractTypeSerializer,
     ChangeOPRequestSerializer,
     ChangeOPRequestStatusSerializer,
+    OperationProgramDetailSerializer,
+    OPChangeDataLogSerializer,
 )
 from rqworkers.tasks import send_email_job
 
@@ -78,6 +81,13 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
         "PUT": ["Operation Program"],
         "DELETE": ["Operation Program"],
     }
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = OperationProgramDetailSerializer(
+            instance, context={"request": request}
+        )
+        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         object_key = kwargs.get("pk")
@@ -198,6 +208,22 @@ class ChangeOPRequestViewSet(
             queryset, context={"request": request}, many=True
         )
         return Response(serializer.data)
+
+
+class OPChangeDataLogViewset(viewsets.ModelViewSet):
+    """
+    API endpoint that allows OPChangeDataLog to be viewed, created, updated and delete.
+    """
+
+    queryset = OPChangeDataLog.objects.all()
+    serializer_class = OPChangeDataLogSerializer
+    permission_classes = [HasGroupPermission]
+    required_groups = {
+        "GET": ["Operation Program"],
+        "POST": ["Operation Program"],
+        "PUT": ["Operation Program"],
+        "DELETE": ["Operation Program"],
+    }
 
 
 @csrf_exempt
