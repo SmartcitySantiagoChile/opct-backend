@@ -442,7 +442,6 @@ class OPChangeDataLog(models.Model):
     )
     previous_data = models.JSONField("Datos anteriores")
     new_data = models.JSONField("Datos nuevos")
-    #
     op = models.ForeignKey(
         OperationProgram,
         related_name="op_change_data_logs",
