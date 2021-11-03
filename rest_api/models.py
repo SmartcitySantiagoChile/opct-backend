@@ -432,12 +432,24 @@ class OPChangeLog(models.Model):
         verbose_name_plural = "Logs de solicitud de cambio de PO"
 
 
-class OPChangeDateLog(models.Model):
+class OPChangeDataLog(models.Model):
+    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
     user = models.ForeignKey(
         User,
-        related_name="op_change_date_logs",
+        related_name="op_change_data_logs",
         on_delete=models.PROTECT,
         verbose_name="Usuario",
     )
     previous_data = models.JSONField("Datos anteriores")
     new_data = models.JSONField("Datos nuevos")
+    #
+    op = models.ForeignKey(
+        OperationProgram,
+        related_name="op_change_data_logs",
+        on_delete=models.PROTECT,
+        verbose_name="Programa de Operación",
+    )
+
+    class Meta:
+        verbose_name = "Log de cambios de PO"
+        verbose_name_plural = "Logs de cambios de PO"
