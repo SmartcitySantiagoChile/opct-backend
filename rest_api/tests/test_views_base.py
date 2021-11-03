@@ -152,7 +152,8 @@ class BaseTestCase(APITestCase):
             "counterpart": counter_part,
             "contract_type": contract_type,
             "title": title,
-            "op_release_date": timezone.now(),
+            "op_release_date": "2030-01-01",
+            "reason": "other",
         }
         return ChangeOPRequest.objects.create(**params)
 

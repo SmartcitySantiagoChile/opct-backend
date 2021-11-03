@@ -19,7 +19,7 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
     def setUp(self) -> None:
         super(ChangeOPRequestViewSetTest, self).setUp()
         self.organization_base_2 = self.create_organization(
-            "ChangeOPRequest", self.contract_type, self.organization_contact_user
+            "ChangeOPRequest", self.contract_type
         )
 
         self.op_user_2 = self.create_op_user(
@@ -77,6 +77,8 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
                     ("title", serializer_data["title"]),
                     ("message", serializer_data["message"]),
                     ("updated_at", serializer_data["updated_at"]),
+                    ("reason", serializer_data["reason"]),
+                    ("op_release_date", serializer_data["op_release_date"]),
                     ("creator", serializer_data["creator"]),
                     ("op", serializer_data["op"]),
                     ("status", serializer_data["status"]),
@@ -139,6 +141,8 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
             "title": "Change OP Request TEST",
             "message": "test",
             "updated_at": timezone.now(),
+            "op_release_date": "2030-01-01",
+            "reason": "other",
         }
 
         self.change_op_request_create(self.client, data)
@@ -169,6 +173,8 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
             "title": "Change OP Request TEST",
             "message": "test",
             "updated_at": timezone.now(),
+            "op_release_date": "2030-01-01",
+            "reason": "other",
         }
         self.change_op_request_patch(self.client, self.change_op_request.pk, data)
 
