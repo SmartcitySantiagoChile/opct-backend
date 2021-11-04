@@ -130,7 +130,7 @@ class OperationProgram(models.Model):
 class CounterPartContact(models.Model):
     user = models.ForeignKey(
         "User",
-        related_name="counter_part_contacts",
+        related_name="counter_part_contact",
         on_delete=models.PROTECT,
         verbose_name="Contacto de contraparte",
     )
@@ -140,6 +140,26 @@ class CounterPartContact(models.Model):
         on_delete=models.PROTECT,
         verbose_name="Organización",
     )
+    counter_part_organization = models.ForeignKey(
+        "Organization",
+        related_name="counter_part_contact",
+        on_delete=models.PROTECT,
+        verbose_name="Organización contraparte",
+    )
+
+    def save(self, *args, **kwargs):
+        user_organization = self.user.organization_id
+        if user_organization == self.counter_part_organization.pk:
+            super(CounterPartContact, self).save(*args, **kwargs)
+        else:
+            raise ValueError("El usuario debe pertenecer a la organización contraparte")
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        verbose_name = "Contacto de contraparte"
+        verbose_name_plural = "Contactos de contraparte"
 
 
 class Organization(models.Model):
@@ -451,6 +471,9 @@ class OPChangeDataLog(models.Model):
         on_delete=models.PROTECT,
         verbose_name="Programa de Operación",
     )
+
+    def __str__(self):
+        return str(self.created_at)
 
     class Meta:
         verbose_name = "Log de cambios de PO"
