@@ -64,19 +64,32 @@ class OrganizationAdmin(admin.ModelAdmin):
     inlines = [CounterPartContactInLine]
 
 
+class ChangeOPRequestMessageFile(admin.TabularInline):
+    model = models.ChangeOPRequestMessageFile
+    fk_name = "change_op_request_message"
+
+
 class ChangeOPRequestMessage(admin.TabularInline):
     model = models.ChangeOPRequestMessage
     fk_name = "change_op_request"
 
 
+class ChangeOPRequestFile(admin.TabularInline):
+    model = models.ChangeOPRequestFile
+    fk_name = "change_op_request"
+
+
+class ChangeOPRequestMessageAdmin(admin.ModelAdmin):
+    inlines = [ChangeOPRequestMessageFile]
+
+
 class ChangeOpRequestAdmin(admin.ModelAdmin):
-    inlines = [ChangeOPRequestMessage]
+    inlines = [ChangeOPRequestFile, ChangeOPRequestMessage]
 
 
 admin.site.register(models.ChangeOPRequest, ChangeOpRequestAdmin)
 admin.site.register(models.ChangeOPRequestFile)
-admin.site.register(models.ChangeOPRequestMessage)
-admin.site.register(models.ChangeOPRequestMessageFile)
+admin.site.register(models.ChangeOPRequestMessage, ChangeOPRequestMessageAdmin)
 admin.site.register(models.ContractType)
 admin.site.register(models.OPChangeLog)
 admin.site.register(models.OperationProgram)
