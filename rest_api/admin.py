@@ -55,6 +55,15 @@ class OperationProgramStatusAdmin(admin.ModelAdmin):
     list_display = ("name", "contract_type")
 
 
+class CounterPartContactInLine(admin.TabularInline):
+    model = models.CounterPartContact
+    fk_name = "organization"
+
+
+class OrganizationAdmin(admin.ModelAdmin):
+    inlines = [CounterPartContactInLine]
+
+
 admin.site.register(models.ChangeOPRequest)
 admin.site.register(models.ChangeOPRequestFile)
 admin.site.register(models.ChangeOPRequestMessage)
@@ -64,6 +73,5 @@ admin.site.register(models.OPChangeLog)
 admin.site.register(models.OperationProgram)
 admin.site.register(models.OperationProgramStatus, OperationProgramStatusAdmin)
 admin.site.register(models.OperationProgramType)
-admin.site.register(models.Organization)
+admin.site.register(models.Organization, OrganizationAdmin)
 admin.site.register(models.StatusLog)
-admin.site.register(models.CounterPartContact)
