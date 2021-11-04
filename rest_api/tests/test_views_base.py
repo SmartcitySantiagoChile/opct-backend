@@ -38,12 +38,15 @@ class BaseTestCase(APITestCase):
         """
         self.client = APIClient()
         self.contract_type = ContractType.objects.get(id=1)
-        self.organization_contact_user = self.create_user_user(
-            "contact@opct.com", "testpassword1"
-        )
+
         self.organization_base = self.create_organization("Default", self.contract_type)
+        self.organization_contact_user = self.create_user_user(
+            "contact@opct.com", "testpassword1", organization=self.organization_base
+        )
         CounterPartContact(
-            user=self.organization_contact_user, organization=self.organization_base
+            user=self.organization_contact_user,
+            organization=self.organization_base,
+            counter_part_organization=self.organization_base,
         ).save()
         self.op_user = self.create_op_user("op@opct.com", "testpassword1")
         self.organization_user = self.create_organization_user(
