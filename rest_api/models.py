@@ -399,6 +399,9 @@ class ChangeOPRequestMessageFile(models.Model):
 
 class StatusLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
+    user = models.ForeignKey(
+        User, related_name="+", on_delete=models.PROTECT, verbose_name="Usuario"
+    )
     previous_status = models.ForeignKey(
         ChangeOPRequestStatus,
         related_name="+",
@@ -451,7 +454,7 @@ class OPChangeLog(models.Model):
         ChangeOPRequest,
         related_name="op_change_logs",
         on_delete=models.PROTECT,
-        verbose_name="Programa de Operación",
+        verbose_name="Solicitud de cambio de PO",
     )
 
     def __str__(self):

@@ -79,12 +79,22 @@ class ChangeOPRequestFile(admin.TabularInline):
     fk_name = "change_op_request"
 
 
+class StatusLog(admin.TabularInline):
+    model = models.StatusLog
+    fk_name = "change_op_request"
+
+
+class OPChangeLog(admin.TabularInline):
+    model = models.OPChangeLog
+    fk_name = "change_op_request"
+
+
 class ChangeOPRequestMessageAdmin(admin.ModelAdmin):
     inlines = [ChangeOPRequestMessageFile]
 
 
 class ChangeOpRequestAdmin(admin.ModelAdmin):
-    inlines = [ChangeOPRequestFile, ChangeOPRequestMessage]
+    inlines = [ChangeOPRequestFile, ChangeOPRequestMessage, StatusLog, OPChangeLog]
 
 
 admin.site.register(models.ChangeOPRequest, ChangeOpRequestAdmin)
