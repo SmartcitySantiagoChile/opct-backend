@@ -51,6 +51,10 @@ class UserAdmin(DjangoUserAdmin):
     ordering = ("email",)
 
 
+class OperationProgramStatusAdmin(admin.ModelAdmin):
+    list_display = ("name", "contract_type")
+
+
 admin.site.register(models.ChangeOPRequest)
 admin.site.register(models.ChangeOPRequestFile)
 admin.site.register(models.ChangeOPRequestMessage)
@@ -58,7 +62,7 @@ admin.site.register(models.ChangeOPRequestMessageFile)
 admin.site.register(models.ContractType)
 admin.site.register(models.OPChangeLog)
 admin.site.register(models.OperationProgram)
-admin.site.register(models.OperationProgramStatus)
+admin.site.register(models.OperationProgramStatus, OperationProgramStatusAdmin)
 admin.site.register(models.OperationProgramType)
 admin.site.register(models.Organization)
 admin.site.register(models.StatusLog)
