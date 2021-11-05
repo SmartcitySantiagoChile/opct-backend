@@ -1,5 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.db.models import Q
+from django.db.models import Q, ForeignKey
+
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -24,7 +26,6 @@ from rest_api.models import (
     ChangeOPRequestStatus,
     OPChangeDataLog,
     OPChangeLog,
-    OperationProgramStatus,
     StatusLog,
 )
 from rest_api.permissions import HasGroupPermission
@@ -59,6 +60,18 @@ class UserViewSet(viewsets.ModelViewSet):
         "PUT": ["User"],
         "DELETE": ["User"],
     }
+
+    def destroy(self, request, *args, **kwargs):
+        object_key = kwargs.get("pk")
+        try:
+            user = get_user_model().objects.get(id=object_key)
+            simple_field_names = [field.name for field in user._meta.get_fields()]
+            print(user._meta.get_all_related_objects())
+            print(simple_field_names)
+            self.perform_destroy(user)
+            return Response(status=HTTP_204_NO_CONTENT)
+        except get_user_model().DoesNotExist:
+            raise NotFound()
 
 
 class GroupViewSet(viewsets.ModelViewSet):
