@@ -1,10 +1,12 @@
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.http import JsonResponse
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import mixins, viewsets
 from rest_framework import permissions
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.permissions import AllowAny, IsAdminUser
@@ -21,6 +23,9 @@ from rest_api.models import (
     ChangeOPRequest,
     ChangeOPRequestStatus,
     OPChangeDataLog,
+    OPChangeLog,
+    OperationProgramStatus,
+    StatusLog,
 )
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
@@ -208,6 +213,56 @@ class ChangeOPRequestViewSet(
             queryset, context={"request": request}, many=True
         )
         return Response(serializer.data)
+
+    @action(detail=True, methods=["put"])
+    def change_op(self, request, *args, **kwargs):
+        obj = self.get_object()
+        new_op_key = request.data.get("op")
+        queryset = self.get_queryset()
+        try:
+            new_op = OperationProgram.objects.get(pk=new_op_key)
+            previous_op = obj.op
+            obj.op = new_op
+            obj.save()
+            op_change_log = OPChangeLog(
+                created_at=timezone.now(),
+                creator=request.user,
+                previous_op=previous_op,
+                new_op=new_op,
+                change_op_request=obj,
+            )
+            op_change_log.save()
+            serializer = ChangeOPRequestSerializer(
+                queryset, context={"request": request}, many=True
+            )
+            return Response(serializer.data, status=HTTP_200_OK)
+        except OperationProgram.DoesNotExist:
+            raise NotFound()
+
+    @action(detail=True, methods=["put"])
+    def change_status(self, request, *args, **kwargs):
+        obj = self.get_object()
+        new_status_key = request.data.get("status")
+        queryset = self.get_queryset()
+        try:
+            new_status = ChangeOPRequestStatus.objects.get(pk=new_status_key)
+            previous_status = obj.status
+            obj.status = new_status
+            obj.save()
+            status_log = StatusLog(
+                created_at=timezone.now(),
+                user=request.user,
+                previous_status=previous_status,
+                new_status=new_status,
+                change_op_request=obj,
+            )
+            status_log.save()
+            serializer = ChangeOPRequestSerializer(
+                queryset, context={"request": request}, many=True
+            )
+            return Response(serializer.data, status=HTTP_200_OK)
+        except ChangeOPRequestStatus.DoesNotExist:
+            raise NotFound()
 
 
 class OPChangeDataLogViewset(viewsets.ModelViewSet):

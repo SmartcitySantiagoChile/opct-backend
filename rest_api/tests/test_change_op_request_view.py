@@ -8,6 +8,7 @@ from rest_framework.status import (
     HTTP_403_FORBIDDEN,
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
+    HTTP_404_NOT_FOUND,
     HTTP_405_METHOD_NOT_ALLOWED,
 )
 
@@ -53,6 +54,16 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
         url = reverse("changeoprequest-detail", kwargs=dict(pk=pk))
         data = dict()
         return self._make_request(client, self.DELETE_REQUEST, url, data, status_code)
+
+    def change_op_request_change_op(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("changeoprequest-change-op", kwargs=dict(pk=pk))
+        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
+
+    def change_op_request_change_status(
+        self, client, pk, data, status_code=HTTP_200_OK
+    ):
+        url = reverse("changeoprequest-change-status", kwargs=dict(pk=pk))
+        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
 
     # ------------------------------ tests ----------------------------------------
     def test_list_with_no_organization_permissions(self):
@@ -198,4 +209,31 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
         self.login_op_user()
         self.change_op_request_delete(
             self.client, self.change_op_request.pk, HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+    def test_change_op_request(self):
+        self.login_op_user()
+        new_op = self.create_op("2040-04-20")
+        data = {"op": new_op.pk}
+        self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
+
+    def test_change_op_not_found_request(self):
+        self.login_op_user()
+        data = {"op": 5}
+        self.change_op_request_change_op(
+            self.client, self.change_op_request.pk, data, HTTP_404_NOT_FOUND
+        )
+
+    def test_change_status_request(self):
+        self.login_op_user()
+        data = {"status": 2}
+        self.change_op_request_change_status(
+            self.client, self.change_op_request.pk, data
+        )
+
+    def test_change_status_not_found_request(self):
+        self.login_op_user()
+        data = {"status": -1}
+        self.change_op_request_change_status(
+            self.client, self.change_op_request.pk, data, HTTP_404_NOT_FOUND
         )

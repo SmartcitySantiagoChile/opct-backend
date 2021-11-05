@@ -11,6 +11,7 @@ from rest_api.models import (
     ChangeOPRequest,
     ChangeOPRequestStatus,
     OPChangeDataLog,
+    OPChangeLog,
 )
 
 
@@ -115,3 +116,14 @@ class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
 
     op_type = OperationProgramTypeSerializer
     op_change_data_logs = OPChangeDataLogSerializer
+
+
+class OPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OPChangeLog
+        fields = "__all__"
+
+    creator = UserSerializer
+    previous_op = OperationProgramSerializer
+    new_op = OperationProgramSerializer
+    change_op_request = ChangeOPRequestSerializer
