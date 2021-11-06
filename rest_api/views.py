@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.db.models import Q, ForeignKey
-
+from django.core.management import call_command
+from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -43,7 +43,6 @@ from rest_api.serializers import (
     OperationProgramDetailSerializer,
     OPChangeDataLogSerializer,
 )
-from rqworkers.tasks import send_email_job
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -333,5 +332,6 @@ def send_email(request):
     Hola, este es un mensaje de prueba
     """
     users = User.objects.all()
-    send_email_job(users, subject, body)
+    call_command('sendemail', '--sync', subject, body, *[user.pk for user in users])
+
     return JsonResponse({"user": str(request.user)}, status=HTTP_200_OK)
