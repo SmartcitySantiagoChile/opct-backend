@@ -33,6 +33,6 @@ case "$1" in
   ;;
   worker)
     echo "starting worker"
-    python manage.py rqworker email_sender
+    python manage.py rqworker email_sender --worker-class rqworkers.opctWorker.OpctWorker
   ;;
 esac
