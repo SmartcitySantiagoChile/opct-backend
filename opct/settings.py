@@ -49,7 +49,6 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    'opct',
     'rest_api',
     'rqworkers'
 ]
