@@ -249,7 +249,8 @@ class ChangeOPRequestViewSet(
         user = request.user
         user_organization = user.organization
         queryset = self.get_queryset().filter(
-            Q(counterpart=user_organization) | Q(creator=user)
+            Q(counterpart=user_organization)
+            | Q(creator__organization=user_organization)
         )
         serializer = ChangeOPRequestSerializer(
             queryset, context={"request": request}, many=True
