@@ -191,19 +191,18 @@ class OrganizationViewSet(viewsets.ModelViewSet):
             raise NotFound()
 
 
-class ContractTypeViewSet(viewsets.ModelViewSet):
+class ContractTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows Contract Type to be viewed, created, updated and delete.
+    API endpoint that allows Contract Type to be viewed.
     """
 
     queryset = ContractType.objects.all()
     serializer_class = ContractTypeSerializer
-    permission_classes = [IsAdminUser]
 
 
 class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows ChangeOPRequestStatus to be viewed, created, updated and delete.
+    API endpoint that allows ChangeOPRequestStatus to be viewed.
     """
 
     queryset = ChangeOPRequestStatus.objects.all()
@@ -218,7 +217,7 @@ class ChangeOPRequestViewSet(
     viewsets.GenericViewSet,
 ):
     """
-    API endpoint that allows Change OP Request to be viewed, created, updated and delete.
+    API endpoint that allows Change OP Request to be viewed, created and updated.
     """
 
     queryset = ChangeOPRequest.objects.all().order_by("-created_at")
@@ -291,7 +290,7 @@ class ChangeOPRequestViewSet(
 
 class OPChangeDataLogViewset(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows OPChangeDataLog to be viewed, created, updated and delete.
+    API endpoint that allows OPChangeDataLog to be viewed.
     """
 
     queryset = OPChangeDataLog.objects.all()
