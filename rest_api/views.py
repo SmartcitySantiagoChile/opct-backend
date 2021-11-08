@@ -201,7 +201,7 @@ class ContractTypeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
 
 
-class ChangeOPRequestStatusViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows ChangeOPRequestStatus to be viewed, created, updated and delete.
     """
@@ -289,7 +289,7 @@ class ChangeOPRequestViewSet(
             raise NotFound()
 
 
-class OPChangeDataLogViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
+class OPChangeDataLogViewset(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows OPChangeDataLog to be viewed, created, updated and delete.
     """

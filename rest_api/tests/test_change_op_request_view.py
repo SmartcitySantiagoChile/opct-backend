@@ -106,35 +106,9 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
         ]
         self.assertEqual(response.data, expected_response)
 
-    def test_list_without_group_permissions(self):
-        self.login_user_user()
-        self.change_op_request_list(self.client, {}, HTTP_403_FORBIDDEN)
-
-        self.login_organization_user()
-        self.change_op_request_list(self.client, {}, HTTP_403_FORBIDDEN)
-
-        self.client.logout()
-        self.change_op_request_list(self.client, {}, HTTP_403_FORBIDDEN)
-
     def test_retrieve_with_group_permissions(self):
         self.login_op_user()
         self.change_op_request_retrieve(self.client, self.change_op_request.pk)
-
-    def test_retrieve_without_group_permissions(self):
-        self.login_user_user()
-        self.change_op_request_retrieve(
-            self.client, self.change_op_request.pk, HTTP_403_FORBIDDEN
-        )
-
-        self.login_organization_user()
-        self.change_op_request_retrieve(
-            self.client, self.change_op_request.pk, HTTP_403_FORBIDDEN
-        )
-
-        self.client.logout()
-        self.change_op_request_retrieve(
-            self.client, self.change_op_request.pk, HTTP_403_FORBIDDEN
-        )
 
     def test_create_with_group_permissions(self):
         self.login_op_user()
@@ -158,16 +132,6 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
 
         self.change_op_request_create(self.client, data)
 
-    def test_create_without_group_permissions(self):
-        self.login_user_user()
-        self.change_op_request_create(self.client, {}, HTTP_403_FORBIDDEN)
-
-        self.login_organization_user()
-        self.change_op_request_create(self.client, {}, HTTP_403_FORBIDDEN)
-
-        self.client.logout()
-        self.change_op_request_create(self.client, {}, HTTP_403_FORBIDDEN)
-
     def test_update_with_group_permissions(self):
         self.login_op_user()
         data = {
@@ -188,22 +152,6 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
             "reason": "other",
         }
         self.change_op_request_patch(self.client, self.change_op_request.pk, data)
-
-    def test_update_without_group_permissions(self):
-        self.login_user_user()
-        self.change_op_request_patch(
-            self.client, self.change_op_request.pk, {}, HTTP_403_FORBIDDEN
-        )
-
-        self.login_organization_user()
-        self.change_op_request_patch(
-            self.client, self.change_op_request.pk, {}, HTTP_403_FORBIDDEN
-        )
-
-        self.client.logout()
-        self.change_op_request_patch(
-            self.client, self.change_op_request.pk, {}, HTTP_403_FORBIDDEN
-        )
 
     def test_delete_not_implemented(self):
         self.login_op_user()
