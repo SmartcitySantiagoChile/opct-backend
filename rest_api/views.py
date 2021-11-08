@@ -201,14 +201,13 @@ class ContractTypeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
 
 
-class ChangeOPRequestStatusViewSet(viewsets.ModelViewSet):
+class ChangeOPRequestStatusViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     API endpoint that allows ChangeOPRequestStatus to be viewed, created, updated and delete.
     """
 
     queryset = ChangeOPRequestStatus.objects.all()
     serializer_class = ChangeOPRequestStatusSerializer
-    permission_classes = [IsAdminUser]
 
 
 class ChangeOPRequestViewSet(
