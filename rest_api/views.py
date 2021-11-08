@@ -140,21 +140,13 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
             raise NotFound()
 
 
-class OperationProgramTypeViewSet(viewsets.ModelViewSet):
+class OperationProgramTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows Operation Programs Type to be viewed, created, updated and delete.
+    API endpoint that allows Operation Programs Type to be viewed.
     """
 
     queryset = OperationProgramType.objects.all()
     serializer_class = OperationProgramTypeSerializer
-    permission_classes = [HasGroupPermission, IsAdminUser]
-
-    required_groups = {
-        "GET": ["Operation Program"],
-        "POST": ["Operation Program"],
-        "PUT": ["Operation Program"],
-        "DELETE": ["Operation Program"],
-    }
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
