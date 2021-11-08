@@ -39,6 +39,10 @@ class UserRequestViewSetTest(BaseTestCase):
         data = dict()
         return self._make_request(client, self.DELETE_REQUEST, url, data, status_code)
 
+    def user_request_change_password(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("user-change-password", kwargs=dict(pk=pk))
+        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
+
     # ------------------------------ tests ----------------------------------------
 
     def test_list_with_organization_permissions(self):
@@ -156,3 +160,21 @@ class UserRequestViewSetTest(BaseTestCase):
 
         self.client.logout()
         self.user_request_delete(self.client, self.user_user.pk, HTTP_403_FORBIDDEN)
+
+    def test_change_password(self):
+        self.login_user_user()
+        user = self.create_user_user(
+            "test_create_user@opct.com", "tcupass123", self.organization_base
+        )
+        data = {"password": "tcupass321"}
+        self.user_request_change_password(self.client, user.pk, data)
+        user.delete()
+
+    def test_change_password_incorrect_user(self):
+        self.login_user_user()
+        user = self.create_user_user(
+            "test_create_user@opct.com", "tcupass123", self.organization_base
+        )
+        data = {"password": "tcupass321"}
+        self.user_request_change_password(self.client, -1, data, HTTP_404_NOT_FOUND)
+        user.delete()

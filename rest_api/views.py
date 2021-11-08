@@ -87,6 +87,21 @@ class UserViewSet(viewsets.ModelViewSet):
         except get_user_model().DoesNotExist:
             raise NotFound()
 
+    @action(detail=True, methods=["put"])
+    def change_password(self, request, *args, **kwargs):
+        user = self.get_object()
+        new_password = request.data.get("password")
+        queryset = self.get_queryset()
+        try:
+            user.set_password(new_password)
+            user.save()
+            serializer = UserSerializer(
+                queryset, context={"request": request}, many=True
+            )
+            return Response(serializer.data, status=HTTP_200_OK)
+        except User.DoesNotExist:
+            raise NotFound()
+
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
