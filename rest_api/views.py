@@ -298,6 +298,9 @@ def login(request):
     if not data:
         raise AuthenticationFailed()
     user = login_serializer.context["user"]
+    model_user = User.objects.get(email=user)
+    model_user.last_login = timezone.now()
+    model_user.save()
     token, _ = Token.objects.get_or_create(user=login_serializer.context["user"])
     return JsonResponse(
         {"user": str(user), "token": token.key, "error": None}, status=HTTP_200_OK
