@@ -249,9 +249,14 @@ class ChangeOPRequestViewSet(
         obj = self.get_object()
         new_op_key = request.data.get("op")
         queryset = self.get_queryset()
+        serializer = ChangeOPRequestSerializer(
+            queryset, context={"request": request}, many=True
+        )
         try:
             new_op = OperationProgram.objects.get(pk=new_op_key)
             previous_op = obj.op
+            if new_op_key == previous_op.pk:
+                return Response(serializer.data, status=HTTP_200_OK)
             obj.op = new_op
             obj.save()
             op_change_log = OPChangeLog(
@@ -262,9 +267,6 @@ class ChangeOPRequestViewSet(
                 change_op_request=obj,
             )
             op_change_log.save()
-            serializer = ChangeOPRequestSerializer(
-                queryset, context={"request": request}, many=True
-            )
             return Response(serializer.data, status=HTTP_200_OK)
         except OperationProgram.DoesNotExist:
             raise NotFound()

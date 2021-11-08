@@ -217,6 +217,11 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
         data = {"op": new_op.pk}
         self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
 
+    def test_change_op_request_with_same_op(self):
+        self.login_op_user()
+        data = {"op": self.op.pk}
+        self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
+
     def test_change_op_not_found_request(self):
         self.login_op_user()
         data = {"op": 5}
