@@ -223,13 +223,6 @@ class ChangeOPRequestViewSet(
 
     queryset = ChangeOPRequest.objects.all().order_by("-created_at")
     serializer_class = ChangeOPRequestSerializer
-    permission_classes = [HasGroupPermission]
-
-    required_groups = {
-        "GET": ["Operation Program"],
-        "POST": ["Operation Program"],
-        "PUT": ["Operation Program"],
-    }
 
     def list(self, request, *args, **kwargs):
         user = request.user
