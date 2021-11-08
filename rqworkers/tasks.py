@@ -7,7 +7,7 @@ from django_rq import job
 from rqworkers.models import SendMailJobExecution
 
 
-@job('email_sender')
+@job("email_sender")
 def send_email_job(job_execution_pk):
     job_execution_obj = SendMailJobExecution.objects.get(pk=job_execution_pk)
     job_execution_obj.status = SendMailJobExecution.RUNNING
@@ -23,5 +23,4 @@ def send_email_job(job_execution_pk):
         job_execution_obj.errorMessage = str(e)
 
     job_execution_obj.executionEnd = timezone.now()
-    job_execution_obj.seen = False
     job_execution_obj.save()
