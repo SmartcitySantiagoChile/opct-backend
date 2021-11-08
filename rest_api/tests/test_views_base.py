@@ -160,6 +160,14 @@ class BaseTestCase(APITestCase):
         }
         return ChangeOPRequest.objects.create(**params)
 
+    @staticmethod
+    def create_counter_part_contact(organization, user, counter_part_organization):
+        return CounterPartContact.objects.create(
+            organization=organization,
+            user=user,
+            counter_part_organization=counter_part_organization,
+        )
+
     def login_op_user(self):
         self.client.logout()
         self.client.login(username="op@opct.com", password="testpassword1")

@@ -64,9 +64,24 @@ class UserViewSet(viewsets.ModelViewSet):
         object_key = kwargs.get("pk")
         try:
             user = get_user_model().objects.get(id=object_key)
-            simple_field_names = [field.name for field in user._meta.get_fields()]
-            print(user._meta.get_all_related_objects())
-            print(simple_field_names)
+            user_has_reverse = False
+            for reverse in [
+                f for f in user._meta.get_fields() if f.auto_created and not f.concrete
+            ]:
+                name = reverse.get_accessor_name()
+                has_reverse_one_to_one = reverse.one_to_one and hasattr(user, name)
+                has_reverse_other = (
+                    not reverse.one_to_one and getattr(user, name).count()
+                )
+                if has_reverse_one_to_one or has_reverse_other:
+                    user_has_reverse = True
+
+            if user_has_reverse:
+                raise CustomValidation(
+                    detail="El usuario se encuentra asociado a otro registro en la base de datos.",
+                    field="detail",
+                    status_code=HTTP_409_CONFLICT,
+                )
             self.perform_destroy(user)
             return Response(status=HTTP_204_NO_CONTENT)
         except get_user_model().DoesNotExist:
@@ -308,7 +323,6 @@ def login(request):
     )
 
 
-@csrf_exempt
 @api_view(["GET"])
 @permission_classes((AllowAny,))
 def verify(request):
@@ -332,6 +346,6 @@ def send_email(request):
     Hola, este es un mensaje de prueba
     """
     users = User.objects.all()
-    call_command('sendemail', '--sync', subject, body, *[user.pk for user in users])
+    call_command("sendemail", "--sync", subject, body, *[user.pk for user in users])
 
     return JsonResponse({"user": str(request.user)}, status=HTTP_200_OK)

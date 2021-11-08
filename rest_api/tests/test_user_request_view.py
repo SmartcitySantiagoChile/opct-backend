@@ -6,6 +6,7 @@ from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
     HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
 )
 
 from .test_views_base import BaseTestCase
@@ -124,3 +125,34 @@ class UserRequestViewSetTest(BaseTestCase):
 
         self.client.logout()
         self.user_request_patch(self.client, self.user_user.pk, {}, HTTP_403_FORBIDDEN)
+
+    def test_delete_with_permissions(self):
+        self.login_user_user()
+        user = self.create_user_user("test_create_user@opct.com", "tcupass123")
+        self.user_request_delete(self.client, user.pk)
+
+    def test_delete_with_permissions_not_found(self):
+        self.login_user_user()
+        self.user_request_delete(self.client, -1, HTTP_404_NOT_FOUND)
+
+    def test_delete_with_permissions_with_references(self):
+        self.login_user_user()
+        user = self.create_user_user(
+            "test_create_user@opct.com", "tcupass123", self.organization_base
+        )
+        counter_part = self.create_counter_part_contact(
+            self.organization_base, user, self.organization_base
+        )
+        self.user_request_delete(self.client, user.pk, HTTP_409_CONFLICT)
+        counter_part.delete()
+        user.delete()
+
+    def test_delete_without_group_permissions(self):
+        self.login_op_user()
+        self.user_request_delete(self.client, self.user_user.pk, HTTP_403_FORBIDDEN)
+
+        self.login_organization_user()
+        self.user_request_delete(self.client, self.user_user.pk, HTTP_403_FORBIDDEN)
+
+        self.client.logout()
+        self.user_request_delete(self.client, self.user_user.pk, HTTP_403_FORBIDDEN)
