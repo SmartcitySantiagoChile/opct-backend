@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import mixins, viewsets
-from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.decorators import api_view, permission_classes
@@ -31,7 +29,6 @@ from rest_api.models import (
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
     UserSerializer,
-    GroupSerializer,
     UserLoginSerializer,
     UserTokenSerializer,
     OperationProgramSerializer,
@@ -101,16 +98,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=HTTP_200_OK)
         except User.DoesNotExist:
             raise NotFound()
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed, created, updated and delete.
-    """
-
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
 
 
 class OperationProgramViewSet(viewsets.ModelViewSet):
@@ -308,20 +295,13 @@ class ChangeOPRequestViewSet(
             raise NotFound()
 
 
-class OPChangeDataLogViewset(viewsets.ModelViewSet):
+class OPChangeDataLogViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     API endpoint that allows OPChangeDataLog to be viewed, created, updated and delete.
     """
 
     queryset = OPChangeDataLog.objects.all()
     serializer_class = OPChangeDataLogSerializer
-    permission_classes = [HasGroupPermission]
-    required_groups = {
-        "GET": ["Operation Program"],
-        "POST": ["Operation Program"],
-        "PUT": ["Operation Program"],
-        "DELETE": ["Operation Program"],
-    }
 
 
 @csrf_exempt

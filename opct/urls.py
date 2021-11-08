@@ -24,7 +24,6 @@ from rest_api.views import login, verify, send_email
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet)
-router.register(r"groups", views.GroupViewSet)
 router.register(r"operation-programs", views.OperationProgramViewSet)
 router.register(r"operation-program-types", views.OperationProgramTypeViewSet)
 router.register(r"organizations", views.OrganizationViewSet)
