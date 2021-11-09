@@ -1,4 +1,4 @@
 # for postgres container
 POSTGRES_DB=opct
-POSTGRES_USER=opct
-POSTGRES_PASSWORD=opct
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
