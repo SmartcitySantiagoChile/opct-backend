@@ -301,11 +301,10 @@ def login(request):
     model_user = User.objects.get(email=user)
     model_user.last_login = timezone.now()
     model_user.save()
-    user_data = UserSerializer(user, context={"request": request})
+    user_data = UserSerializer(model_user, context={"request": request}).data
     token, _ = Token.objects.get_or_create(user=login_serializer.context["user"])
-    return JsonResponse(
-        {"user": user_data.data, "token": token.key, "error": None}, status=HTTP_200_OK
-    )
+    user_data.update({"token": token.key, "error": None})
+    return JsonResponse(user_data, status=HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -319,10 +318,9 @@ def verify(request):
     if not data:
         raise AuthenticationFailed()
     model_user = User.objects.get(email=user)
-    user_data = UserSerializer(model_user, context={"request": request})
-    return JsonResponse(
-        {"user": user_data.data, "token": token, "error": None}, status=HTTP_200_OK
-    )
+    user_data = UserSerializer(model_user, context={"request": request}).data
+    user_data.update({"token": token, "error": None})
+    return JsonResponse(user_data, status=HTTP_200_OK)
 
 
 @api_view(["GET"])
