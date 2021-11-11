@@ -85,7 +85,7 @@ class UserRequestViewSetTest(BaseTestCase):
             "access_to_ops": False,
             "access_to_organizations": False,
             "access_to_users": True,
-            "role": "Técnico de planificación",
+            "role": "prosecutor",
         }
 
         self.user_request_create(self.client, data)
@@ -115,7 +115,7 @@ class UserRequestViewSetTest(BaseTestCase):
             "access_to_ops": False,
             "access_to_organizations": False,
             "access_to_users": True,
-            "role": "Técnico de planificación",
+            "role": "prosecutor",
         }
         self.user_request_patch(self.client, user.pk, data)
         user.delete()
