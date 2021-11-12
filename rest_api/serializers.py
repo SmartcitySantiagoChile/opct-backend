@@ -96,25 +96,27 @@ class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequestStatus
-        field = "__all__"
+        fields = "__all__"
 
 
 class OPChangeDataLogSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OPChangeDataLog
-        field = "__all__"
+        fields = "__all__"
 
 
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = "__all__"
 
-    creator = UserSerializer
-    op = OperationProgramSerializer
-    status = ChangeOPRequestStatusSerializer
-    counterpart = OrganizationSerializer
-    contract_type = ContractTypeSerializer
+        fields = "__all__"
+        depth = 1
+
+    creator = UserSerializer(many=False, read_only=True)
+    op = OperationProgramSerializer(many=False, read_only=True)
+    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
+    counterpart = OrganizationSerializer(many=False, read_only=True)
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
 
 
 class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
