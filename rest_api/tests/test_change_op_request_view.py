@@ -68,7 +68,7 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
     def change_op_request_filter_by_op(
         self, client, op_start_at, data, status_code=HTTP_200_OK
     ):
-        url = f"{reverse('changeoprequest-list')}?op__start_at={op_start_at}"
+        url = f"{reverse('changeoprequest-list')}?search={op_start_at}"
         return self._make_request(client, self.GET_REQUEST, url, data, status_code)
 
     # ------------------------------ tests ----------------------------------------

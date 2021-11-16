@@ -13,6 +13,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_409_CONFLICT, HTTP_204_NO_CONTENT
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 
 from rest_api.exceptions import CustomValidation
@@ -216,8 +217,8 @@ class ChangeOPRequestViewSet(
 
     queryset = ChangeOPRequest.objects.all().order_by("-created_at")
     serializer_class = ChangeOPRequestSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["op__start_at"]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["op__start_at"]
 
     def list(self, request, *args, **kwargs):
         user = request.user
