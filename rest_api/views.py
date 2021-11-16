@@ -12,6 +12,8 @@ from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_409_CONFLICT, HTTP_204_NO_CONTENT
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 from rest_api.exceptions import CustomValidation
 from rest_api.models import (
@@ -145,7 +147,7 @@ class OperationProgramTypeViewSet(viewsets.ReadOnlyModelViewSet):
     API endpoint that allows Operation Programs Type to be viewed.
     """
 
-    queryset = OperationProgramType.objects.all()
+    queryset = OperationProgramType.objects.all().order_by("-name")
     serializer_class = OperationProgramTypeSerializer
 
 
@@ -188,7 +190,7 @@ class ContractTypeViewSet(viewsets.ReadOnlyModelViewSet):
     API endpoint that allows Contract Type to be viewed.
     """
 
-    queryset = ContractType.objects.all()
+    queryset = ContractType.objects.all().order_by("-name")
     serializer_class = ContractTypeSerializer
 
 
@@ -197,7 +199,7 @@ class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     API endpoint that allows ChangeOPRequestStatus to be viewed.
     """
 
-    queryset = ChangeOPRequestStatus.objects.all()
+    queryset = ChangeOPRequestStatus.objects.all().order_by("-name")
     serializer_class = ChangeOPRequestStatusSerializer
 
 
@@ -214,18 +216,21 @@ class ChangeOPRequestViewSet(
 
     queryset = ChangeOPRequest.objects.all().order_by("-created_at")
     serializer_class = ChangeOPRequestSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["op__start_at"]
 
     def list(self, request, *args, **kwargs):
         user = request.user
         user_organization = user.organization
-        queryset = self.get_queryset().filter(
+        queryset = self.filter_queryset(self.get_queryset()).filter(
             Q(counterpart=user_organization)
             | Q(creator__organization=user_organization)
         )
+        page = self.paginate_queryset(queryset)
         serializer = ChangeOPRequestSerializer(
-            queryset, context={"request": request}, many=True
+            page, context={"request": request}, many=True
         )
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=["put"])
     def change_op(self, request, *args, **kwargs):

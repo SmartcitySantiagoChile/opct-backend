@@ -108,8 +108,35 @@ class OPChangeDataLogSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-
         fields = "__all__"
+        depth = 1
+        ordering = ["-start_at"]
+
+    creator = UserSerializer(many=False, read_only=True)
+    op = OperationProgramSerializer(many=False, read_only=True)
+    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
+    counterpart = OrganizationSerializer(many=False, read_only=True)
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
+
+
+class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OperationProgram
+        fields = (
+            "url",
+            "creator",
+            "op",
+            "status",
+            "counterpart",
+            "contract_type",
+            "created_at",
+            "title",
+            "message",
+            "updated_at",
+            "reason",
+            "op_release_date",
+        )
+        ordering = ["-start_at"]
         depth = 1
 
     creator = UserSerializer(many=False, read_only=True)

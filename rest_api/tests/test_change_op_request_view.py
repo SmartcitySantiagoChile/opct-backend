@@ -1,11 +1,11 @@
 from collections import OrderedDict
 
 from django.test.client import RequestFactory
+from django.urls import get_resolver
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.status import (
     HTTP_200_OK,
-    HTTP_403_FORBIDDEN,
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
     HTTP_404_NOT_FOUND,
@@ -64,6 +64,12 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
     ):
         url = reverse("changeoprequest-change-status", kwargs=dict(pk=pk))
         return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
+
+    def change_op_request_filter_by_op(
+        self, client, op_start_at, data, status_code=HTTP_200_OK
+    ):
+        url = f"{reverse('changeoprequest-list')}?op__start_at={op_start_at}"
+        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
 
     # ------------------------------ tests ----------------------------------------
     def test_list_with_no_organization_permissions(self):
@@ -190,3 +196,7 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
         self.change_op_request_change_status(
             self.client, self.change_op_request.pk, data, HTTP_404_NOT_FOUND
         )
+
+    def test_change_op_request_filter_by_op(self):
+        self.login_op_user()
+        self.change_op_request_filter_by_op(self.client, "2021-10-25", {})
