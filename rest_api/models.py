@@ -416,7 +416,7 @@ class StatusLog(models.Model):
     )
     change_op_request = models.ForeignKey(
         ChangeOPRequest,
-        related_name="+",
+        related_name="change_op_request_status_logs",
         on_delete=models.PROTECT,
         verbose_name="Solicitud de cambio de Programa de Operación",
     )
