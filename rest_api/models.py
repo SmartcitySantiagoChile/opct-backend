@@ -430,7 +430,7 @@ class StatusLog(models.Model):
 
 
 class OPChangeLog(models.Model):
-    created_at = models.DateField("Fecha de creación", default=timezone.now)
+    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
     creator = models.ForeignKey(
         User,
         related_name="op_change_logs",
