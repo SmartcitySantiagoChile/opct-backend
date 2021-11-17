@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 from django.test.client import RequestFactory
-from django.urls import get_resolver
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.status import (
@@ -86,30 +85,40 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
         serializer_data = ChangeOPRequestSerializer(
             self.change_op_request, context=context
         ).data
-        expected_response = [
-            OrderedDict(
-                [
-                    ("url", serializer_data["url"]),
-                    ("created_at", serializer_data["created_at"]),
-                    ("title", serializer_data["title"]),
-                    ("message", serializer_data["message"]),
-                    ("updated_at", serializer_data["updated_at"]),
-                    ("reason", serializer_data["reason"]),
-                    ("op_release_date", serializer_data["op_release_date"]),
-                    ("creator", serializer_data["creator"]),
-                    ("op", serializer_data["op"]),
-                    ("status", serializer_data["status"]),
-                    (
-                        "counterpart",
-                        serializer_data["counterpart"],
-                    ),
-                    (
-                        "contract_type",
-                        serializer_data["contract_type"],
-                    ),
-                ]
-            )
-        ]
+        expected_response = OrderedDict(
+            [
+                ("count", 1),
+                ("next", None),
+                ("previous", None),
+                (
+                    "results",
+                    [
+                        OrderedDict(
+                            [
+                                ("url", serializer_data["url"]),
+                                ("creator", serializer_data["creator"]),
+                                ("op", serializer_data["op"]),
+                                ("status", serializer_data["status"]),
+                                (
+                                    "counterpart",
+                                    serializer_data["counterpart"],
+                                ),
+                                (
+                                    "contract_type",
+                                    serializer_data["contract_type"],
+                                ),
+                                ("created_at", serializer_data["created_at"]),
+                                ("title", serializer_data["title"]),
+                                ("message", serializer_data["message"]),
+                                ("updated_at", serializer_data["updated_at"]),
+                                ("reason", serializer_data["reason"]),
+                                ("op_release_date", serializer_data["op_release_date"]),
+                            ]
+                        )
+                    ],
+                ),
+            ]
+        )
         self.assertEqual(response.data, expected_response)
 
     def test_retrieve_with_group_permissions(self):
