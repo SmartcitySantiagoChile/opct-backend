@@ -31,6 +31,13 @@ router.register(r"contract-types", views.ContractTypeViewSet)
 router.register(r"change-op-requests", views.ChangeOPRequestViewSet),
 router.register(r"change-op-request-statuses", views.ChangeOPRequestStatusViewSet)
 router.register(r"change-op-data-logs", views.OPChangeDataLogViewset)
+router.register(r"change-op-request-messages", views.ChangeOPRequestMessageViewSet)
+router.register(r"op-change-logs", views.OPChangeLogViewSet)
+router.register(r"status-logs", views.StatusLogViewSet)
+router.register(r"change-op-request-files", views.ChangeOPRequestFileViewset)
+router.register(
+    r"change-op-request-message-files", views.ChangeOPRequestMessageFileViewset
+)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),

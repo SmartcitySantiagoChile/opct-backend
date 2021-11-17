@@ -4,17 +4,15 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import filters
 from rest_framework import mixins, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_409_CONFLICT, HTTP_204_NO_CONTENT
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-
 
 from rest_api.exceptions import CustomValidation
 from rest_api.models import (
@@ -28,6 +26,9 @@ from rest_api.models import (
     OPChangeDataLog,
     OPChangeLog,
     StatusLog,
+    ChangeOPRequestMessage,
+    ChangeOPRequestFile,
+    ChangeOPRequestMessageFile,
 )
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
@@ -42,6 +43,12 @@ from rest_api.serializers import (
     ChangeOPRequestStatusSerializer,
     OperationProgramDetailSerializer,
     OPChangeDataLogSerializer,
+    ChangeOPRequestDetailSerializer,
+    ChangeOPRequestMessageSerializer,
+    OPChangeLogSerializer,
+    StatusLogSerializer,
+    ChangeOPRequestFileSerializer,
+    ChangeOPRequestMessageFileSerializer,
 )
 
 
@@ -204,6 +211,42 @@ class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ChangeOPRequestStatusSerializer
 
 
+class ChangeOPRequestMessageViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows ChangeOPRequestMessage to be viewed.
+    """
+
+    queryset = ChangeOPRequestMessage.objects.all().order_by("-created_at")
+    serializer_class = ChangeOPRequestMessageSerializer
+
+
+class OPChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows OPChangeLog to be viewed.
+    """
+
+    queryset = OPChangeLog.objects.all().order_by("-created_at")
+    serializer_class = OPChangeLogSerializer
+
+
+class StatusLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows StatusLog to be viewed.
+    """
+
+    queryset = StatusLog.objects.all().order_by("-created_at")
+    serializer_class = StatusLogSerializer
+
+
+class ChangeOPRequestFileViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows StatusLog to be viewed.
+    """
+
+    queryset = StatusLog.objects.all().order_by("-created_at")
+    serializer_class = StatusLogSerializer
+
+
 class ChangeOPRequestViewSet(
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
@@ -232,6 +275,13 @@ class ChangeOPRequestViewSet(
             page, context={"request": request}, many=True
         )
         return self.get_paginated_response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = ChangeOPRequestDetailSerializer(
+            instance, context={"request": request}
+        )
+        return Response(serializer.data)
 
     @action(detail=True, methods=["put"])
     def change_op(self, request, *args, **kwargs):
@@ -293,6 +343,24 @@ class OPChangeDataLogViewset(viewsets.ReadOnlyModelViewSet):
 
     queryset = OPChangeDataLog.objects.all()
     serializer_class = OPChangeDataLogSerializer
+
+
+class ChangeOPRequestFileViewset(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows ChangeOPRequestFile to be viewed.
+    """
+
+    queryset = ChangeOPRequestFile.objects.all()
+    serializer_class = ChangeOPRequestFileSerializer
+
+
+class ChangeOPRequestMessageFileViewset(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows ChangeOPRequestMessageFileViewset to be viewed.
+    """
+
+    queryset = ChangeOPRequestMessageFile.objects.all()
+    serializer_class = ChangeOPRequestMessageFileSerializer
 
 
 @csrf_exempt

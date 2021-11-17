@@ -94,6 +94,7 @@ class ChangeOPRequestMessageAdmin(admin.ModelAdmin):
 
 
 class ChangeOpRequestAdmin(admin.ModelAdmin):
+    save_as = True
     inlines = [ChangeOPRequestFile, ChangeOPRequestMessage, StatusLog, OPChangeLog]
 
 

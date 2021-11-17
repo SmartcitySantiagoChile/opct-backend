@@ -12,6 +12,10 @@ from rest_api.models import (
     ChangeOPRequestStatus,
     OPChangeDataLog,
     OPChangeLog,
+    ChangeOPRequestMessage,
+    StatusLog,
+    ChangeOPRequestFile,
+    ChangeOPRequestMessageFile,
 )
 
 
@@ -119,31 +123,29 @@ class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     contract_type = ContractTypeSerializer(many=False, read_only=True)
 
 
-class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
+class ChangeOPRequestMessageFileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = OperationProgram
+        model = ChangeOPRequestMessageFile
+        fields = "__all__"
+        ordering = ["-file"]
+
+
+class ChangeOPRequestMessageSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequestMessage
         fields = (
             "url",
-            "creator",
-            "op",
-            "status",
-            "counterpart",
-            "contract_type",
             "created_at",
-            "title",
             "message",
-            "updated_at",
-            "reason",
-            "op_release_date",
+            "creator",
+            "change_op_request",
+            "change_op_request_message_files",
         )
-        ordering = ["-start_at"]
-        depth = 1
+        ordering = ["-created_at"]
 
-    creator = UserSerializer(many=False, read_only=True)
-    op = OperationProgramSerializer(many=False, read_only=True)
-    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
-    counterpart = OrganizationSerializer(many=False, read_only=True)
-    contract_type = ContractTypeSerializer(many=False, read_only=True)
+    change_op_request_message_files = ChangeOPRequestMessageFileSerializer(
+        many=True, read_only=True
+    )
 
 
 class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
@@ -166,3 +168,54 @@ class OPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
     previous_op = OperationProgramSerializer
     new_op = OperationProgramSerializer
     change_op_request = ChangeOPRequestSerializer
+
+
+class StatusLogSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = StatusLog
+        fields = "__all__"
+        ordering = ["-created_at"]
+
+
+class ChangeOPRequestFileSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequestFile
+        fields = "__all__"
+        ordering = ["-file"]
+
+
+class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequest
+        fields = (
+            "url",
+            "creator",
+            "op",
+            "status",
+            "counterpart",
+            "contract_type",
+            "created_at",
+            "title",
+            "message",
+            "updated_at",
+            "reason",
+            "op_release_date",
+            "change_op_request_message",
+            "change_op_request_files",
+            "op_change_logs",
+            "status_logs",
+        )
+        ordering = ["-start_at"]
+        depth = 2
+
+    creator = UserSerializer(many=False, read_only=True)
+    op = OperationProgramSerializer(many=False, read_only=True)
+    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
+    counterpart = OrganizationSerializer(many=False, read_only=True)
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
+    change_op_request_message = ChangeOPRequestMessageSerializer(
+        many=True, read_only=True
+    )
+    op_change_logs = OPChangeLogSerializer(many=True, read_only=True)
+    status_logs = StatusLogSerializer(many=True, read_only=True)
+    change_op_request_files = ChangeOPRequestFileSerializer(many=True, read_only=True)
