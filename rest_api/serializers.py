@@ -19,6 +19,23 @@ from rest_api.models import (
 )
 
 
+class ChoiceField(serializers.ChoiceField):
+    def to_representation(self, obj):
+        if obj == "" and self.allow_blank:
+            return obj
+        return self._choices[obj]
+
+    def to_internal_value(self, data):
+        # To support inserts with the value
+        if data == "" and self.allow_blank:
+            return ""
+
+        for key, val in self._choices.items():
+            if val == data:
+                return key
+        self.fail("invalid_choice", input=data)
+
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = get_user_model()
@@ -116,6 +133,7 @@ class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
         depth = 1
         ordering = ["-start_at"]
 
+    reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
     creator = UserSerializer(many=False, read_only=True)
     op = OperationProgramSerializer(many=False, read_only=True)
     status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
@@ -208,6 +226,7 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
         ordering = ["-start_at"]
         depth = 2
 
+    reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
     creator = UserSerializer(many=False, read_only=True)
     op = OperationProgramSerializer(many=False, read_only=True)
     status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
