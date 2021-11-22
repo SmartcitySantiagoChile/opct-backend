@@ -218,7 +218,7 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
             "updated_at",
             "reason",
             "op_release_date",
-            "change_op_request_message",
+            "change_op_request_messages",
             "change_op_request_files",
             "op_change_logs",
             "status_logs",
@@ -232,7 +232,7 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
-    change_op_request_message = ChangeOPRequestMessageSerializer(
+    change_op_request_messages = ChangeOPRequestMessageSerializer(
         many=True, read_only=True
     )
     op_change_logs = OPChangeLogSerializer(many=True, read_only=True)

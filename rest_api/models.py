@@ -356,7 +356,7 @@ class ChangeOPRequestMessage(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
     creator = models.ForeignKey(
         User,
-        related_name="change_op_request_message",
+        related_name="change_op_request_messages",
         on_delete=models.PROTECT,
         blank=False,
         verbose_name="Creador",
@@ -364,7 +364,7 @@ class ChangeOPRequestMessage(models.Model):
     message = models.TextField("Mensaje")
     change_op_request = models.ForeignKey(
         ChangeOPRequest,
-        related_name="change_op_request_message",
+        related_name="change_op_request_messages",
         on_delete=models.PROTECT,
         null=False,
         verbose_name="Solicitud de cambio de PO",
