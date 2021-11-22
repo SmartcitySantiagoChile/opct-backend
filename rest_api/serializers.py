@@ -108,6 +108,21 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
         fields = "__all__"
 
 
+class BasiscUserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "url",
+            "email",
+            "first_name",
+            "last_name",
+            "organization",
+            "role",
+        ]
+
+    organization = OrganizationSerializer(many=False, read_only=True)
+
+
 class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ContractType
@@ -164,6 +179,7 @@ class ChangeOPRequestMessageSerializer(serializers.HyperlinkedModelSerializer):
     change_op_request_message_files = ChangeOPRequestMessageFileSerializer(
         many=True, read_only=True
     )
+    creator = BasiscUserSerializer(many=False, read_only=True)
 
 
 class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
@@ -182,7 +198,7 @@ class OPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
         model = OPChangeLog
         fields = "__all__"
 
-    creator = UserSerializer
+    creator = BasiscUserSerializer(many=False, read_only=True)
     previous_op = OperationProgramSerializer
     new_op = OperationProgramSerializer
     change_op_request = ChangeOPRequestSerializer
@@ -227,7 +243,7 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
         depth = 2
 
     reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
-    creator = UserSerializer(many=False, read_only=True)
+    creator = BasiscUserSerializer(many=False, read_only=True)
     op = OperationProgramSerializer(many=False, read_only=True)
     status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
