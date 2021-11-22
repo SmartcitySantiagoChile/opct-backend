@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import ugettext_lazy as _
-
 from rest_api import models
+from nested_inline.admin import NestedStackedInline, NestedModelAdmin
 
 
 @admin.register(models.User)
@@ -64,27 +64,28 @@ class OrganizationAdmin(admin.ModelAdmin):
     inlines = [CounterPartContactInLine]
 
 
-class ChangeOPRequestMessageFile(admin.TabularInline):
+class ChangeOPRequestMessageFile(NestedStackedInline):
     model = models.ChangeOPRequestMessageFile
     fk_name = "change_op_request_message"
 
 
-class ChangeOPRequestMessage(admin.TabularInline):
+class ChangeOPRequestMessage(NestedStackedInline):
     model = models.ChangeOPRequestMessage
     fk_name = "change_op_request"
+    inlines = [ChangeOPRequestMessageFile]
 
 
-class ChangeOPRequestFile(admin.TabularInline):
+class ChangeOPRequestFile(NestedStackedInline):
     model = models.ChangeOPRequestFile
     fk_name = "change_op_request"
 
 
-class StatusLog(admin.TabularInline):
+class StatusLog(NestedStackedInline):
     model = models.StatusLog
     fk_name = "change_op_request"
 
 
-class OPChangeLog(admin.TabularInline):
+class OPChangeLog(NestedStackedInline):
     model = models.OPChangeLog
     fk_name = "change_op_request"
 
@@ -93,7 +94,7 @@ class ChangeOPRequestMessageAdmin(admin.ModelAdmin):
     inlines = [ChangeOPRequestMessageFile]
 
 
-class ChangeOpRequestAdmin(admin.ModelAdmin):
+class ChangeOpRequestAdmin(NestedModelAdmin):
     save_as = True
     inlines = [ChangeOPRequestFile, ChangeOPRequestMessage, StatusLog, OPChangeLog]
 

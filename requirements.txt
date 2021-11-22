@@ -10,3 +10,4 @@ requests==2.26.0
 coverage==6.0.2
 pre-commit==2.15.0
 django-filter
+django-nested-inline==0.4.4

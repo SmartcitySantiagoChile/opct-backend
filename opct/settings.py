@@ -47,6 +47,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "django_rq",
     "django_filters",
+    "nested_inline",
 ]
 
 LOCAL_APPS = ["rest_api", "rqworkers"]
