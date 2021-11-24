@@ -207,8 +207,19 @@ class OPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
 class StatusLogSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = StatusLog
-        fields = "__all__"
+        fields = (
+            "url",
+            "created_at",
+            "user",
+            "previous_status",
+            "new_status",
+            "change_op_request",
+        )
         ordering = ["-created_at"]
+
+    user = BasicUserSerializer(many=False, read_only=True)
+    previous_status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
+    new_status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
 
 
 class ChangeOPRequestFileSerializer(serializers.HyperlinkedModelSerializer):
