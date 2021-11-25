@@ -199,8 +199,8 @@ class OPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
         fields = "__all__"
 
     creator = BasicUserSerializer(many=False, read_only=True)
-    previous_op = OperationProgramSerializer
-    new_op = OperationProgramSerializer
+    previous_op = OperationProgramSerializer(many=False, read_only=True)
+    new_op = OperationProgramSerializer(many=False, read_only=True)
     change_op_request = ChangeOPRequestSerializer
 
 
