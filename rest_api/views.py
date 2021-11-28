@@ -12,7 +12,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_409_CONFLICT, HTTP_204_NO_CONTENT
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_409_CONFLICT,
+    HTTP_204_NO_CONTENT,
+    HTTP_201_CREATED,
+)
 
 from rest_api.exceptions import CustomValidation
 from rest_api.models import (
@@ -49,6 +54,7 @@ from rest_api.serializers import (
     StatusLogSerializer,
     ChangeOPRequestFileSerializer,
     ChangeOPRequestMessageFileSerializer,
+    CreateChangeOPRequestMessageSerializer,
 )
 
 
@@ -211,13 +217,24 @@ class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ChangeOPRequestStatusSerializer
 
 
-class ChangeOPRequestMessageViewSet(viewsets.ReadOnlyModelViewSet):
+class ChangeOPRequestMessageViewSet(
+    viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin
+):
     """
     API endpoint that allows ChangeOPRequestMessage to be viewed.
     """
 
     queryset = ChangeOPRequestMessage.objects.all().order_by("-created_at")
     serializer_class = ChangeOPRequestMessageSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = CreateChangeOPRequestMessageSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
 
 
 class OPChangeLogViewSet(viewsets.ReadOnlyModelViewSet):

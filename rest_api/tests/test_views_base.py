@@ -12,6 +12,7 @@ from rest_api.models import (
     ChangeOPRequest,
     ChangeOPRequestStatus,
     CounterPartContact,
+    ChangeOPRequestMessage,
 )
 
 
@@ -166,6 +167,15 @@ class BaseTestCase(APITestCase):
             organization=organization,
             user=user,
             counter_part_organization=counter_part_organization,
+        )
+
+    @staticmethod
+    def create_change_op_request_message(user, message, change_op_request):
+        return ChangeOPRequestMessage.objects.create(
+            created_at=timezone.now(),
+            creator=user,
+            message=message,
+            change_op_request=change_op_request,
         )
 
     def login_op_user(self):

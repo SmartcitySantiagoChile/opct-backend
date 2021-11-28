@@ -163,6 +163,13 @@ class ChangeOPRequestMessageFileSerializer(serializers.HyperlinkedModelSerialize
         ordering = ["-file"]
 
 
+class CreateChangeOPRequestMessageSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequestMessage
+        fields = "__all__"
+        ordering = ["-created_at"]
+
+
 class ChangeOPRequestMessageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequestMessage
