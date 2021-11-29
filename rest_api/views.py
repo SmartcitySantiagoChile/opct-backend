@@ -215,6 +215,8 @@ class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = ChangeOPRequestStatus.objects.all().order_by("-name")
     serializer_class = ChangeOPRequestStatusSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["contract_type__name"]
 
 
 class ChangeOPRequestMessageViewSet(

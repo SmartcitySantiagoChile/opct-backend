@@ -36,6 +36,12 @@ class ChoiceField(serializers.ChoiceField):
         self.fail("invalid_choice", input=data)
 
 
+class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Organization
+        fields = "__all__"
+
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = get_user_model()
@@ -50,6 +56,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "access_to_users",
             "access_to_organizations",
         ]
+
+    organization = OrganizationSerializer(many=False, read_only=True)
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
@@ -102,12 +110,6 @@ class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
     op_type = OperationProgramTypeSerializer
 
 
-class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Organization
-        fields = "__all__"
-
-
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = get_user_model()
@@ -133,6 +135,8 @@ class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequestStatus
         fields = "__all__"
+
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
 
 
 class OPChangeDataLogSerializer(serializers.HyperlinkedModelSerializer):

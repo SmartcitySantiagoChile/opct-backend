@@ -78,69 +78,6 @@ class ChangeOPRequestMessageViewSetTest(BaseTestCase):
         self.change_op_request_message_create(self.client, data)
         ChangeOPRequestMessage.objects.get(message="test").delete()
 
-    def test_update_with_group_permissions(self):
-        self.login_op_user()
-        data = {
-            "created_at": timezone.now(),
-            "creator": reverse("user-detail", kwargs=dict(pk=self.op_user.pk)),
-            "op": reverse("operationprogram-detail", kwargs=dict(pk=self.op.pk)),
-            "status": reverse("changeoprequeststatus-detail", kwargs=dict(pk=1)),
-            "counterpart": reverse(
-                "organization-detail", kwargs=dict(pk=self.organization_base.pk)
-            ),
-            "contract_type": reverse(
-                "contracttype-detail", kwargs=dict(pk=self.contract_type.pk)
-            ),
-            "title": "Change OP Request TEST",
-            "message": "test",
-            "updated_at": timezone.now(),
-            "op_release_date": "2030-01-01",
-            "reason": "other",
-        }
-        self.change_op_request_patch(self.client, self.change_op_request.pk, data)
-
-    def test_delete_not_implemented(self):
-        self.login_op_user()
-        self.change_op_request_delete(
-            self.client, self.change_op_request.pk, HTTP_405_METHOD_NOT_ALLOWED
-        )
-
-    def test_change_op_request(self):
-        self.login_op_user()
-        new_op = self.create_op("2040-04-20")
-        data = {"op": new_op.pk}
-        self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
-
-    def test_change_op_request_with_same_op(self):
-        self.login_op_user()
-        data = {"op": self.op.pk}
-        self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
-
-    def test_change_op_not_found_request(self):
-        self.login_op_user()
-        data = {"op": 5}
-        self.change_op_request_change_op(
-            self.client, self.change_op_request.pk, data, HTTP_404_NOT_FOUND
-        )
-
-    def test_change_status_request(self):
-        self.login_op_user()
-        data = {"status": 2}
-        self.change_op_request_change_status(
-            self.client, self.change_op_request.pk, data
-        )
-
-    def test_change_status_not_found_request(self):
-        self.login_op_user()
-        data = {"status": -1}
-        self.change_op_request_change_status(
-            self.client, self.change_op_request.pk, data, HTTP_404_NOT_FOUND
-        )
-
-    def test_change_op_request_filter_by_op(self):
-        self.login_op_user()
-        self.change_op_request_filter_by_op(self.client, "2021-10-25", {})
-
     def tearDown(self) -> None:
         self.change_op_request_message.delete()
         self.change_op_request.delete()
