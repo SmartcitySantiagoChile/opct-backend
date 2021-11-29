@@ -62,6 +62,7 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
         self, client, pk, data, status_code=HTTP_200_OK
     ):
         url = reverse("changeoprequest-change-status", kwargs=dict(pk=pk))
+        print(url)
         return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
 
     def change_op_request_filter_by_op(

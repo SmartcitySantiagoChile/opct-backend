@@ -329,7 +329,7 @@ class ChangeOPRequestViewSet(
         except OperationProgram.DoesNotExist:
             raise NotFound()
 
-    @action(detail=True, methods=["put"])
+    @action(detail=True, methods=["put"], url_path="change-status")
     def change_status(self, request, *args, **kwargs):
         obj = self.get_object()
         new_status_key = request.data.get("status")
