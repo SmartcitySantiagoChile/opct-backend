@@ -302,7 +302,7 @@ class ChangeOPRequestViewSet(
         )
         return Response(serializer.data)
 
-    @action(detail=True, methods=["put"])
+    @action(detail=True, methods=["put"], url_path="change-op")
     def change_op(self, request, *args, **kwargs):
         obj = self.get_object()
         new_op_key = request.data.get("op")
