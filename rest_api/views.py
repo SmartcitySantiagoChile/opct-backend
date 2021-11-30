@@ -34,6 +34,7 @@ from rest_api.models import (
     ChangeOPRequestMessage,
     ChangeOPRequestFile,
     ChangeOPRequestMessageFile,
+    OperationProgramStatus,
 )
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
@@ -55,6 +56,7 @@ from rest_api.serializers import (
     ChangeOPRequestFileSerializer,
     ChangeOPRequestMessageFileSerializer,
     CreateChangeOPRequestMessageSerializer,
+    OperationProgramStatusSerializer,
 )
 
 
@@ -380,6 +382,15 @@ class ChangeOPRequestMessageFileViewset(viewsets.ReadOnlyModelViewSet):
 
     queryset = ChangeOPRequestMessageFile.objects.all()
     serializer_class = ChangeOPRequestMessageFileSerializer
+
+
+class OperationProgramStatusViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows Operation Programs Status to be viewed.
+    """
+
+    queryset = OperationProgramStatus.objects.all().order_by("-name")
+    serializer_class = OperationProgramStatusSerializer
 
 
 @csrf_exempt

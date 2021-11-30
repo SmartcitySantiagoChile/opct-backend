@@ -16,6 +16,7 @@ from rest_api.models import (
     StatusLog,
     ChangeOPRequestFile,
     ChangeOPRequestMessageFile,
+    OperationProgramStatus,
 )
 
 
@@ -276,3 +277,10 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     op_change_logs = OPChangeLogSerializer(many=True, read_only=True)
     status_logs = StatusLogSerializer(many=True, read_only=True)
     change_op_request_files = ChangeOPRequestFileSerializer(many=True, read_only=True)
+
+
+class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OperationProgramStatus
+        fields = "__all__"
+        ordering = ["-name"]

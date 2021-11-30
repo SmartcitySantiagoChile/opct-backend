@@ -38,6 +38,7 @@ router.register(r"change-op-request-files", views.ChangeOPRequestFileViewset)
 router.register(
     r"change-op-request-message-files", views.ChangeOPRequestMessageFileViewset
 )
+router.register(r"operation-program-statuses", views.OperationProgramStatusViewSet)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),
