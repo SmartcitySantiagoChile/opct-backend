@@ -284,3 +284,5 @@ class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
         model = OperationProgramStatus
         fields = "__all__"
         ordering = ["-name"]
+
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
