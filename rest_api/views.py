@@ -308,6 +308,7 @@ class ChangeOPRequestViewSet(
     def change_op(self, request, *args, **kwargs):
         obj = self.get_object()
         new_op_key = request.data.get("op")
+        update_deadlines = request.data.get("update_deadlines")
         queryset = self.get_queryset()
         serializer = ChangeOPRequestSerializer(
             queryset, context={"request": request}, many=True
@@ -318,6 +319,8 @@ class ChangeOPRequestViewSet(
             if new_op_key == previous_op.pk:
                 return Response(serializer.data, status=HTTP_200_OK)
             obj.op = new_op
+            if update_deadlines:
+                obj.op_release_date = new_op.start_at
             obj.save()
             op_change_log = OPChangeLog(
                 created_at=timezone.now(),

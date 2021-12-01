@@ -180,6 +180,12 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
         data = {"op": new_op.pk}
         self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
 
+    def test_change_op_request_with_update_deadlines(self):
+        self.login_op_user()
+        new_op = self.create_op("2040-04-20")
+        data = {"op": new_op.pk, "update_deadlines": True}
+        self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
+
     def test_change_op_request_with_same_op(self):
         self.login_op_user()
         data = {"op": self.op.pk}
