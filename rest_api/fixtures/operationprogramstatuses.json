@@ -37,15 +37,6 @@
   },
   {
     "model": "rest_api.operationprogramstatus",
-    "pk": 4,
-    "fields": {
-      "name": "Etapa 4: Cerrado",
-      "time_threshold": 0,
-      "contract_type": 2
-    }
-  },
-  {
-    "model": "rest_api.operationprogramstatus",
     "pk": 5,
     "fields": {
       "name": "Etapa 1: Elaboración General de Propuestas",

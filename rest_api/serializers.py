@@ -108,7 +108,7 @@ class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
         fields = "__all__"
         ordering = ["-start_at"]
 
-    op_type = OperationProgramTypeSerializer
+    op_type = OperationProgramTypeSerializer(many=False, read_only=True)
 
 
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
