@@ -457,6 +457,8 @@ class OPChangeLog(models.Model):
         verbose_name="Solicitud de cambio de PO",
     )
 
+    update_deadlines = models.BooleanField("Actualiza plazos", default=False)
+
     def __str__(self):
         return str(self.created_at)
 

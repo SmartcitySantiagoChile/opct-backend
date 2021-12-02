@@ -321,6 +321,8 @@ class ChangeOPRequestViewSet(
             obj.op = new_op
             if update_deadlines:
                 obj.op_release_date = new_op.start_at
+            else:
+                update_deadlines = False
             obj.save()
             op_change_log = OPChangeLog(
                 created_at=timezone.now(),
@@ -328,6 +330,7 @@ class ChangeOPRequestViewSet(
                 previous_op=previous_op,
                 new_op=new_op,
                 change_op_request=obj,
+                update_deadlines=update_deadlines,
             )
             op_change_log.save()
             return Response(serializer.data, status=HTTP_200_OK)
