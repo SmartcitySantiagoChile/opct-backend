@@ -314,10 +314,18 @@ class ChangeOPRequestViewSet(
             queryset, context={"request": request}, many=True
         )
         try:
-            new_op = OperationProgram.objects.get(pk=new_op_key)
             previous_op = obj.op
-            if new_op_key == previous_op.pk:
-                return Response(serializer.data, status=HTTP_200_OK)
+            if new_op_key:
+                new_op = OperationProgram.objects.get(pk=new_op_key)
+            else:
+                new_op = new_op_key
+                obj.op_release_date = new_op_key
+            if previous_op:
+                if new_op_key == previous_op.pk:
+                    return Response(serializer.data, status=HTTP_200_OK)
+            else:
+                if new_op_key == previous_op:
+                    return Response(serializer.data, status=HTTP_200_OK)
             obj.op = new_op
             if update_deadlines:
                 obj.op_release_date = new_op.start_at

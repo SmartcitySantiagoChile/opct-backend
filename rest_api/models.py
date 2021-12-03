@@ -259,6 +259,8 @@ class ChangeOPRequest(models.Model):
         related_name="change_op_requests",
         on_delete=models.PROTECT,
         verbose_name="Programa de Operación",
+        blank=True,
+        null=True,
     )
     status = models.ForeignKey(
         ChangeOPRequestStatus,
@@ -325,7 +327,7 @@ class ChangeOPRequest(models.Model):
     ]
 
     reason = models.CharField("Motivo", max_length=30, choices=REASON_CHOICES)
-    op_release_date = models.DateField("Fecha de implementación")
+    op_release_date = models.DateField("Fecha de implementación", blank=True, null=True)
 
     def __str__(self):
         return str(self.title)
@@ -443,12 +445,14 @@ class OPChangeLog(models.Model):
         related_name="+",
         on_delete=models.PROTECT,
         verbose_name="Programa de Operación previo",
+        null=True,
     )
     new_op = models.ForeignKey(
         OperationProgram,
         related_name="+",
         on_delete=models.PROTECT,
         verbose_name="Nuevo Programa de Operación",
+        null=True,
     )
     change_op_request = models.ForeignKey(
         ChangeOPRequest,
