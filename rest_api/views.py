@@ -409,6 +409,18 @@ class OperationProgramStatusViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ["contract_type__name"]
 
 
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def change_op_request_reasons(request):
+    """
+    API endpoint that allows Operation Programs Request Reasons to be viewed.
+    """
+
+    data = ChangeOPRequest.REASON_CHOICES
+
+    return JsonResponse({"options": data}, status=HTTP_200_OK)
+
+
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))

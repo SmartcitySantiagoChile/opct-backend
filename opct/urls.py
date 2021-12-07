@@ -20,7 +20,7 @@ from rest_framework import routers
 
 from opct import settings
 from rest_api import views
-from rest_api.views import login, verify, send_email
+from rest_api.views import login, verify, send_email, change_op_request_reasons
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet)
@@ -48,6 +48,11 @@ urlpatterns = [
     path("api/login", login, name="login"),
     path("api/verify/", verify, name="verify"),
     path("api/send-mail/", send_email, name="send-email"),
+    path(
+        "api/change-op-request-reasons",
+        change_op_request_reasons,
+        name="change-op-request-reasons",
+    ),
 ]
 
 if settings.DEBUG:
