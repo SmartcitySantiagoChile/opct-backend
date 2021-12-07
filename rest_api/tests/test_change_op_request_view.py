@@ -142,7 +142,29 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
             "message": "test",
             "updated_at": timezone.now(),
             "op_release_date": "2030-01-01",
-            "reason": "other",
+            "reason": "Otros",
+        }
+
+        self.change_op_request_create(self.client, data)
+
+    def test_create_with_empty_op(self):
+        self.login_op_user()
+        data = {
+            "created_at": timezone.now(),
+            "creator": reverse("user-detail", kwargs=dict(pk=self.op_user.pk)),
+            "op": "",
+            "status": reverse("changeoprequeststatus-detail", kwargs=dict(pk=1)),
+            "counterpart": reverse(
+                "organization-detail", kwargs=dict(pk=self.organization_base.pk)
+            ),
+            "contract_type": reverse(
+                "contracttype-detail", kwargs=dict(pk=self.contract_type.pk)
+            ),
+            "title": "Change OP Request TEST",
+            "message": "test",
+            "updated_at": timezone.now(),
+            "op_release_date": "2030-01-01",
+            "reason": "Otros",
         }
 
         self.change_op_request_create(self.client, data)
@@ -164,7 +186,7 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
             "message": "test",
             "updated_at": timezone.now(),
             "op_release_date": "2030-01-01",
-            "reason": "other",
+            "reason": "Acortamiento",
         }
         self.change_op_request_patch(self.client, self.change_op_request.pk, data)
 

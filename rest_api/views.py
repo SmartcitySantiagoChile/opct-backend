@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.db.models import Q
 from django.http import JsonResponse
+from django.urls import reverse as reverse_url
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import filters
@@ -57,6 +58,7 @@ from rest_api.serializers import (
     ChangeOPRequestMessageFileSerializer,
     CreateChangeOPRequestMessageSerializer,
     OperationProgramStatusSerializer,
+    ChangeOPRequestCreateSerializer,
 )
 
 
@@ -178,7 +180,6 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     permission_classes = [HasGroupPermission]
 
     required_groups = {
-        "GET": ["Organization"],
         "POST": ["Organization"],
         "PUT": ["Organization"],
         "DELETE": ["Organization"],
@@ -296,6 +297,25 @@ class ChangeOPRequestViewSet(
             page, context={"request": request}, many=True
         )
         return self.get_paginated_response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        contract_type_id = request.data["contract_type"].split("/")[-2]
+        if contract_type_id == "3":
+            contract_type_id = "2"
+        status_id = ChangeOPRequestStatus.objects.get(
+            contract_type_id=contract_type_id, name="Evaluando admisibilidad"
+        ).pk
+        status_url = reverse_url(
+            "changeoprequeststatus-detail", kwargs=dict(pk=status_id)
+        )
+        request.data["status"] = status_url
+        serializer = ChangeOPRequestCreateSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

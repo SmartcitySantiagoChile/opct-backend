@@ -37,10 +37,25 @@ class ChoiceField(serializers.ChoiceField):
         self.fail("invalid_choice", input=data)
 
 
+class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ContractType
+        fields = "__all__"
+
+
+class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequestStatus
+        fields = "__all__"
+
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
+
+
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Organization
         fields = "__all__"
+        depth = 1
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -126,20 +141,6 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     organization = OrganizationSerializer(many=False, read_only=True)
 
 
-class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ContractType
-        fields = "__all__"
-
-
-class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ChangeOPRequestStatus
-        fields = "__all__"
-
-    contract_type = ContractTypeSerializer(many=False, read_only=True)
-
-
 class OPChangeDataLogSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OPChangeDataLog
@@ -159,6 +160,17 @@ class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
+
+
+class ChangeOPRequestCreateSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequest
+        fields = "__all__"
+
+    reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
+    creator = UserSerializer
+    status = ChangeOPRequestStatusSerializer
+    counterpart = OrganizationSerializer
 
 
 class ChangeOPRequestMessageFileSerializer(serializers.HyperlinkedModelSerializer):
