@@ -49,7 +49,7 @@ urlpatterns = [
     path("api/verify/", verify, name="verify"),
     path("api/send-mail/", send_email, name="send-email"),
     path(
-        "api/change-op-request-reasons",
+        "api/change-op-request-reasons/",
         change_op_request_reasons,
         name="change-op-request-reasons",
     ),
