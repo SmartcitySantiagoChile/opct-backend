@@ -76,7 +76,7 @@
     "pk": 9,
     "fields": {
       "name": "Etapa 5: Cerrado",
-      "time_threshold": 13,
+      "time_threshold": 1,
       "contract_type": 2
     }
   }
