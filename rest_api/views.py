@@ -233,11 +233,22 @@ class ChangeOPRequestMessageViewSet(
     serializer_class = ChangeOPRequestMessageSerializer
 
     def create(self, request, *args, **kwargs):
+
         serializer = CreateChangeOPRequestMessageSerializer(
             data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        change_op_request_message = serializer.save()
+        errors = []
+        try:
+            files = request.FILES.getlist("files")
+            for file in files:
+                instance = ChangeOPRequestMessageFile(
+                    file=file, change_op_request_message_id=change_op_request_message.id
+                )
+                instance.save()
+        except Exception as e:
+            errors.append(e)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
 
