@@ -54,8 +54,13 @@ class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Organization
-        fields = "__all__"
-        depth = 1
+        fields = ("name", "created_at", "contract_type", "default_counterpart")
+
+
+class OrganizationCreateSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ("name", "created_at", "contract_type", "default_counterpart")
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -124,6 +129,12 @@ class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
         ordering = ["-start_at"]
 
     op_type = OperationProgramTypeSerializer(many=False, read_only=True)
+
+
+class OperationProgramCreateSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OperationProgram
+        fields = ("start_at", "op_type")
 
 
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):

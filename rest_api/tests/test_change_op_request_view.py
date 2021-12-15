@@ -74,7 +74,10 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
     def test_list_with_no_organization_permissions(self):
         self.login_op_user()
         response = self.change_op_request_list(self.client, {})
-        self.assertEqual([], response.data)
+        expected_result = OrderedDict(
+            [("count", 0), ("next", None), ("previous", None), ("results", [])]
+        )
+        self.assertEqual(expected_result, response.data)
 
     def test_list_with_organization_permissions(self):
         self.client.logout()
@@ -96,6 +99,7 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
                         OrderedDict(
                             [
                                 ("url", serializer_data["url"]),
+                                ("reason", serializer_data["reason"]),
                                 ("creator", serializer_data["creator"]),
                                 ("op", serializer_data["op"]),
                                 ("status", serializer_data["status"]),
@@ -111,7 +115,6 @@ class ChangeOPRequestViewSetTest(BaseTestCase):
                                 ("title", serializer_data["title"]),
                                 ("message", serializer_data["message"]),
                                 ("updated_at", serializer_data["updated_at"]),
-                                ("reason", serializer_data["reason"]),
                                 ("op_release_date", serializer_data["op_release_date"]),
                             ]
                         )

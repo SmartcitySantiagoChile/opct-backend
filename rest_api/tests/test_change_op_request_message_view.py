@@ -4,10 +4,7 @@ from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
-    HTTP_404_NOT_FOUND,
-    HTTP_405_METHOD_NOT_ALLOWED,
 )
-from django.contrib.auth import get_user_model
 
 from .test_views_base import BaseTestCase
 from ..models import ChangeOPRequestMessage

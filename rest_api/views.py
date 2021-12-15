@@ -59,6 +59,8 @@ from rest_api.serializers import (
     CreateChangeOPRequestMessageSerializer,
     OperationProgramStatusSerializer,
     ChangeOPRequestCreateSerializer,
+    OrganizationCreateSerializer,
+    OperationProgramCreateSerializer,
 )
 
 
@@ -136,6 +138,10 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
         "DELETE": ["Operation Program"],
     }
 
+    def create(self, request, *args, **kwargs):
+        self.serializer_class = OperationProgramCreateSerializer
+        return super().create(request, *args, **kwargs)
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = OperationProgramDetailSerializer(
@@ -184,6 +190,10 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         "PUT": ["Organization"],
         "DELETE": ["Organization"],
     }
+
+    def create(self, request, *args, **kwargs):
+        self.serializer_class = OrganizationCreateSerializer
+        return super().create(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         object_key = kwargs.get("pk")

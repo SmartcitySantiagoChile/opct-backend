@@ -42,33 +42,10 @@ class OrganizationViewSetTest(BaseTestCase):
         self.login_organization_user()
         self.organization_list(self.client, {})
 
-    def test_list_without_group_permissions(self):
-        self.login_user_user()
-        self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
-
-        self.login_op_user()
-        self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
-
-        self.client.logout()
-        self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
-
     def test_retrieve_with_group_permissions(self):
         organization = self.create_organization("Test Organization", self.contract_type)
         self.login_organization_user()
         self.organization_retrieve(self.client, organization.pk)
-        organization.delete()
-
-    def test_retrieve_without_group_permissions(self):
-        organization = self.create_organization("Test Organization", self.contract_type)
-
-        self.login_user_user()
-        self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
-
-        self.login_op_user()
-        self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
-
-        self.client.logout()
-        self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
         organization.delete()
 
     def test_create_with_group_permissions(self):
