@@ -54,7 +54,9 @@ class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Organization
-        fields = ("name", "created_at", "contract_type", "default_counterpart")
+        fields = ("url", "name", "created_at", "contract_type", "default_counterpart")
+
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
 
 
 class OrganizationCreateSerializer(serializers.HyperlinkedModelSerializer):

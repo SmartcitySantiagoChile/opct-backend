@@ -329,9 +329,10 @@ class ChangeOPRequestViewSet(
         status_url = reverse_url(
             "changeoprequeststatus-detail", kwargs=dict(pk=status_id)
         )
-        request.data["status"] = status_url
+        data = request.data.copy()
+        data["status"] = status_url
         serializer = ChangeOPRequestCreateSerializer(
-            data=request.data, context={"request": request}
+            data=data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
         change_op_request = serializer.save()
