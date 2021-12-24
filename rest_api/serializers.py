@@ -124,13 +124,23 @@ class OperationProgramTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = "__all__"
 
 
+class OPChangeDataLogSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OPChangeDataLog
+        fields = "__all__"
+
+    user = UserSerializer(many=False, read_only=True)
+
+
 class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OperationProgram
-        fields = "__all__"
+        fields = ("url", "start_at", "op_type", "op_change_data_logs")
         ordering = ["-start_at"]
+        depth = 1
 
     op_type = OperationProgramTypeSerializer(many=False, read_only=True)
+    op_change_data_logs = OPChangeDataLogSerializer(many=True, read_only=True)
 
 
 class OperationProgramCreateSerializer(serializers.HyperlinkedModelSerializer):

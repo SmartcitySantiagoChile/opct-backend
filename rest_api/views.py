@@ -237,6 +237,15 @@ class ContractTypeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ContractTypeSerializer
 
 
+class OPChangeDataLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows OPChangeDataLog to be viewed.
+    """
+
+    queryset = OPChangeDataLog.objects.all().order_by("-created_at")
+    serializer_class = OPChangeDataLogSerializer
+
+
 class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows ChangeOPRequestStatus to be viewed.

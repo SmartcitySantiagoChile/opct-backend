@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import ugettext_lazy as _
-from rest_api import models
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin
+
+from rest_api import models
 
 
 @admin.register(models.User)
@@ -99,6 +100,10 @@ class ChangeOpRequestAdmin(NestedModelAdmin):
     inlines = [ChangeOPRequestFile, ChangeOPRequestMessage, StatusLog, OPChangeLog]
 
 
+class OPChangeDataLogAdmin(admin.ModelAdmin):
+    model = models.OPChangeDataLog
+
+
 admin.site.register(models.ChangeOPRequest, ChangeOpRequestAdmin)
 admin.site.register(models.ChangeOPRequestFile)
 admin.site.register(models.ChangeOPRequestMessage, ChangeOPRequestMessageAdmin)
@@ -109,3 +114,4 @@ admin.site.register(models.OperationProgramStatus, OperationProgramStatusAdmin)
 admin.site.register(models.OperationProgramType)
 admin.site.register(models.Organization, OrganizationAdmin)
 admin.site.register(models.StatusLog)
+admin.site.register(models.OPChangeDataLog, OPChangeDataLogAdmin)
