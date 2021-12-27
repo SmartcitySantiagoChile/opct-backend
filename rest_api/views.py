@@ -168,12 +168,35 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
+        op_change_data_logs = (
+            OPChangeDataLog.objects.all().filter(op=instance).order_by("-created_at")
+        )
+        if op_change_data_logs:
+            previous_data = op_change_data_logs[0].new_data
+        else:
+            previous_data = {
+                "date": instance.start_at.isoformat(),
+                "op_type": instance.op_type.name,
+            }
         serializer = OperationProgramCreateSerializer(
             instance, context={"request": request}, data=request.data, partial=partial
         )
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
+        new_data = previous_data.copy()
+        new_data["date"] = instance.start_at.isoformat()
+        new_data["op_type"] = instance.op_type.name
+        try:
+            OPChangeDataLog.objects.create(
+                created_at=timezone.now(),
+                user=request.user,
+                previous_data=previous_data,
+                new_data=new_data,
+                op=instance,
+            )
+        except Exception as e:
+            print(e)
         if getattr(instance, "_prefetched_objects_cache", None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
