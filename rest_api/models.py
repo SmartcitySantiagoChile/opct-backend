@@ -328,6 +328,9 @@ class ChangeOPRequest(models.Model):
 
     reason = models.CharField("Motivo", max_length=30, choices=REASON_CHOICES)
     op_release_date = models.DateField("Fecha de implementación", blank=True, null=True)
+    related_requests = models.ManyToManyField(
+        "self", blank=True, verbose_name="Solicitudes relacionadas"
+    )
 
     def __str__(self):
         return str(self.title)
