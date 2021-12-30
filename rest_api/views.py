@@ -352,7 +352,7 @@ class ChangeOPRequestViewSet(
     queryset = ChangeOPRequest.objects.all().order_by("-created_at")
     serializer_class = ChangeOPRequestSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ["op__start_at"]
+    search_fields = ["op__start_at", "id", "title", "reason"]
 
     def list(self, request, *args, **kwargs):
         user = request.user
