@@ -276,6 +276,12 @@ class ChangeOPRequestFileSerializer(serializers.HyperlinkedModelSerializer):
         ordering = ["-file"]
 
 
+class ChangeOPRequestDetailMiniSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequest
+        fields = ["url"]
+
+
 class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
@@ -296,6 +302,7 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
             "change_op_request_files",
             "op_change_logs",
             "status_logs",
+            "related_requests",
         )
         ordering = ["-start_at"]
         depth = 2
@@ -312,6 +319,7 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     op_change_logs = OPChangeLogSerializer(many=True, read_only=True)
     status_logs = StatusLogSerializer(many=True, read_only=True)
     change_op_request_files = ChangeOPRequestFileSerializer(many=True, read_only=True)
+    related_requests = ChangeOPRequestDetailMiniSerializer(many=True)
 
 
 class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
