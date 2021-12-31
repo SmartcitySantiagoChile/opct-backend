@@ -470,6 +470,24 @@ class ChangeOPRequestViewSet(
         except ChangeOPRequestStatus.DoesNotExist:
             raise NotFound()
 
+    @action(detail=True, methods=["put"], url_path="change-related-requests")
+    def change_related_requests(self, request, *args, **kwargs):
+        obj = self.get_object()
+        new_requests = request.data.get("related_requests")
+        queryset = self.get_queryset()
+        try:
+            obj.related_requests.clear()
+            for request in new_requests:
+                request_object = ChangeOPRequest.objects.get(id=request)
+                obj.related_requests.add(request_object)
+            obj.save()
+            serializer = ChangeOPRequestSerializer(
+                queryset, context={"request": request}, many=True
+            )
+            return Response(serializer.data, status=HTTP_200_OK)
+        except ChangeOPRequestStatus.DoesNotExist:
+            raise NotFound()
+
 
 class OPChangeDataLogViewset(viewsets.ReadOnlyModelViewSet):
     """
