@@ -279,7 +279,7 @@ class ChangeOPRequestFileSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestDetailMiniSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = ["url"]
+        fields = ["url", "op", "title", "reason"]
 
 
 class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
