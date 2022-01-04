@@ -166,6 +166,7 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
             raise NotFound()
 
     def update(self, request, *args, **kwargs):
+        # TODO: send email
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
         op_change_data_logs = (
@@ -352,7 +353,12 @@ class ChangeOPRequestViewSet(
     queryset = ChangeOPRequest.objects.all().order_by("-created_at")
     serializer_class = ChangeOPRequestSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ["op__start_at", "id", "title", "reason"]
+    search_fields = [
+        "op__start_at",
+        "id",
+        "title",
+        "reason",
+    ]  # TODO: verificar si está filtrando por motivo
 
     def list(self, request, *args, **kwargs):
         user = request.user
@@ -368,6 +374,7 @@ class ChangeOPRequestViewSet(
         return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
+        # TODO: send email
         contract_type_id = request.data["contract_type"].split("/")[-2]
         if contract_type_id == "3":
             contract_type_id = "2"
@@ -406,6 +413,7 @@ class ChangeOPRequestViewSet(
 
     @action(detail=True, methods=["put"], url_path="change-op")
     def change_op(self, request, *args, **kwargs):
+        # TODO: send email
         obj = self.get_object()
         new_op_key = request.data.get("op")
         update_deadlines = request.data.get("update_deadlines")
