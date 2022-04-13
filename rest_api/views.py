@@ -32,9 +32,9 @@ from rest_api.models import (
     OPChangeDataLog,
     OPChangeLog,
     StatusLog,
-    ChangeOPRequestMessage,
-    ChangeOPRequestFile,
-    ChangeOPRequestMessageFile,
+    ChangeOPProcessMessage,
+    ChangeOPProcessFile,
+    ChangeOPProcessMessageFile,
     OperationProgramStatus,
 )
 from rest_api.permissions import HasGroupPermission
@@ -51,16 +51,13 @@ from rest_api.serializers import (
     OperationProgramDetailSerializer,
     OPChangeDataLogSerializer,
     ChangeOPRequestDetailSerializer,
-    ChangeOPRequestMessageSerializer,
     OPChangeLogSerializer,
     StatusLogSerializer,
-    ChangeOPRequestFileSerializer,
-    ChangeOPRequestMessageFileSerializer,
-    CreateChangeOPRequestMessageSerializer,
     OperationProgramStatusSerializer,
     ChangeOPRequestCreateSerializer,
     OrganizationCreateSerializer,
-    OperationProgramCreateSerializer,
+    OperationProgramCreateSerializer, ChangeOPProcessMessageSerializer, CreateChangeOPProcessMessageSerializer,
+    ChangeOPProcessFileSerializer, ChangeOPProcessMessageFileSerializer,
 )
 
 
@@ -90,7 +87,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 name = reverse.get_accessor_name()
                 has_reverse_one_to_one = reverse.one_to_one and hasattr(user, name)
                 has_reverse_other = (
-                    not reverse.one_to_one and getattr(user, name).count()
+                        not reverse.one_to_one and getattr(user, name).count()
                 )
                 if has_reverse_one_to_one or has_reverse_other:
                     user_has_reverse = True
@@ -281,29 +278,29 @@ class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ["contract_type__name"]
 
 
-class ChangeOPRequestMessageViewSet(
+class ChangeOPProcessMessageViewSet(
     viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin
 ):
     """
     API endpoint that allows ChangeOPRequestMessage to be viewed.
     """
 
-    queryset = ChangeOPRequestMessage.objects.all().order_by("-created_at")
-    serializer_class = ChangeOPRequestMessageSerializer
+    queryset = ChangeOPProcessMessage.objects.all().order_by("-created_at")
+    serializer_class = ChangeOPProcessMessageSerializer
 
     def create(self, request, *args, **kwargs):
 
-        serializer = CreateChangeOPRequestMessageSerializer(
+        serializer = CreateChangeOPProcessMessageSerializer(
             data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        change_op_request_message = serializer.save()
+        change_op_process_message = serializer.save()
         errors = []
         try:
             files = request.FILES.getlist("files")
             for file in files:
-                instance = ChangeOPRequestMessageFile(
-                    file=file, change_op_request_message_id=change_op_request_message.id
+                instance = ChangeOPProcessMessageFile(
+                    file=file, change_op_process_message_id=change_op_process_message.id
                 )
                 instance.save()
         except Exception as e:
@@ -322,15 +319,6 @@ class OPChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class StatusLogViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows StatusLog to be viewed.
-    """
-
-    queryset = StatusLog.objects.all().order_by("-created_at")
-    serializer_class = StatusLogSerializer
-
-
-class ChangeOPRequestFileViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows StatusLog to be viewed.
     """
@@ -502,13 +490,13 @@ class OPChangeDataLogViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = OPChangeDataLogSerializer
 
 
-class ChangeOPRequestFileViewset(viewsets.ReadOnlyModelViewSet):
+class ChangeOPProcessFileViewset(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows ChangeOPRequestFile to be viewed.
     """
 
-    queryset = ChangeOPRequestFile.objects.all()
-    serializer_class = ChangeOPRequestFileSerializer
+    queryset = ChangeOPProcessFile.objects.all()
+    serializer_class = ChangeOPProcessFileSerializer
 
 
 class ChangeOPRequestMessageFileViewset(viewsets.ReadOnlyModelViewSet):
@@ -516,8 +504,8 @@ class ChangeOPRequestMessageFileViewset(viewsets.ReadOnlyModelViewSet):
     API endpoint that allows ChangeOPRequestMessageFileViewset to be viewed.
     """
 
-    queryset = ChangeOPRequestMessageFile.objects.all()
-    serializer_class = ChangeOPRequestMessageFileSerializer
+    queryset = ChangeOPProcessMessageFile.objects.all()
+    serializer_class = ChangeOPProcessMessageFileSerializer
 
 
 class OperationProgramStatusViewSet(viewsets.ReadOnlyModelViewSet):

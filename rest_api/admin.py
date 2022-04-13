@@ -65,53 +65,53 @@ class OrganizationAdmin(admin.ModelAdmin):
     inlines = [CounterPartContactInLine]
 
 
-class ChangeOPRequestMessageFile(NestedStackedInline):
-    model = models.ChangeOPRequestMessageFile
-    fk_name = "change_op_request_message"
+class ChangeOPProcessMessageFile(NestedStackedInline):
+    model = models.ChangeOPProcessMessageFile
+    fk_name = "change_op_process_message"
 
 
-class ChangeOPRequestMessage(NestedStackedInline):
-    model = models.ChangeOPRequestMessage
-    fk_name = "change_op_request"
-    inlines = [ChangeOPRequestMessageFile]
+class ChangeOPProcessMessage(NestedStackedInline):
+    model = models.ChangeOPProcessMessage
+    fk_name = "change_op_process"
+    inlines = [ChangeOPProcessMessageFile]
 
 
-class ChangeOPRequestFile(NestedStackedInline):
-    model = models.ChangeOPRequestFile
-    fk_name = "change_op_request"
+class ChangeOPProcessFile(NestedStackedInline):
+    model = models.ChangeOPProcessFile
+    fk_name = "change_op_process"
 
 
 class StatusLog(NestedStackedInline):
     model = models.StatusLog
-    fk_name = "change_op_request"
+    fk_name = "change_op_process"
 
 
 class OPChangeLog(NestedStackedInline):
     model = models.OPChangeLog
-    fk_name = "change_op_request"
+    fk_name = "change_op_process"
 
 
-class ChangeOPRequestMessageAdmin(admin.ModelAdmin):
-    inlines = [ChangeOPRequestMessageFile]
+class ChangeOPProcessMessageAdmin(admin.ModelAdmin):
+    inlines = [ChangeOPProcessMessageFile]
 
 
-class ChangeOpRequestAdmin(NestedModelAdmin):
+class ChangeOpProcessAdmin(NestedModelAdmin):
     save_as = True
-    inlines = [ChangeOPRequestFile, ChangeOPRequestMessage, StatusLog, OPChangeLog]
+    inlines = [ChangeOPProcessFile, ChangeOPProcessMessage]
 
 
 class OPChangeDataLogAdmin(admin.ModelAdmin):
     model = models.OPChangeDataLog
 
 
-admin.site.register(models.ChangeOPRequest, ChangeOpRequestAdmin)
-admin.site.register(models.ChangeOPRequestFile)
-admin.site.register(models.ChangeOPRequestMessage, ChangeOPRequestMessageAdmin)
+admin.site.register(models.ChangeOPProcess, ChangeOpProcessAdmin)
+admin.site.register(models.ChangeOPProcessFile)
+admin.site.register(models.ChangeOPProcessMessage, ChangeOPProcessMessageAdmin)
 admin.site.register(models.ContractType)
 admin.site.register(models.OPChangeLog)
 admin.site.register(models.OperationProgram)
 admin.site.register(models.OperationProgramStatus, OperationProgramStatusAdmin)
 admin.site.register(models.OperationProgramType)
 admin.site.register(models.Organization, OrganizationAdmin)
-admin.site.register(models.StatusLog)
+admin.site.register(models.ChangeOPProcessStatusLog)
 admin.site.register(models.OPChangeDataLog, OPChangeDataLogAdmin)
