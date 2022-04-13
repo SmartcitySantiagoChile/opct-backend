@@ -56,8 +56,11 @@ from rest_api.serializers import (
     OperationProgramStatusSerializer,
     ChangeOPRequestCreateSerializer,
     OrganizationCreateSerializer,
-    OperationProgramCreateSerializer, ChangeOPProcessMessageSerializer, CreateChangeOPProcessMessageSerializer,
-    ChangeOPProcessFileSerializer, ChangeOPProcessMessageFileSerializer,
+    OperationProgramCreateSerializer,
+    ChangeOPProcessMessageSerializer,
+    CreateChangeOPProcessMessageSerializer,
+    ChangeOPProcessFileSerializer,
+    ChangeOPProcessMessageFileSerializer,
 )
 
 
@@ -87,7 +90,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 name = reverse.get_accessor_name()
                 has_reverse_one_to_one = reverse.one_to_one and hasattr(user, name)
                 has_reverse_other = (
-                        not reverse.one_to_one and getattr(user, name).count()
+                    not reverse.one_to_one and getattr(user, name).count()
                 )
                 if has_reverse_one_to_one or has_reverse_other:
                     user_has_reverse = True
@@ -383,7 +386,7 @@ class ChangeOPRequestViewSet(
         try:
             files = request.FILES.getlist("files")
             for file in files:
-                instance = ChangeOPRequestFile(
+                instance = ChangeOPProcessFile(
                     file=file, change_op_request_id=change_op_request.id
                 )
                 instance.save()

@@ -11,14 +11,14 @@ class UserManager(BaseUserManager):
     use_in_migrations = True
 
     def _create_user(
-            self,
-            email,
-            password,
-            organization,
-            access_to_ops,
-            access_to_organizations,
-            access_to_users,
-            **extra_fields
+        self,
+        email,
+        password,
+        organization,
+        access_to_ops,
+        access_to_organizations,
+        access_to_users,
+        **extra_fields
     ):
         """Create and save a User with the given email and password."""
         if not email:
@@ -467,9 +467,12 @@ class ChangeOPProcess(models.Model):
         blank=False,
         verbose_name="Creador",
     )
-    change_op_requests = models.ManyToManyField(ChangeOPRequest, related_name="change_op_processes",
-                                                verbose_name="Solicitudes de cambio",
-                                                blank=False)
+    change_op_requests = models.ManyToManyField(
+        ChangeOPRequest,
+        related_name="change_op_processes",
+        verbose_name="Solicitudes de cambio",
+        blank=False,
+    )
 
 
 class ChangeOPProcessStatusLog(models.Model):

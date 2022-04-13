@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rest_api', '0029_auto_20220413_1909'),
+        ("rest_api", "0029_auto_20220413_1909"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='ChangeOProcessStatus',
-            new_name='ChangeOPProcessStatus',
+            old_name="ChangeOProcessStatus",
+            new_name="ChangeOPProcessStatus",
         ),
         migrations.RenameModel(
-            old_name='ChangeOProcessStatusLog',
-            new_name='ChangeOPProcessStatusLog',
+            old_name="ChangeOProcessStatusLog",
+            new_name="ChangeOPProcessStatusLog",
         ),
     ]

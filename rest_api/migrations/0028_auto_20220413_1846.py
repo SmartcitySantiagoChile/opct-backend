@@ -9,85 +9,190 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rest_api', '0027_changeoprequest_related_requests'),
+        ("rest_api", "0027_changeoprequest_related_requests"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ChangeOPProcess',
+            name="ChangeOPProcess",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=50, verbose_name='Titulo')),
-                ('message', models.TextField(verbose_name='Mensaje')),
-                ('updated_at', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Fecha de actualización')),
-                ('base_op', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='change_op_processes', to='rest_api.operationprogram', verbose_name='Programa de Operación Base')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=50, verbose_name="Titulo")),
+                ("message", models.TextField(verbose_name="Mensaje")),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name="Fecha de actualización",
+                    ),
+                ),
+                (
+                    "base_op",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="change_op_processes",
+                        to="rest_api.operationprogram",
+                        verbose_name="Programa de Operación Base",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ChangeOProcessStatus',
+            name="ChangeOProcessStatus",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, verbose_name='Nombre')),
-                ('contract_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='change_op_process_statuses', to='rest_api.contracttype', verbose_name='Tipo de Contrato')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, verbose_name="Nombre")),
+                (
+                    "contract_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="change_op_process_statuses",
+                        to="rest_api.contracttype",
+                        verbose_name="Tipo de Contrato",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Estado de proceso de cambio PO',
-                'verbose_name_plural': 'Estados de proceso de cambio PO',
+                "verbose_name": "Estado de proceso de cambio PO",
+                "verbose_name_plural": "Estados de proceso de cambio PO",
             },
         ),
         migrations.RemoveField(
-            model_name='changeoprequest',
-            name='contract_type',
+            model_name="changeoprequest",
+            name="contract_type",
         ),
         migrations.RemoveField(
-            model_name='changeoprequest',
-            name='counterpart',
+            model_name="changeoprequest",
+            name="counterpart",
         ),
         migrations.RemoveField(
-            model_name='changeoprequest',
-            name='creator',
+            model_name="changeoprequest",
+            name="creator",
         ),
         migrations.RemoveField(
-            model_name='changeoprequest',
-            name='message',
+            model_name="changeoprequest",
+            name="message",
         ),
         migrations.RemoveField(
-            model_name='changeoprequest',
-            name='title',
+            model_name="changeoprequest",
+            name="title",
         ),
         migrations.CreateModel(
-            name='ChangeOProcessStatusLog',
+            name="ChangeOProcessStatusLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Fecha de creación')),
-                ('change_op_process', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='status_logs', to='rest_api.changeopprocess', verbose_name='Proceso de cambio de PO')),
-                ('new_status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='rest_api.changeoprocessstatus', verbose_name='Estado nuevo')),
-                ('previous_status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='rest_api.changeoprocessstatus', verbose_name='Estado previo')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='Usuario')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name="Fecha de creación",
+                    ),
+                ),
+                (
+                    "change_op_process",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="status_logs",
+                        to="rest_api.changeopprocess",
+                        verbose_name="Proceso de cambio de PO",
+                    ),
+                ),
+                (
+                    "new_status",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="+",
+                        to="rest_api.changeoprocessstatus",
+                        verbose_name="Estado nuevo",
+                    ),
+                ),
+                (
+                    "previous_status",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="+",
+                        to="rest_api.changeoprocessstatus",
+                        verbose_name="Estado previo",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Usuario",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Log de estado de proceso',
-                'verbose_name_plural': 'Logs de estadode proceso',
+                "verbose_name": "Log de estado de proceso",
+                "verbose_name_plural": "Logs de estadode proceso",
             },
         ),
         migrations.AddField(
-            model_name='changeopprocess',
-            name='change_op_requests',
-            field=models.ManyToManyField(related_name='change_op_processes', to='rest_api.ChangeOPRequest', verbose_name='Solicitudes de cambio'),
+            model_name="changeopprocess",
+            name="change_op_requests",
+            field=models.ManyToManyField(
+                related_name="change_op_processes",
+                to="rest_api.ChangeOPRequest",
+                verbose_name="Solicitudes de cambio",
+            ),
         ),
         migrations.AddField(
-            model_name='changeopprocess',
-            name='contract_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='change_op_processes', to='rest_api.contracttype', verbose_name='Tipo de Contrato'),
+            model_name="changeopprocess",
+            name="contract_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="change_op_processes",
+                to="rest_api.contracttype",
+                verbose_name="Tipo de Contrato",
+            ),
         ),
         migrations.AddField(
-            model_name='changeopprocess',
-            name='counterpart',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='change_op_processes', to='rest_api.organization', verbose_name='Contraparte'),
+            model_name="changeopprocess",
+            name="counterpart",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="change_op_processes",
+                to="rest_api.organization",
+                verbose_name="Contraparte",
+            ),
         ),
         migrations.AddField(
-            model_name='changeopprocess',
-            name='creator',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='change_op_processes', to=settings.AUTH_USER_MODEL, verbose_name='Creador'),
+            model_name="changeopprocess",
+            name="creator",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="change_op_processes",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Creador",
+            ),
         ),
     ]

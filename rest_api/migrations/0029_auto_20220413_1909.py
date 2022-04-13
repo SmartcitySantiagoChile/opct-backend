@@ -9,73 +9,137 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rest_api', '0028_auto_20220413_1846'),
+        ("rest_api", "0028_auto_20220413_1846"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ChangeOPProcessFile',
+            name="ChangeOPProcessFile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(upload_to='', verbose_name='Archivo')),
-                ('change_op_process', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='change_op_process_files', to='rest_api.changeopprocess', verbose_name='Proceso de cambio de Programa de Operación')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("file", models.FileField(upload_to="", verbose_name="Archivo")),
+                (
+                    "change_op_process",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="change_op_process_files",
+                        to="rest_api.changeopprocess",
+                        verbose_name="Proceso de cambio de Programa de Operación",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Archivo de proceso de cambio de PO',
-                'verbose_name_plural': 'Archivos de proceso de cambio de PO',
+                "verbose_name": "Archivo de proceso de cambio de PO",
+                "verbose_name_plural": "Archivos de proceso de cambio de PO",
             },
         ),
         migrations.CreateModel(
-            name='ChangeOPProcessMessage',
+            name="ChangeOPProcessMessage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Fecha de creación')),
-                ('message', models.TextField(verbose_name='Mensaje')),
-                ('change_op_process', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='change_op_request_messages', to='rest_api.changeopprocess', verbose_name='Solicitud de cambio de PO')),
-                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='change_op_process_messages', to=settings.AUTH_USER_MODEL, verbose_name='Creador')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name="Fecha de creación",
+                    ),
+                ),
+                ("message", models.TextField(verbose_name="Mensaje")),
+                (
+                    "change_op_process",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="change_op_request_messages",
+                        to="rest_api.changeopprocess",
+                        verbose_name="Solicitud de cambio de PO",
+                    ),
+                ),
+                (
+                    "creator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="change_op_process_messages",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Creador",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Mensaje de proceso de cambio de PO',
-                'verbose_name_plural': 'Mensajes de proceso de cambio de PO',
+                "verbose_name": "Mensaje de proceso de cambio de PO",
+                "verbose_name_plural": "Mensajes de proceso de cambio de PO",
             },
         ),
         migrations.CreateModel(
-            name='ChangeOPProcessMessageFile',
+            name="ChangeOPProcessMessageFile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(upload_to='', verbose_name='Archivo')),
-                ('change_op_process_message', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='change_op_process_message', to='rest_api.changeopprocessmessage', verbose_name='Mensaje de proceso de cambio de Programa de Operación')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("file", models.FileField(upload_to="", verbose_name="Archivo")),
+                (
+                    "change_op_process_message",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="change_op_process_message",
+                        to="rest_api.changeopprocessmessage",
+                        verbose_name="Mensaje de proceso de cambio de Programa de Operación",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Archivo asociado al mensaje de solicitud de cambio de PO',
-                'verbose_name_plural': 'Archivos asociados a mensaje de solicitud de cambio de PO',
+                "verbose_name": "Archivo asociado al mensaje de solicitud de cambio de PO",
+                "verbose_name_plural": "Archivos asociados a mensaje de solicitud de cambio de PO",
             },
         ),
         migrations.RemoveField(
-            model_name='changeoprequestmessage',
-            name='change_op_request',
+            model_name="changeoprequestmessage",
+            name="change_op_request",
         ),
         migrations.RemoveField(
-            model_name='changeoprequestmessage',
-            name='creator',
+            model_name="changeoprequestmessage",
+            name="creator",
         ),
         migrations.RemoveField(
-            model_name='changeoprequestmessagefile',
-            name='change_op_request_message',
+            model_name="changeoprequestmessagefile",
+            name="change_op_request_message",
         ),
         migrations.AddField(
-            model_name='changeoprequest',
-            name='title',
-            field=models.CharField(default='test', max_length=50, verbose_name='Titulo'),
+            model_name="changeoprequest",
+            name="title",
+            field=models.CharField(
+                default="test", max_length=50, verbose_name="Titulo"
+            ),
             preserve_default=False,
         ),
         migrations.DeleteModel(
-            name='ChangeOPRequestFile',
+            name="ChangeOPRequestFile",
         ),
         migrations.DeleteModel(
-            name='ChangeOPRequestMessage',
+            name="ChangeOPRequestMessage",
         ),
         migrations.DeleteModel(
-            name='ChangeOPRequestMessageFile',
+            name="ChangeOPRequestMessageFile",
         ),
     ]
