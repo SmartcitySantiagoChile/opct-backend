@@ -439,6 +439,7 @@ class ChangeOPProcessStatus(models.Model):
 class ChangeOPProcess(models.Model):
     title = models.CharField("Titulo", max_length=50)
     message = models.TextField("Mensaje")
+    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
     counterpart = models.ForeignKey(
         Organization,
         related_name="change_op_processes",
@@ -472,6 +473,12 @@ class ChangeOPProcess(models.Model):
         related_name="change_op_processes",
         verbose_name="Solicitudes de cambio",
         blank=False,
+    )
+    status = models.ForeignKey(
+        ChangeOPProcessStatus,
+        related_name="+",
+        on_delete=models.PROTECT,
+        verbose_name="Estado",
     )
 
 
