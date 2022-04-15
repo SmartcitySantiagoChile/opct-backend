@@ -16,7 +16,7 @@ from rest_api.models import (
     OperationProgramStatus,
     ChangeOPProcessMessageFile,
     ChangeOPProcessMessage,
-    ChangeOPProcessFile,
+    ChangeOPProcessFile, ChangeOPProcess, ChangeOPProcessStatus,
 )
 
 
@@ -322,4 +322,26 @@ class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
         fields = "__all__"
         ordering = ["-name"]
 
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
+
+
+class ChangeOPProcessStatusSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPProcessStatus
+        fields = "__all__"
+
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
+
+
+class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPProcess
+        fields = "__all__"
+        depth = 1
+        ordering = ["-created_at"]
+
+    creator = UserSerializer(many=False, read_only=True)
+    base_op = OperationProgramSerializer(many=False, read_only=True)
+    status = ChangeOPProcessStatusSerializer(many=False, read_only=True)
+    counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
