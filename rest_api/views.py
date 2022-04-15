@@ -35,7 +35,9 @@ from rest_api.models import (
     ChangeOPProcessMessage,
     ChangeOPProcessFile,
     ChangeOPProcessMessageFile,
-    OperationProgramStatus, ChangeOPProcess,
+    OperationProgramStatus,
+    ChangeOPProcess,
+    ChangeOPProcessStatus,
 )
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
@@ -61,6 +63,8 @@ from rest_api.serializers import (
     CreateChangeOPProcessMessageSerializer,
     ChangeOPProcessFileSerializer,
     ChangeOPProcessMessageFileSerializer,
+    ChangeOPProcessSerializer,
+    ChangeOPProcessStatusSerializer,
 )
 
 
@@ -534,8 +538,6 @@ def change_op_request_reasons(request):
     return JsonResponse({"options": data}, status=HTTP_200_OK)
 
 
-
-
 class ChangeOPProcessViewSet(
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
@@ -554,7 +556,6 @@ class ChangeOPProcessViewSet(
         "op__start_at",
         "id",
         "title",
-        "reason",
     ]  # TODO: verificar si está filtrando por motivo
 
     def list(self, request, *args, **kwargs):
@@ -565,7 +566,7 @@ class ChangeOPProcessViewSet(
             | Q(creator__organization=user_organization)
         )
         page = self.paginate_queryset(queryset)
-        serializer = ChangeOPRequestSerializer(
+        serializer = ChangeOPProcessSerializer(
             page, context={"request": request}, many=True
         )
         return self.get_paginated_response(serializer.data)
@@ -688,6 +689,18 @@ class ChangeOPProcessViewSet(
             return Response(None, status=HTTP_200_OK)
         except ChangeOPRequestStatus.DoesNotExist:
             raise NotFound()
+
+
+class ChangeOPProcessStatusViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows ChangeOPProcessStatus to be viewed.
+    """
+
+    queryset = ChangeOPProcessStatus.objects.all().order_by("-name")
+    serializer_class = ChangeOPProcessStatusSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["contract_type__name"]
+
 
 @csrf_exempt
 @api_view(["POST"])

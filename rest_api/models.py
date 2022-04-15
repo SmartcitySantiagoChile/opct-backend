@@ -481,6 +481,13 @@ class ChangeOPProcess(models.Model):
         verbose_name="Estado",
     )
 
+    def __str__(self):
+        return str(self.title)
+
+    class Meta:
+        verbose_name = "Proceso de cambio de PO"
+        verbose_name_plural = "Procesos de cambio de PO"
+
 
 class ChangeOPProcessStatusLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)

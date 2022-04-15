@@ -40,6 +40,8 @@ router.register(
 )
 router.register(r"operation-program-statuses", views.OperationProgramStatusViewSet)
 router.register(r"op-change-data-logs", views.OPChangeDataLogViewSet)
+router.register(r"change-op-processes", views.ChangeOPProcessViewSet)
+router.register(r"change-op-process-statuses", views.ChangeOPProcessStatusViewSet)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),
