@@ -508,7 +508,7 @@ class ChangeOPProcessStatusLog(models.Model):
     )
     change_op_process = models.ForeignKey(
         ChangeOPProcess,
-        related_name="status_logs",
+        related_name="change_op_process_status_logs",
         on_delete=models.PROTECT,
         verbose_name="Proceso de cambio de PO",
     )

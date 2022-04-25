@@ -38,6 +38,7 @@ from rest_api.models import (
     OperationProgramStatus,
     ChangeOPProcess,
     ChangeOPProcessStatus,
+    ChangeOPProcessStatusLog,
 )
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
@@ -66,6 +67,7 @@ from rest_api.serializers import (
     ChangeOPProcessSerializer,
     ChangeOPProcessStatusSerializer,
     ChangeOPProcessDetailSerializer,
+    ChangeOPProcessStatusLogSerializer,
 )
 
 
@@ -286,6 +288,17 @@ class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ["contract_type__name"]
 
 
+class ChangeOPProcessStatusViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows ChangeOPRequestStatus to be viewed.
+    """
+
+    queryset = ChangeOPProcessStatus.objects.all().order_by("-name")
+    serializer_class = ChangeOPProcessStatusSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["contract_type__name"]
+
+
 class ChangeOPProcessMessageViewSet(
     viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin
 ):
@@ -333,6 +346,15 @@ class StatusLogViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = StatusLog.objects.all().order_by("-created_at")
     serializer_class = StatusLogSerializer
+
+
+class ChangeOPProcessStatusLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows ChangeOPProcessStatusLog to be viewed.
+    """
+
+    queryset = ChangeOPProcessStatusLog.objects.all().order_by("-created_at")
+    serializer_class = ChangeOPProcessStatusLogSerializer
 
 
 class ChangeOPRequestViewSet(
@@ -690,17 +712,6 @@ class ChangeOPProcessViewSet(
             return Response(None, status=HTTP_200_OK)
         except ChangeOPRequestStatus.DoesNotExist:
             raise NotFound()
-
-
-class ChangeOPProcessStatusViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows ChangeOPProcessStatus to be viewed.
-    """
-
-    queryset = ChangeOPProcessStatus.objects.all().order_by("-name")
-    serializer_class = ChangeOPProcessStatusSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ["contract_type__name"]
 
 
 @csrf_exempt
