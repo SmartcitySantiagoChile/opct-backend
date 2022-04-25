@@ -16,7 +16,9 @@ from rest_api.models import (
     OperationProgramStatus,
     ChangeOPProcessMessageFile,
     ChangeOPProcessMessage,
-    ChangeOPProcessFile, ChangeOPProcess, ChangeOPProcessStatus,
+    ChangeOPProcessFile,
+    ChangeOPProcess,
+    ChangeOPProcessStatus,
 )
 
 
@@ -218,12 +220,12 @@ class ChangeOPProcessMessageSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "message",
             "creator",
-            "change_op_request",
-            "change_op_request_message_files",
+            "change_op_process",
+            "change_op_process_message_files",
         )
         ordering = ["-created_at"]
 
-    change_op_request_message_files = ChangeOPProcessMessageFileSerializer(
+    change_op_process_message_files = ChangeOPProcessMessageFileSerializer(
         many=True, read_only=True
     )
     creator = BasicUserSerializer(many=False, read_only=True)
@@ -345,3 +347,36 @@ class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
     status = ChangeOPProcessStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
+
+
+class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPProcess
+        fields = (
+            "url",
+            "creator",
+            "base_op",
+            "status",
+            "counterpart",
+            "contract_type",
+            "title",
+            "message",
+            "created_at",
+            "updated_at",
+            "change_op_requests",
+            "change_op_process_messages",
+            "change_op_process_files",
+        )
+        ordering = ["-start_at"]
+        depth = 2
+
+    creator = BasicUserSerializer(many=False, read_only=True)
+    base_op = OperationProgramSerializer(many=False, read_only=True)
+    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
+    counterpart = OrganizationSerializer(many=False, read_only=True)
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
+    change_op_requests = ChangeOPRequestDetailMiniSerializer(many=True)
+    change_op_process_messages = ChangeOPProcessMessageSerializer(
+        many=True, read_only=True
+    )
+    change_op_process_files = ChangeOPProcessFileSerializer(many=True, read_only=True)

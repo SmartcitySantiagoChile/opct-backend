@@ -36,7 +36,7 @@ router.register(r"op-change-logs", views.OPChangeLogViewSet)
 router.register(r"status-logs", views.StatusLogViewSet)
 router.register(r"change-op-process-files", views.ChangeOPProcessFileViewset)
 router.register(
-    r"change-op-request-message-files", views.ChangeOPRequestMessageFileViewset
+    r"change-op-process-message-files", views.ChangeOPProcessMessageFileViewset
 )
 router.register(r"operation-program-statuses", views.OperationProgramStatusViewSet)
 router.register(r"op-change-data-logs", views.OPChangeDataLogViewSet)

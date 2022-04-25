@@ -550,7 +550,7 @@ class ChangeOPProcessMessage(models.Model):
     message = models.TextField("Mensaje")
     change_op_process = models.ForeignKey(
         ChangeOPProcess,
-        related_name="change_op_request_messages",
+        related_name="change_op_process_messages",
         on_delete=models.PROTECT,
         null=False,
         verbose_name="Solicitud de cambio de PO",
@@ -568,7 +568,7 @@ class ChangeOPProcessMessageFile(models.Model):
     file = models.FileField("Archivo")
     change_op_process_message = models.ForeignKey(
         ChangeOPProcessMessage,
-        related_name="change_op_process_message",
+        related_name="change_op_process_message_files",
         on_delete=models.PROTECT,
         verbose_name="Mensaje de proceso de cambio de Programa de Operación",
     )

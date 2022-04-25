@@ -65,6 +65,7 @@ from rest_api.serializers import (
     ChangeOPProcessMessageFileSerializer,
     ChangeOPProcessSerializer,
     ChangeOPProcessStatusSerializer,
+    ChangeOPProcessDetailSerializer,
 )
 
 
@@ -499,16 +500,16 @@ class OPChangeDataLogViewset(viewsets.ReadOnlyModelViewSet):
 
 class ChangeOPProcessFileViewset(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows ChangeOPRequestFile to be viewed.
+    API endpoint that allows ChangeOPProcessFile to be viewed.
     """
 
     queryset = ChangeOPProcessFile.objects.all()
     serializer_class = ChangeOPProcessFileSerializer
 
 
-class ChangeOPRequestMessageFileViewset(viewsets.ReadOnlyModelViewSet):
+class ChangeOPProcessMessageFileViewset(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows ChangeOPRequestMessageFileViewset to be viewed.
+    API endpoint that allows ChangeOPProcessMessageFile to be viewed.
     """
 
     queryset = ChangeOPProcessMessageFile.objects.all()
@@ -604,7 +605,7 @@ class ChangeOPProcessViewSet(
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = ChangeOPRequestDetailSerializer(
+        serializer = ChangeOPProcessDetailSerializer(
             instance, context={"request": request}
         )
         return Response(serializer.data)
