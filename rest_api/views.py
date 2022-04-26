@@ -684,7 +684,7 @@ class ChangeOPProcessViewSet(
                 user=request.user,
                 previous_status=previous_status,
                 new_status=new_status,
-                change_op_request=obj,
+                change_op_process=obj,
             )
             change_op_process_status_log.save()
             serializer = ChangeOPProcessSerializer(
