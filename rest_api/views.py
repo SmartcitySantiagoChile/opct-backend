@@ -310,7 +310,6 @@ class ChangeOPProcessMessageViewSet(
     serializer_class = ChangeOPProcessMessageSerializer
 
     def create(self, request, *args, **kwargs):
-
         serializer = CreateChangeOPProcessMessageSerializer(
             data=request.data, context={"request": request}
         )

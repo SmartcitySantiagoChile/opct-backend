@@ -167,12 +167,6 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     organization = OrganizationSerializer(many=False, read_only=True)
 
 
-class OPChangeDataLogSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = OPChangeDataLog
-        fields = "__all__"
-
-
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
