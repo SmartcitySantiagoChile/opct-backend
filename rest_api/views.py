@@ -379,12 +379,7 @@ class ChangeOPRequestViewSet(
     ]  # TODO: verificar si está filtrando por motivo
 
     def list(self, request, *args, **kwargs):
-        user = request.user
-        user_organization = user.organization
-        queryset = self.filter_queryset(self.get_queryset()).filter(
-            Q(counterpart=user_organization)
-            | Q(creator__organization=user_organization)
-        )
+        queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         serializer = ChangeOPRequestSerializer(
             page, context={"request": request}, many=True
