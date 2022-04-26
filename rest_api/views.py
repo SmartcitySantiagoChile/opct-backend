@@ -680,23 +680,23 @@ class ChangeOPProcessViewSet(
         new_status_key = request.data.get("status")
         queryset = self.get_queryset()
         try:
-            new_status = ChangeOPRequestStatus.objects.get(pk=new_status_key)
+            new_status = ChangeOPProcessStatus.objects.get(pk=new_status_key)
             previous_status = obj.status
             obj.status = new_status
             obj.save()
-            status_log = StatusLog(
+            change_op_process_status_log = ChangeOPProcessStatusLog(
                 created_at=timezone.now(),
                 user=request.user,
                 previous_status=previous_status,
                 new_status=new_status,
                 change_op_request=obj,
             )
-            status_log.save()
-            serializer = ChangeOPRequestSerializer(
+            change_op_process_status_log.save()
+            serializer = ChangeOPProcessSerializer(
                 queryset, context={"request": request}, many=True
             )
             return Response(serializer.data, status=HTTP_200_OK)
-        except ChangeOPRequestStatus.DoesNotExist:
+        except ChangeOPProcessStatus.DoesNotExist:
             raise NotFound()
 
     @action(detail=True, methods=["put"], url_path="change-related-requests")
