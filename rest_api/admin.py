@@ -104,14 +104,24 @@ class OPChangeDataLogAdmin(admin.ModelAdmin):
     model = models.OPChangeDataLog
 
 
+class ChangeOpRequestAdmin(admin.ModelAdmin):
+    model = models.ChangeOPRequest
+
+
+class OPChangeLogAdmin(admin.ModelAdmin):
+    model = models.OPChangeLog
+
+
 admin.site.register(models.ChangeOPProcess, ChangeOpProcessAdmin)
+admin.site.register(models.ChangeOPRequest, ChangeOpRequestAdmin)
 admin.site.register(models.ChangeOPProcessFile)
 admin.site.register(models.ChangeOPProcessMessage, ChangeOPProcessMessageAdmin)
 admin.site.register(models.ContractType)
-admin.site.register(models.OPChangeLog)
+admin.site.register(models.OPChangeLog, OPChangeLogAdmin)
 admin.site.register(models.OperationProgram)
 admin.site.register(models.OperationProgramStatus, OperationProgramStatusAdmin)
 admin.site.register(models.OperationProgramType)
 admin.site.register(models.Organization, OrganizationAdmin)
 admin.site.register(models.ChangeOPProcessStatusLog)
 admin.site.register(models.OPChangeDataLog, OPChangeDataLogAdmin)
+admin.site.register(models.StatusLog)
