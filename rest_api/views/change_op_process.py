@@ -131,7 +131,7 @@ class ChangeOPProcessViewSet(
             else:
                 if new_op_key == previous_op:
                     return Response(serializer.data, status=HTTP_200_OK)
-            obj.op = new_op
+            obj.base_op = new_op
             if update_deadlines:
                 obj.op_release_date = new_op.start_at
             else:
@@ -142,7 +142,7 @@ class ChangeOPProcessViewSet(
                 creator=request.user,
                 previous_op=previous_op,
                 new_op=new_op,
-                change_op_request=obj,
+                change_op_process=obj,
                 update_deadlines=update_deadlines,
             )
             op_change_log.save()
