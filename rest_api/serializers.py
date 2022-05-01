@@ -368,6 +368,7 @@ class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
     status = ChangeOPProcessStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
+    contract_type = ContractTypeSerializer(many=False, read_only=True)
 
 
 class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):

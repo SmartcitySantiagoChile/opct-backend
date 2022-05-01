@@ -633,11 +633,11 @@ class ChangeOPProcessViewSet(
         new_op_key = request.data.get("op")
         update_deadlines = request.data.get("update_deadlines")
         queryset = self.get_queryset()
-        serializer = ChangeOPRequestSerializer(
+        serializer = ChangeOPProcessSerializer(
             queryset, context={"request": request}, many=True
         )
         try:
-            previous_op = obj.op
+            previous_op = obj.base_op
             if new_op_key:
                 new_op = OperationProgram.objects.get(pk=new_op_key)
             else:

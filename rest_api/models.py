@@ -353,46 +353,6 @@ class StatusLog(models.Model):
         verbose_name_plural = "Logs de estado"
 
 
-class OPChangeLog(models.Model):
-    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    creator = models.ForeignKey(
-        User,
-        related_name="op_change_logs",
-        on_delete=models.PROTECT,
-        blank=False,
-        verbose_name="Creador",
-    )
-    previous_op = models.ForeignKey(
-        OperationProgram,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Programa de Operación previo",
-        null=True,
-    )
-    new_op = models.ForeignKey(
-        OperationProgram,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Nuevo Programa de Operación",
-        null=True,
-    )
-    change_op_request = models.ForeignKey(
-        ChangeOPRequest,
-        related_name="op_change_logs",
-        on_delete=models.PROTECT,
-        verbose_name="Solicitud de cambio de PO",
-    )
-
-    update_deadlines = models.BooleanField("Actualiza plazos", default=False)
-
-    def __str__(self):
-        return str(self.created_at)
-
-    class Meta:
-        verbose_name = "Log de solicitud de cambio de PO"
-        verbose_name_plural = "Logs de solicitud de cambio de PO"
-
-
 class OPChangeDataLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
     user = models.ForeignKey(
@@ -480,6 +440,7 @@ class ChangeOPProcess(models.Model):
         on_delete=models.PROTECT,
         verbose_name="Estado",
     )
+    op_release_date = models.DateField("Fecha de implementación", blank=True, null=True)
 
     def __str__(self):
         return str(self.title)
@@ -581,3 +542,43 @@ class ChangeOPProcessMessageFile(models.Model):
         verbose_name_plural = (
             "Archivos asociados a mensaje de solicitud de cambio de PO"
         )
+
+
+class OPChangeLog(models.Model):
+    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
+    creator = models.ForeignKey(
+        User,
+        related_name="op_change_logs",
+        on_delete=models.PROTECT,
+        blank=False,
+        verbose_name="Creador",
+    )
+    previous_op = models.ForeignKey(
+        OperationProgram,
+        related_name="+",
+        on_delete=models.PROTECT,
+        verbose_name="Programa de Operación previo",
+        null=True,
+    )
+    new_op = models.ForeignKey(
+        OperationProgram,
+        related_name="+",
+        on_delete=models.PROTECT,
+        verbose_name="Nuevo Programa de Operación",
+        null=True,
+    )
+    change_op_process = models.ForeignKey(
+        ChangeOPProcess,
+        related_name="op_change_logs",
+        on_delete=models.PROTECT,
+        verbose_name="Solicitud de cambio de PO",
+    )
+
+    update_deadlines = models.BooleanField("Actualiza plazos", default=False)
+
+    def __str__(self):
+        return str(self.created_at)
+
+    class Meta:
+        verbose_name = "Log de solicitud de cambio de PO"
+        verbose_name_plural = "Logs de solicitud de cambio de PO"
