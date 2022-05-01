@@ -19,30 +19,56 @@ from django.views.generic.base import RedirectView
 from rest_framework import routers
 
 from opct import settings
-from rest_api import views
-from rest_api.views import login, verify, send_email, change_op_request_reasons
+from rest_api.views.change_op_process import (
+    ChangeOPProcessMessageViewSet,
+    OPChangeLogViewSet,
+    ChangeOPProcessStatusLogViewSet,
+    ChangeOPProcessFileViewset,
+    ChangeOPProcessMessageFileViewset,
+    ChangeOPProcessViewSet,
+    ChangeOPProcessStatusViewSet,
+)
+from rest_api.views.change_op_request import (
+    ChangeOPRequestViewSet,
+    ChangeOPRequestStatusViewSet,
+    StatusLogViewSet,
+)
+from rest_api.views.helper import (
+    login,
+    verify,
+    send_email,
+    change_op_request_reasons,
+    UserViewSet,
+    OrganizationViewSet,
+    ContractTypeViewSet,
+)
+from rest_api.views.operation_program import (
+    OperationProgramViewSet,
+    OperationProgramTypeViewSet,
+    OPChangeDataLogViewset,
+    OperationProgramStatusViewSet,
+    OPChangeDataLogViewSet,
+)
 
 router = routers.DefaultRouter()
-router.register(r"users", views.UserViewSet)
-router.register(r"operation-programs", views.OperationProgramViewSet)
-router.register(r"operation-program-types", views.OperationProgramTypeViewSet)
-router.register(r"organizations", views.OrganizationViewSet)
-router.register(r"contract-types", views.ContractTypeViewSet)
-router.register(r"change-op-requests", views.ChangeOPRequestViewSet),
-router.register(r"change-op-request-statuses", views.ChangeOPRequestStatusViewSet)
-router.register(r"change-op-data-logs", views.OPChangeDataLogViewset)
-router.register(r"change-op-process-messages", views.ChangeOPProcessMessageViewSet)
-router.register(r"op-change-logs", views.OPChangeLogViewSet)
-router.register(r"status-logs", views.StatusLogViewSet)
-router.register(r"change-op-process-status-logs", views.ChangeOPProcessStatusLogViewSet)
-router.register(r"change-op-process-files", views.ChangeOPProcessFileViewset)
-router.register(
-    r"change-op-process-message-files", views.ChangeOPProcessMessageFileViewset
-)
-router.register(r"operation-program-statuses", views.OperationProgramStatusViewSet)
-router.register(r"op-change-data-logs", views.OPChangeDataLogViewSet)
-router.register(r"change-op-processes", views.ChangeOPProcessViewSet)
-router.register(r"change-op-process-statuses", views.ChangeOPProcessStatusViewSet)
+router.register(r"users", UserViewSet)
+router.register(r"operation-programs", OperationProgramViewSet)
+router.register(r"operation-program-types", OperationProgramTypeViewSet)
+router.register(r"organizations", OrganizationViewSet)
+router.register(r"contract-types", ContractTypeViewSet)
+router.register(r"change-op-requests", ChangeOPRequestViewSet),
+router.register(r"change-op-request-statuses", ChangeOPRequestStatusViewSet)
+router.register(r"change-op-data-logs", OPChangeDataLogViewset)
+router.register(r"change-op-process-messages", ChangeOPProcessMessageViewSet)
+router.register(r"op-change-logs", OPChangeLogViewSet)
+router.register(r"status-logs", StatusLogViewSet)
+router.register(r"change-op-process-status-logs", ChangeOPProcessStatusLogViewSet)
+router.register(r"change-op-process-files", ChangeOPProcessFileViewset)
+router.register(r"change-op-process-message-files", ChangeOPProcessMessageFileViewset)
+router.register(r"operation-program-statuses", OperationProgramStatusViewSet)
+router.register(r"op-change-data-logs", OPChangeDataLogViewSet)
+router.register(r"change-op-processes", ChangeOPProcessViewSet)
+router.register(r"change-op-process-statuses", ChangeOPProcessStatusViewSet)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),
