@@ -390,6 +390,7 @@ class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
             "change_op_process_files",
             "change_op_process_status_logs",
             "op_change_logs",
+            "op_release_date",
         )
         ordering = ["-start_at"]
         depth = 2
