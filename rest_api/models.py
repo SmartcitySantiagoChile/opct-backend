@@ -308,9 +308,16 @@ class ChangeOPRequest(models.Model):
     ]
 
     reason = models.CharField("Motivo", max_length=30, choices=REASON_CHOICES)
-    op_release_date = models.DateField("Fecha de implementación", blank=True, null=True)
     related_requests = models.ManyToManyField(
         "self", blank=True, verbose_name="Solicitudes relacionadas"
+    )
+
+    change_op_process = models.ForeignKey(
+        "ChangeOPProcess",
+        related_name="change_op_requests",
+        verbose_name="Solicitudes de cambio",
+        blank=False,
+        on_delete=models.PROTECT,
     )
 
     def __str__(self):
@@ -428,12 +435,7 @@ class ChangeOPProcess(models.Model):
         blank=False,
         verbose_name="Creador",
     )
-    change_op_requests = models.ManyToManyField(
-        ChangeOPRequest,
-        related_name="change_op_processes",
-        verbose_name="Solicitudes de cambio",
-        blank=False,
-    )
+
     status = models.ForeignKey(
         ChangeOPProcessStatus,
         related_name="+",
