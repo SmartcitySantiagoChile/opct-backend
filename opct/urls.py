@@ -41,6 +41,8 @@ from rest_api.views.helper import (
     UserViewSet,
     OrganizationViewSet,
     ContractTypeViewSet,
+    ChangeOPRequestOPChangeLogViewSet,
+    ChangeOPRequestReasonChangeLogViewSet,
 )
 from rest_api.views.operation_program import (
     OperationProgramViewSet,
@@ -69,6 +71,10 @@ router.register(r"operation-program-statuses", OperationProgramStatusViewSet)
 router.register(r"op-change-data-logs", OPChangeDataLogViewSet)
 router.register(r"change-op-processes", ChangeOPProcessViewSet)
 router.register(r"change-op-process-statuses", ChangeOPProcessStatusViewSet)
+router.register(r"change-op-request-op-change-log", ChangeOPRequestOPChangeLogViewSet)
+router.register(
+    r"change-op-request-reason-change-log", ChangeOPRequestReasonChangeLogViewSet
+)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),

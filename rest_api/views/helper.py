@@ -22,6 +22,8 @@ from rest_api.models import (
     Organization,
     ContractType,
     ChangeOPRequest,
+    ChangeOPRequestOPChangeLog,
+    ChangeOPRequestReasonChangeLog,
 )
 from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import (
@@ -31,6 +33,8 @@ from rest_api.serializers import (
     OrganizationSerializer,
     ContractTypeSerializer,
     OrganizationCreateSerializer,
+    ChangeOPRequestOPChangeLogSerializer,
+    ChangeOPRequestReasonChangeLogSerializer,
 )
 
 
@@ -136,6 +140,27 @@ class ContractTypeViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = ContractType.objects.all().order_by("-name")
     serializer_class = ContractTypeSerializer
+
+
+class ChangeOPRequestOPChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows Change OP Request OP Change Log to be viewed.
+    """
+
+    queryset = ChangeOPRequestOPChangeLog.objects.all().order_by("id")
+    serializer_class = ChangeOPRequestOPChangeLogSerializer
+
+
+ChangeOPRequestReasonChangeLogSerializer
+
+
+class ChangeOPRequestReasonChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows Change OP Request Reason Change Log to be viewed.
+    """
+
+    queryset = ChangeOPRequestReasonChangeLog.objects.all().order_by("id")
+    serializer_class = ChangeOPRequestReasonChangeLogSerializer
 
 
 @api_view(["GET"])

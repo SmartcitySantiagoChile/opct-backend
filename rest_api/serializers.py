@@ -20,6 +20,8 @@ from rest_api.models import (
     ChangeOPProcess,
     ChangeOPProcessStatus,
     ChangeOPProcessStatusLog,
+    ChangeOPRequestOPChangeLog,
+    ChangeOPRequestReasonChangeLog,
 )
 
 
@@ -170,7 +172,20 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = "__all__"
+        fields = (
+            "created_at",
+            "creator",
+            "contract_type",
+            "counterpart",
+            "op",
+            "reason",
+            "related_requests",
+            "status",
+            "status_logs",
+            "title",
+            "updated_at",
+            "url",
+        )
         depth = 1
         ordering = ["-start_at"]
 
@@ -180,6 +195,18 @@ class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
+
+
+class ChangeOPRequestOPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequestOPChangeLog
+        fields = "__all__"
+        ordering = ["id"]
+
+    creator = BasicUserSerializer(many=False, read_only=True)
+    previous_op = OperationProgramSerializer(many=False, read_only=True)
+    new_op = OperationProgramSerializer(many=False, read_only=True)
+    change_op_request = ChangeOPRequestSerializer(many=False, read_only=True)
 
 
 class ChangeOPRequestCreateSerializer(serializers.HyperlinkedModelSerializer):
@@ -306,6 +333,17 @@ class ChangeOPProcessFileSerializer(serializers.HyperlinkedModelSerializer):
         ordering = ["-file"]
 
 
+class ChangeOPRequestReasonChangeLogSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPRequestReasonChangeLog
+        fields = "__all__"
+
+    creator = UserSerializer(many=False, read_only=True)
+    previous_reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
+    new_reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
+    change_op_request = ChangeOPRequestDetailMiniSerializer(many=False, read_only=True)
+
+
 class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
@@ -323,6 +361,8 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
             "op_change_logs",
             "status_logs",
             "related_requests",
+            "change_op_request_op_change_logs",
+            "change_op_request_reason_change_logs",
         )
         ordering = ["-start_at"]
         depth = 2
@@ -335,6 +375,12 @@ class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     contract_type = ContractTypeSerializer(many=False, read_only=True)
     op_change_logs = OPChangeLogSerializer(many=True, read_only=True)
     status_logs = StatusLogSerializer(many=True, read_only=True)
+    change_op_request_op_change_logs = ChangeOPRequestOPChangeLogSerializer(
+        many=True, read_only=True
+    )
+    change_op_request_reason_change_logs = ChangeOPRequestReasonChangeLogSerializer(
+        many=True, read_only=True
+    )
     related_requests = ChangeOPRequestDetailMiniSerializer(many=True)
 
 
@@ -343,14 +389,6 @@ class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
         model = OperationProgramStatus
         fields = "__all__"
         ordering = ["-name"]
-
-    contract_type = ContractTypeSerializer(many=False, read_only=True)
-
-
-class ChangeOPProcessStatusSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ChangeOPProcessStatus
-        fields = "__all__"
 
     contract_type = ContractTypeSerializer(many=False, read_only=True)
 

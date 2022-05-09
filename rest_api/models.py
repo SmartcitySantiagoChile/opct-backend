@@ -481,7 +481,7 @@ class ChangeOPProcessStatusLog(models.Model):
 
     class Meta:
         verbose_name = "Log de estado de proceso"
-        verbose_name_plural = "Logs de estadode proceso"
+        verbose_name_plural = "Logs de estado de proceso"
 
 
 class ChangeOPProcessFile(models.Model):
