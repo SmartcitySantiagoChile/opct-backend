@@ -34,6 +34,7 @@ from rest_api.serializers import (
     ChangeOPProcessStatusSerializer,
     ChangeOPProcessDetailSerializer,
     ChangeOPProcessStatusLogSerializer,
+    ChangeOPProcessCreateSerializer,
 )
 
 
@@ -75,25 +76,25 @@ class ChangeOPProcessViewSet(
         contract_type_id = request.data["contract_type"].split("/")[-2]
         if contract_type_id == "3":
             contract_type_id = "2"
-        status_id = ChangeOPRequestStatus.objects.get(
+        status_id = ChangeOPProcessStatus.objects.get(
             contract_type_id=contract_type_id, name="Evaluando admisibilidad"
         ).pk
         status_url = reverse_url(
-            "changeoprequeststatus-detail", kwargs=dict(pk=status_id)
+            "changeopprocessstatus-detail", kwargs=dict(pk=status_id)
         )
         data = request.data.copy()
         data["status"] = status_url
-        serializer = ChangeOPRequestCreateSerializer(
+        serializer = ChangeOPProcessCreateSerializer(
             data=data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        change_op_request = serializer.save()
+        change_op_process = serializer.save()
         errors = []
         try:
             files = request.FILES.getlist("files")
             for file in files:
                 instance = ChangeOPProcessFile(
-                    file=file, change_op_request_id=change_op_request.id
+                    file=file, change_op_process_id=change_op_process.id
                 )
                 instance.save()
         except Exception as e:

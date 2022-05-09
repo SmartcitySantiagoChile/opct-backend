@@ -151,9 +151,6 @@ class ChangeOPRequestOPChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ChangeOPRequestOPChangeLogSerializer
 
 
-ChangeOPRequestReasonChangeLogSerializer
-
-
 class ChangeOPRequestReasonChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows Change OP Request Reason Change Log to be viewed.

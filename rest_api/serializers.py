@@ -463,3 +463,13 @@ class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
         many=True, read_only=True
     )
     op_change_logs = OPChangeLogSerializer(many=True, read_only=True)
+
+
+class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPProcess
+        fields = "__all__"
+
+    creator = UserSerializer
+    status = ChangeOPProcessStatusSerializer
+    counterpart = OrganizationSerializer
