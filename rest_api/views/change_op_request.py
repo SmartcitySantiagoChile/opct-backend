@@ -4,6 +4,7 @@ from rest_framework import filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
@@ -27,11 +28,18 @@ from rest_api.serializers import (
 )
 
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = "page_size"
+    max_page_size = 1000
+
+
 class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows ChangeOPRequestStatus to be viewed.
     """
 
+    pagination_class = StandardResultsSetPagination
     queryset = ChangeOPRequestStatus.objects.all().order_by("-name")
     serializer_class = ChangeOPRequestStatusSerializer
     filter_backends = [filters.SearchFilter]
