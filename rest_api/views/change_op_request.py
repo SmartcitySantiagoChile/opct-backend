@@ -18,6 +18,7 @@ from rest_api.models import (
     OPChangeLog,
     StatusLog,
     ChangeOPProcessFile,
+    ChangeOPRequestOPChangeLog,
 )
 from rest_api.serializers import (
     ChangeOPRequestSerializer,
@@ -127,7 +128,6 @@ class ChangeOPRequestViewSet(
         # TODO: send email
         obj = self.get_object()
         new_op_key = request.data.get("op")
-        update_deadlines = request.data.get("update_deadlines")
         queryset = self.get_queryset()
         serializer = ChangeOPRequestSerializer(
             queryset, context={"request": request}, many=True
@@ -146,18 +146,13 @@ class ChangeOPRequestViewSet(
                 if new_op_key == previous_op:
                     return Response(serializer.data, status=HTTP_200_OK)
             obj.op = new_op
-            if update_deadlines:
-                obj.op_release_date = new_op.start_at
-            else:
-                update_deadlines = False
             obj.save()
-            op_change_log = OPChangeLog(
+            op_change_log = ChangeOPRequestOPChangeLog(
                 created_at=timezone.now(),
                 creator=request.user,
                 previous_op=previous_op,
                 new_op=new_op,
                 change_op_request=obj,
-                update_deadlines=update_deadlines,
             )
             op_change_log.save()
             return Response(serializer.data, status=HTTP_200_OK)

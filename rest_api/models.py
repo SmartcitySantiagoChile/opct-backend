@@ -584,3 +584,41 @@ class OPChangeLog(models.Model):
     class Meta:
         verbose_name = "Log de solicitud de cambio de PO"
         verbose_name_plural = "Logs de solicitud de cambio de PO"
+
+
+class ChangeOPRequestOPChangeLog(models.Model):
+    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
+    creator = models.ForeignKey(
+        User,
+        related_name="change_op_request_op_change_logs",
+        on_delete=models.PROTECT,
+        blank=False,
+        verbose_name="Creador",
+    )
+    previous_op = models.ForeignKey(
+        OperationProgram,
+        related_name="+",
+        on_delete=models.PROTECT,
+        verbose_name="Programa de Operación previo",
+        null=True,
+    )
+    new_op = models.ForeignKey(
+        OperationProgram,
+        related_name="+",
+        on_delete=models.PROTECT,
+        verbose_name="Nuevo Programa de Operación",
+        null=True,
+    )
+    change_op_request = models.ForeignKey(
+        ChangeOPRequest,
+        related_name="change_op_request_op_change_logs",
+        on_delete=models.PROTECT,
+        verbose_name="Solicitud de cambio de PO",
+    )
+
+    def __str__(self):
+        return str(self.created_at)
+
+    class Meta:
+        verbose_name = "Log de solicitud de cambio de PO"
+        verbose_name_plural = "Logs de solicitud de cambio de PO"
