@@ -622,3 +622,33 @@ class ChangeOPRequestOPChangeLog(models.Model):
     class Meta:
         verbose_name = "Log de solicitud de cambio de PO"
         verbose_name_plural = "Logs de solicitud de cambio de PO"
+
+
+class ChangeOPRequestReasonChangeLog(models.Model):
+    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
+    creator = models.ForeignKey(
+        User,
+        related_name="change_op_request_reason_change_logs",
+        on_delete=models.PROTECT,
+        blank=False,
+        verbose_name="Creador",
+    )
+    previous_reason = models.CharField(
+        "Motivo", max_length=30, choices=ChangeOPRequest.REASON_CHOICES
+    )
+    new_reason = models.CharField(
+        "Motivo", max_length=30, choices=ChangeOPRequest.REASON_CHOICES
+    )
+    change_op_request = models.ForeignKey(
+        ChangeOPRequest,
+        related_name="change_op_request_reason_change_logs",
+        on_delete=models.PROTECT,
+        verbose_name="Solicitud de cambio de PO",
+    )
+
+    def __str__(self):
+        return str(self.created_at)
+
+    class Meta:
+        verbose_name = "Log de razón de solicitud de cambio de PO"
+        verbose_name_plural = "Logs razón de solicitud de cambio de PO"

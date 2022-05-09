@@ -377,14 +377,13 @@ class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
             "op_release_date",
         )
         depth = 1
-        ordering = ["-created_at"]
+        ordering = ["created_at"]
 
     change_op_requests = ChangeOPRequestDetailSerializer(many=True)
     creator = UserSerializer(many=False, read_only=True)
     base_op = OperationProgramSerializer(many=False, read_only=True)
     status = ChangeOPProcessStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
-    contract_type = ContractTypeSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
 
 

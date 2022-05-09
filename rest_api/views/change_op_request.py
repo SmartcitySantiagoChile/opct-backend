@@ -19,6 +19,7 @@ from rest_api.models import (
     StatusLog,
     ChangeOPProcessFile,
     ChangeOPRequestOPChangeLog,
+    ChangeOPRequestReasonChangeLog,
 )
 from rest_api.serializers import (
     ChangeOPRequestSerializer,
@@ -67,7 +68,8 @@ class ChangeOPRequestViewSet(
     API endpoint that allows Change OP Request to be viewed, created and updated.
     """
 
-    queryset = ChangeOPRequest.objects.all().order_by("-created_at")
+    pagination_class = StandardResultsSetPagination
+    queryset = ChangeOPRequest.objects.all().order_by("id")
     serializer_class = ChangeOPRequestSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = [
@@ -182,6 +184,32 @@ class ChangeOPRequestViewSet(
             )
             return Response(serializer.data, status=HTTP_200_OK)
         except ChangeOPRequestStatus.DoesNotExist:
+            raise NotFound()
+
+    @action(detail=True, methods=["put"], url_path="change-reason")
+    def change_reason(self, request, *args, **kwargs):
+        obj = self.get_object()
+        new_reason_key = request.data.get("reason")
+        queryset = self.get_queryset()
+        try:
+            new_reason = new_reason_key
+            previous_reason = obj.reason
+            obj.reason = new_reason
+            obj.save()
+            reason_log = ChangeOPRequestReasonChangeLog(
+                created_at=timezone.now(),
+                creator=request.user,
+                previous_reason=previous_reason,
+                new_reason=new_reason,
+                change_op_request=obj,
+            )
+            reason_log.save()
+            serializer = ChangeOPRequestSerializer(
+                queryset, context={"request": request}, many=True
+            )
+            return Response(serializer.data, status=HTTP_200_OK)
+        except Exception as e:
+            print(e)
             raise NotFound()
 
     @action(detail=True, methods=["put"], url_path="change-related-requests")
