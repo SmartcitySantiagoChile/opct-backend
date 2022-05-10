@@ -214,7 +214,6 @@ class ChangeOPRequestCreateSerializer(serializers.HyperlinkedModelSerializer):
         model = ChangeOPRequest
         fields = "__all__"
 
-    reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
     creator = UserSerializer
     status = ChangeOPRequestStatusSerializer
     counterpart = OrganizationSerializer
