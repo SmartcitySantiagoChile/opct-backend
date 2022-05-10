@@ -72,6 +72,7 @@ class ChangeOPProcessViewSet(
         return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
+        print(request.data["base_op"])
         # TODO: send email
         contract_type_id = request.data["contract_type"].split("/")[-2]
         if contract_type_id == "3":
