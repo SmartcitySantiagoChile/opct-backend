@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.models import Group
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class UserManager(BaseUserManager):
@@ -10,16 +10,8 @@ class UserManager(BaseUserManager):
 
     use_in_migrations = True
 
-    def _create_user(
-        self,
-        email,
-        password,
-        organization,
-        access_to_ops,
-        access_to_organizations,
-        access_to_users,
-        **extra_fields
-    ):
+    def _create_user(self, email, password, organization, access_to_ops, access_to_organizations, access_to_users,
+                     **extra_fields):
         """Create and save a User with the given email and password."""
         if not email:
             raise ValueError("The given email must be set")
