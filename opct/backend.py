@@ -13,9 +13,7 @@ class OPCTModelBackend(ModelBackend):
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         try:
-            user = UserModel._default_manager.select_related("organization").get(
-                **{UserModel.USERNAME_FIELD: username}
-            )
+            user = UserModel._default_manager.select_related("organization").get(**{UserModel.USERNAME_FIELD: username})
         except UserModel.DoesNotExist:
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a nonexistent user (#20760).
@@ -26,9 +24,7 @@ class OPCTModelBackend(ModelBackend):
 
     def get_user(self, user_id):
         try:
-            user = UserModel._default_manager.select_related("organization").get(
-                pk=user_id
-            )
+            user = UserModel._default_manager.select_related("organization").get(pk=user_id)
         except UserModel.DoesNotExist:
             return None
         return user if self.user_can_authenticate(user) else None

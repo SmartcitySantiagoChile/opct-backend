@@ -72,23 +72,17 @@ router.register(r"op-change-data-logs", OPChangeDataLogViewSet)
 router.register(r"change-op-processes", ChangeOPProcessViewSet)
 router.register(r"change-op-process-statuses", ChangeOPProcessStatusViewSet)
 router.register(r"change-op-request-op-change-log", ChangeOPRequestOPChangeLogViewSet)
-router.register(
-    r"change-op-request-reason-change-log", ChangeOPRequestReasonChangeLogViewSet
-)
+router.register(r"change-op-request-reason-change-log", ChangeOPRequestReasonChangeLogViewSet)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),
-    path("admin/", admin.site.urls),
-    path("auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/", include(router.urls)),
     path("api/login", login, name="login"),
     path("api/verify/", verify, name="verify"),
     path("api/send-mail/", send_email, name="send-email"),
-    path(
-        "api/change-op-request-reasons/",
-        change_op_request_reasons,
-        name="change-op-request-reasons",
-    ),
+    path("api/change-op-request-reasons/", change_op_request_reasons, name="change-op-request-reasons"),
+    path("admin/", admin.site.urls),
+    path("auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
 
 if settings.DEBUG:
