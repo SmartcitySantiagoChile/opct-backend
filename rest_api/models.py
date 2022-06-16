@@ -60,6 +60,9 @@ class UserManager(BaseUserManager):
 
 class ContractType(models.Model):
     name = models.CharField("Nombre", max_length=7)
+    OLD = 1
+    NEW = 2
+    BOTH = 3
 
     def __str__(self):
         return str(self.name)
@@ -71,6 +74,9 @@ class ContractType(models.Model):
 
 class OperationProgramType(models.Model):
     name = models.CharField("Nombre", max_length=10)
+    BASE = 1
+    MODIFIED = 2
+    SPECIAL = 3
 
     def __str__(self):
         return str(self.name)
@@ -120,34 +126,28 @@ class OperationProgram(models.Model):
 
 
 class CounterPartContact(models.Model):
-    user = models.ForeignKey(
-        "User",
-        related_name="counter_part_contact",
-        on_delete=models.PROTECT,
-        verbose_name="Contacto de contraparte",
-    )
     organization = models.ForeignKey(
         "Organization",
         related_name="counter_part_contacts",
         on_delete=models.PROTECT,
         verbose_name="Organización",
     )
-    counter_part_organization = models.ForeignKey(
-        "Organization",
+    counter_part_user = models.ForeignKey(
+        "User",
         related_name="counter_part_contact",
         on_delete=models.PROTECT,
-        verbose_name="Organización contraparte",
+        verbose_name="Contacto de contraparte",
     )
 
     def save(self, *args, **kwargs):
-        user_organization = self.user.organization_id
-        if user_organization == self.counter_part_organization.pk:
+        user_organization = self.counter_part_user.organization_id
+        if user_organization != self.organization.pk:
             super(CounterPartContact, self).save(*args, **kwargs)
         else:
-            raise ValueError("El usuario debe pertenecer a la organización contraparte")
+            raise ValueError("El usuario debe pertenecer a una organización distinta")
 
     def __str__(self):
-        return str(self.user)
+        return str(self.counter_part_user)
 
     class Meta:
         verbose_name = "Contacto de contraparte"
