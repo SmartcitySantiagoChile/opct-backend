@@ -100,20 +100,20 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     API endpoint that allows Organizations to be viewed, created, updated and delete.
     Only can delete if does not exist a related User.
     """
-
     queryset = Organization.objects.all().order_by("-name")
-    serializer_class = OrganizationSerializer
     permission_classes = [HasGroupPermission]
 
     required_groups = {
+        "GET": ["Organization"],
         "POST": ["Organization"],
         "PUT": ["Organization"],
         "DELETE": ["Organization"],
     }
 
-    def create(self, request, *args, **kwargs):
-        self.serializer_class = OrganizationCreateSerializer
-        return super().create(request, *args, **kwargs)
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return OrganizationCreateSerializer
+        return OrganizationSerializer
 
     def destroy(self, request, *args, **kwargs):
         object_key = kwargs.get("pk")
