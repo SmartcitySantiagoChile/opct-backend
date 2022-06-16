@@ -157,21 +157,10 @@ class CounterPartContact(models.Model):
 class Organization(models.Model):
     name = models.CharField("Nombre", max_length=50)
     created_at = models.DateTimeField("Fecha de creación")
-    contract_type = models.ForeignKey(
-        ContractType,
-        related_name="organizations",
-        blank=False,
-        on_delete=models.PROTECT,
-        verbose_name="Tipo de Contrato",
-    )
-    default_counterpart = models.ForeignKey(
-        "self",
-        related_name="organizations",
-        blank=True,
-        on_delete=models.PROTECT,
-        verbose_name="Contraparte por defecto",
-        null=True,
-    )
+    contract_type = models.ForeignKey(ContractType, related_name="organizations", blank=False, on_delete=models.PROTECT,
+                                      verbose_name="Tipo de Contrato")
+    default_counterpart = models.ForeignKey("self", related_name="organizations", blank=True, on_delete=models.PROTECT,
+                                            verbose_name="Contraparte por defecto", null=True)
 
     def __str__(self):
         return str(self.name)
@@ -186,19 +175,10 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(_("Correo Electrónico"), unique=True)
-    organization = models.ForeignKey(
-        Organization,
-        on_delete=models.PROTECT,
-        null=True,
-        verbose_name="Organización",
-        blank=True,
-    )
-    access_to_ops = models.BooleanField(
-        "Acceso a Programas de Operación", default=False
-    )
-    access_to_organizations = models.BooleanField(
-        "Acceso a Organizaciones", default=False
-    )
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, null=True, verbose_name="Organización",
+                                     blank=True)
+    access_to_ops = models.BooleanField("Acceso a Programas de Operación", default=False)
+    access_to_organizations = models.BooleanField("Acceso a Organizaciones", default=False)
     access_to_users = models.BooleanField("Acceso a Usuarios", default=False)
 
     CONTRACT_ADMINISTRATOR = "contract_administrator"
