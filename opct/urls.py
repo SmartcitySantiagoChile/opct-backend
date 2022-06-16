@@ -43,6 +43,7 @@ from rest_api.views.helper import (
     ContractTypeViewSet,
     ChangeOPRequestOPChangeLogViewSet,
     ChangeOPRequestReasonChangeLogViewSet,
+    ChangePasswordAPIView,
 )
 from rest_api.views.operation_program import (
     OperationProgramViewSet,
@@ -81,6 +82,7 @@ urlpatterns = [
     path("api/verify/", verify, name="verify"),
     path("api/send-mail/", send_email, name="send-email"),
     path("api/change-op-request-reasons/", change_op_request_reasons, name="change-op-request-reasons"),
+    path("api/change-password/", ChangePasswordAPIView.as_view(), name="change-password"),
     path("admin/", admin.site.urls),
     path("auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

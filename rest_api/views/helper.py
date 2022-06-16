@@ -5,15 +5,15 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import action
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound
+from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_409_CONFLICT,
-    HTTP_204_NO_CONTENT,
+    HTTP_204_NO_CONTENT
 )
 
 from rest_api.exceptions import CustomValidation
@@ -34,7 +34,7 @@ from rest_api.serializers import (
     ContractTypeSerializer,
     OrganizationCreateSerializer,
     ChangeOPRequestOPChangeLogSerializer,
-    ChangeOPRequestReasonChangeLogSerializer,
+    ChangeOPRequestReasonChangeLogSerializer, ChangePasswordSerializer,
 )
 
 
@@ -64,7 +64,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 name = reverse.get_accessor_name()
                 has_reverse_one_to_one = reverse.one_to_one and hasattr(user, name)
                 has_reverse_other = (
-                    not reverse.one_to_one and getattr(user, name).count()
+                        not reverse.one_to_one and getattr(user, name).count()
                 )
                 if has_reverse_one_to_one or has_reverse_other:
                     user_has_reverse = True
@@ -80,20 +80,19 @@ class UserViewSet(viewsets.ModelViewSet):
         except get_user_model().DoesNotExist:
             raise NotFound()
 
-    @action(detail=True, methods=["put"])
-    def change_password(self, request, *args, **kwargs):
-        user = self.get_object()
-        new_password = request.data.get("password")
-        queryset = self.get_queryset()
-        try:
-            user.set_password(new_password)
-            user.save()
-            serializer = UserSerializer(
-                queryset, context={"request": request}, many=True
-            )
-            return Response(serializer.data, status=HTTP_200_OK)
-        except User.DoesNotExist:
-            raise NotFound()
+
+class ChangePasswordAPIView(UpdateAPIView):
+    """
+    API endpoint to change user password
+    """
+    serializer_class = ChangePasswordSerializer
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=HTTP_204_NO_CONTENT)
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):

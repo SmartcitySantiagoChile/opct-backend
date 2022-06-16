@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import Group
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from rest_api.models import (
@@ -119,6 +120,42 @@ class UserTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError()
         self.context["user"] = user
         return data
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """
+    Serializer for password change endpoint.
+    """
+    old_password = serializers.CharField(required=True)
+    new_password1 = serializers.CharField(required=True)
+    new_password2 = serializers.CharField(required=True)
+
+    def validate(self, data):
+        """
+        Check that new_password1 and new_password2 are equal
+        """
+        if data['new_password1'] != data['new_password2']:
+            raise serializers.ValidationError("La nueva contraseña no coincide")
+
+        return data
+
+    def validate_new_password1(self, value):
+        validate_password(value)
+        return value
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Your old password was entered incorrectly. Please enter it again.')
+        return value
+
+    def save(self, **kwargs):
+        password = self.validated_data['new_password1']
+        user = self.context['request'].user
+        user.set_password(password)
+        user.save()
+
+        return user
 
 
 class OperationProgramTypeSerializer(serializers.HyperlinkedModelSerializer):
