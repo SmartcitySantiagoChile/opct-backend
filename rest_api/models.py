@@ -160,7 +160,7 @@ class Organization(models.Model):
     contract_type = models.ForeignKey(ContractType, related_name="organizations", blank=False, on_delete=models.PROTECT,
                                       verbose_name="Tipo de Contrato")
     default_counterpart = models.ForeignKey("self", related_name="organizations", blank=True, on_delete=models.PROTECT,
-                                            verbose_name="Contraparte por defecto", null=True)
+                                            verbose_name="Organización que será contraparte por defecto", null=True)
 
     def __str__(self):
         return str(self.name)
