@@ -8,11 +8,11 @@ from rest_api.models import (
     ContractType,
     Organization,
     OperationProgram,
-    OperationProgramType,
     ChangeOPRequest,
     ChangeOPRequestStatus,
     CounterPartContact,
-    ChangeOPRequestMessage,
+    ChangeOPProcessMessage,
+    OperationProgramType,
 )
 
 
@@ -32,39 +32,44 @@ class BaseTestCase(APITestCase):
     PATCH_REQUEST = "patch"  # partial update
     DELETE_REQUEST = "delete"
 
-    def setUp(self) -> None:
+    def setUp(self):
         """
-        Create contract type, contact user, organization base, op group user, organization group user and
-        user group user
+        Creates organizations with users and relations between them
+        OP1 refers to operator with an old contract
+        OP2 refers to operator with a new contract
         """
+        self.dtpm_contract_type = ContractType.objects.get(id=ContractType.BOTH)
+        self.op1_contract_type = ContractType.objects.get(id=ContractType.OLD)
+        self.op2_contract_type = ContractType.objects.get(id=ContractType.NEW)
+
+        self.dtpm_organization = self.create_organization("DTPM", self.dtpm_contract_type)
+        self.dtpm_contact_user = self.create_user("contact@dtpm.com", "testpassword1",
+                                                  organization=self.dtpm_organization)
+
+        # organization uses old contract
+        self.op1_organization = self.create_organization("OP1", self.op1_contract_type)
+        self.op1_contact_user = self.create_user("contact@op1.com", "testpassword1",
+                                                 organization=self.op1_organization)
+
+        # organization uses new contract
+        self.op2_organization = self.create_organization("OP2", self.op2_contract_type)
+        self.op2_contact_user = self.create_user("contact@op2.com", "testpassword1",
+                                                 organization=self.op2_organization)
+
+        # operator users will be attached as counterpart of DTPM organization
+        CounterPartContact.objects.create(organization=self.dtpm_organization,
+                                          counter_part_user=self.op1_contact_user)
+        CounterPartContact.objects.create(organization=self.dtpm_organization,
+                                          counter_part_user=self.op2_contact_user)
+
+        self.dtpm_admin_user = self.create_user("admin@dtpm.com", "testpassword1", access_to_users=True,
+                                                access_to_organizations=True, access_to_ops=True)
+        self.dtpm_viewer_user = self.create_user("viewer@dtpm.com", "testpassword1", access_to_users=False,
+                                                 access_to_organizations=False, access_to_ops=False)
+
         self.client = APIClient()
-        self.contract_type = ContractType.objects.get(id=1)
 
-        self.organization_base = self.create_organization("Default", self.contract_type)
-        self.organization_contact_user = self.create_user_user(
-            "contact@opct.com", "testpassword1", organization=self.organization_base
-        )
-        CounterPartContact(
-            user=self.organization_contact_user,
-            organization=self.organization_base,
-            counter_part_organization=self.organization_base,
-        ).save()
-        self.op_user = self.create_op_user("op@opct.com", "testpassword1")
-        self.organization_user = self.create_organization_user(
-            "organization@opct.com", "testpassword1"
-        )
-        self.user_user = self.create_user_user("user@opct.com", "testpassword1")
-
-    def _make_request(
-        self,
-        client,
-        method,
-        url,
-        data,
-        status_code,
-        json_process=False,
-        **additional_method_params,
-    ):
+    def _make_request(self, client, method, url, data, status_code, json_process=False, **additional_method_params):
         method_obj = None
         if method == self.GET_REQUEST:
             method_obj = client.get
@@ -79,48 +84,23 @@ class BaseTestCase(APITestCase):
         response = method_obj(url, data, **additional_method_params)
         if response.status_code != status_code:
             print(f"error {response.status_code}: {response.content}")
-            self.assertEqual(response.status_code, status_code)
+            self.assertEqual(status_code, response.status_code)
 
         if json_process:
             return json.loads(response.content)
         return response
 
     @staticmethod
-    def create_op_user(email, password, organization=None):
-        op_user_attributes = {
-            "email": email,
-            "password": password,
-            "organization": organization,
-            "access_to_ops": True,
-            "access_to_organizations": False,
-            "access_to_users": False,
-            "role": "Técnico de planificación",
-        }
-        return get_user_model().objects.create_user(**op_user_attributes)
-
-    @staticmethod
-    def create_organization_user(email, password, organization=None):
-        organization_user_attributes = {
-            "email": email,
-            "password": password,
-            "organization": organization,
-            "access_to_ops": False,
-            "access_to_organizations": True,
-            "access_to_users": False,
-            "role": "Técnico de planificación",
-        }
-        return get_user_model().objects.create_user(**organization_user_attributes)
-
-    @staticmethod
-    def create_user_user(email, password, organization=None):
+    def create_user(email, password, organization=None, access_to_ops=False, access_to_organizations=False,
+                    access_to_users=False, role='default role'):
         user_user_attributes = {
             "email": email,
             "password": password,
             "organization": organization,
-            "access_to_ops": False,
-            "access_to_organizations": False,
-            "access_to_users": True,
-            "role": "Técnico de planificación",
+            "access_to_ops": access_to_ops,
+            "access_to_organizations": access_to_organizations,
+            "access_to_users": access_to_users,
+            "role": role,
         }
         return get_user_model().objects.create_user(**user_user_attributes)
 
@@ -134,20 +114,11 @@ class BaseTestCase(APITestCase):
         return Organization.objects.create(**organization_params)
 
     @staticmethod
-    def create_op(start_at, op_type=1):
-        return OperationProgram.objects.create(
-            start_at=start_at, op_type=OperationProgramType.objects.get(id=op_type)
-        )
+    def create_operation_program(start_at, op_type=OperationProgramType.BASE):
+        return OperationProgram.objects.create(start_at=start_at, op_type=op_type)
 
     @staticmethod
-    def create_change_op_request(
-        user,
-        op,
-        counter_part,
-        contract_type,
-        status_id=1,
-        title="Change OP Request test",
-    ):
+    def create_change_request(user, op, counter_part, contract_type, status_id=1, title="Change OP Request test"):
         params = {
             "created_at": timezone.now(),
             "creator": user,
@@ -162,30 +133,34 @@ class BaseTestCase(APITestCase):
         return ChangeOPRequest.objects.create(**params)
 
     @staticmethod
-    def create_counter_part_contact(organization, user, counter_part_organization):
-        return CounterPartContact.objects.create(
-            organization=organization,
-            user=user,
-            counter_part_organization=counter_part_organization,
-        )
+    def create_counter_part_contact(organization, user):
+        return CounterPartContact.objects.create(organization=organization, counter_part_user=user)
 
     @staticmethod
-    def create_change_op_request_message(user, message, change_op_request):
-        return ChangeOPRequestMessage.objects.create(
+    def create_change_op_process_message(user, message, change_op_request):
+        return ChangeOPProcessMessage.objects.create(
             created_at=timezone.now(),
             creator=user,
             message=message,
             change_op_request=change_op_request,
         )
 
-    def login_op_user(self):
+    def login_dtpm_admin_user(self):
         self.client.logout()
-        self.client.login(username="op@opct.com", password="testpassword1")
+        self.assertTrue(self.client.login(username="admin@dtpm.com", password="testpassword1"))
 
-    def login_user_user(self):
+    def login_dtpm_viewer_user(self):
         self.client.logout()
-        self.client.login(username="user@opct.com", password="testpassword1")
+        self.assertTrue(self.client.login(username="viewer@dtpm.com", password="testpassword1"))
 
-    def login_organization_user(self):
-        self.client.logout()
-        self.client.login(username="organization@opct.com", password="testpassword1")
+
+class ChangeProcessTestCase(BaseTestCase):
+    pass
+
+
+class ChangeRequestTestCase(BaseTestCase):
+    pass
+
+
+class OperationProgramTestCase(BaseTestCase):
+    pass
