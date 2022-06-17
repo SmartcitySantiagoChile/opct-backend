@@ -106,19 +106,15 @@ class OperationProgramStatus(models.Model):
 
 
 class OperationProgram(models.Model):
-    start_at = models.DateField("Fecha de inicio", unique=True)
-    op_type = models.ForeignKey(
-        OperationProgramType,
-        related_name="ops",
-        on_delete=models.PROTECT,
-        verbose_name="Tipo de Programa de Operación",
-    )
+    start_at = models.DateField("Fecha de implementación", unique=True)
+    op_type = models.ForeignKey(OperationProgramType, related_name="ops", on_delete=models.PROTECT,
+                                verbose_name="Tipo de Programa de Operación")
 
     def __str__(self):
         return str(self.start_at)
 
     def op_change_data_logs(self):
-        OPChangeDataLog.objects.all().filter(op=self)
+        return OPChangeDataLog.objects.filter(op=self)
 
     class Meta:
         verbose_name = "Programa de Operación"
@@ -334,20 +330,11 @@ class StatusLog(models.Model):
 
 class OPChangeDataLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    user = models.ForeignKey(
-        User,
-        related_name="op_change_data_logs",
-        on_delete=models.PROTECT,
-        verbose_name="Usuario",
-    )
+    user = models.ForeignKey(User, related_name="op_change_data_logs", on_delete=models.PROTECT, verbose_name="Usuario")
     previous_data = models.JSONField("Datos anteriores")
     new_data = models.JSONField("Datos nuevos")
-    op = models.ForeignKey(
-        OperationProgram,
-        related_name="op_change_data_logs",
-        on_delete=models.PROTECT,
-        verbose_name="Programa de Operación",
-    )
+    op = models.ForeignKey(OperationProgram, related_name="op_change_data_logs", on_delete=models.PROTECT,
+                           verbose_name="Programa de Operación")
 
     def __str__(self):
         return str(self.created_at)
