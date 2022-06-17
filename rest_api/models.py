@@ -122,18 +122,10 @@ class OperationProgram(models.Model):
 
 
 class CounterPartContact(models.Model):
-    organization = models.ForeignKey(
-        "Organization",
-        related_name="counter_part_contacts",
-        on_delete=models.PROTECT,
-        verbose_name="Organización",
-    )
-    counter_part_user = models.ForeignKey(
-        "User",
-        related_name="counter_part_contact",
-        on_delete=models.PROTECT,
-        verbose_name="Contacto de contraparte",
-    )
+    organization = models.ForeignKey("Organization", related_name="counter_part_contacts", on_delete=models.PROTECT,
+                                     verbose_name="Organización")
+    counter_part_user = models.ForeignKey("User", related_name="counter_part_contact", on_delete=models.PROTECT,
+                                          verbose_name="Contacto de contraparte")
 
     def save(self, *args, **kwargs):
         user_organization = self.counter_part_user.organization_id
@@ -168,7 +160,6 @@ class Organization(models.Model):
 
 class User(AbstractUser):
     """User model."""
-
     username = None
     email = models.EmailField(_("Correo Electrónico"), unique=True)
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, null=True, verbose_name="Organización",
@@ -197,13 +188,8 @@ class User(AbstractUser):
 
 class ChangeOPRequestStatus(models.Model):
     name = models.CharField("Nombre", max_length=100)
-    contract_type = models.ForeignKey(
-        ContractType,
-        related_name="change_op_request_statuses",
-        blank=False,
-        on_delete=models.PROTECT,
-        verbose_name="Tipo de Contrato",
-    )
+    contract_type = models.ForeignKey(ContractType, related_name="change_op_request_statuses", blank=False,
+                                      on_delete=models.PROTECT, verbose_name="Tipo de Contrato")
 
     def __str__(self):
         return str(self.name)
@@ -216,23 +202,11 @@ class ChangeOPRequestStatus(models.Model):
 class ChangeOPRequest(models.Model):
     title = models.CharField("Titulo", max_length=50)
     created_at = models.DateTimeField("Fecha de Creación", default=timezone.now)
-    op = models.ForeignKey(
-        OperationProgram,
-        related_name="change_op_requests",
-        on_delete=models.PROTECT,
-        verbose_name="Programa de Operación",
-        blank=True,
-        null=True,
-    )
-    status = models.ForeignKey(
-        ChangeOPRequestStatus,
-        related_name="change_op_requests",
-        on_delete=models.PROTECT,
-        verbose_name="Estado",
-    )
-
+    op = models.ForeignKey(OperationProgram, related_name="change_op_requests", on_delete=models.PROTECT,
+                           verbose_name="Programa de Operación", blank=True, null=True)
+    status = models.ForeignKey(ChangeOPRequestStatus, related_name="change_op_requests", on_delete=models.PROTECT,
+                               verbose_name="Estado")
     updated_at = models.DateTimeField("Fecha de actualización", default=timezone.now)
-
     SHORTENING = "shortening"
     PARAMETERS_ADJUSTMENT = "parameters_adjustment"
     CAPACITY_ADJUSTMENT = "capacity_adjustment"
@@ -274,19 +248,10 @@ class ChangeOPRequest(models.Model):
         (BUS_TYPOLOGY, "Tipología de Bus"),
         (OTHER, "Otros"),
     ]
-
     reason = models.CharField("Motivo", max_length=30, choices=REASON_CHOICES)
-    related_requests = models.ManyToManyField(
-        "self", blank=True, verbose_name="Solicitudes relacionadas"
-    )
-
-    change_op_process = models.ForeignKey(
-        "ChangeOPProcess",
-        related_name="change_op_requests",
-        verbose_name="Solicitudes de cambio",
-        blank=False,
-        on_delete=models.PROTECT,
-    )
+    related_requests = models.ManyToManyField("self", blank=True, verbose_name="Solicitudes relacionadas")
+    change_op_process = models.ForeignKey("ChangeOPProcess", related_name="change_op_requests",
+                                          verbose_name="Solicitudes de cambio", blank=False, on_delete=models.PROTECT)
 
     def __str__(self):
         return str(self.title)
@@ -298,27 +263,13 @@ class ChangeOPRequest(models.Model):
 
 class StatusLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    user = models.ForeignKey(
-        User, related_name="+", on_delete=models.PROTECT, verbose_name="Usuario"
-    )
-    previous_status = models.ForeignKey(
-        ChangeOPRequestStatus,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Estado previo",
-    )
-    new_status = models.ForeignKey(
-        ChangeOPRequestStatus,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Estado nuevo",
-    )
-    change_op_request = models.ForeignKey(
-        ChangeOPRequest,
-        related_name="status_logs",
-        on_delete=models.PROTECT,
-        verbose_name="Solicitud de cambio de Programa de Operación",
-    )
+    user = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT, verbose_name="Usuario")
+    previous_status = models.ForeignKey(ChangeOPRequestStatus, related_name="+", on_delete=models.PROTECT,
+                                        verbose_name="Estado previo")
+    new_status = models.ForeignKey(ChangeOPRequestStatus, related_name="+", on_delete=models.PROTECT,
+                                   verbose_name="Estado nuevo")
+    change_op_request = models.ForeignKey(ChangeOPRequest, related_name="status_logs", on_delete=models.PROTECT,
+                                          verbose_name="Solicitud de cambio de Programa de Operación")
 
     def __str__(self):
         return str(self.created_at)
@@ -346,13 +297,8 @@ class OPChangeDataLog(models.Model):
 
 class ChangeOPProcessStatus(models.Model):
     name = models.CharField("Nombre", max_length=100)
-    contract_type = models.ForeignKey(
-        ContractType,
-        related_name="change_op_process_statuses",
-        blank=False,
-        on_delete=models.PROTECT,
-        verbose_name="Tipo de Contrato",
-    )
+    contract_type = models.ForeignKey(ContractType, related_name="change_op_process_statuses", blank=False,
+                                      on_delete=models.PROTECT, verbose_name="Tipo de Contrato")
 
     def __str__(self):
         return str(self.name)
@@ -366,41 +312,16 @@ class ChangeOPProcess(models.Model):
     title = models.CharField("Titulo", max_length=50)
     message = models.TextField("Mensaje")
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    counterpart = models.ForeignKey(
-        Organization,
-        related_name="change_op_processes",
-        on_delete=models.PROTECT,
-        verbose_name="Contraparte",
-    )
-    contract_type = models.ForeignKey(
-        ContractType,
-        related_name="change_op_processes",
-        on_delete=models.PROTECT,
-        verbose_name="Tipo de Contrato",
-    )
+    counterpart = models.ForeignKey(Organization, related_name="change_op_processes", on_delete=models.PROTECT,
+                                    verbose_name="Contraparte")
+    contract_type = models.ForeignKey(ContractType, related_name="change_op_processes", on_delete=models.PROTECT,
+                                      verbose_name="Tipo de Contrato")
     updated_at = models.DateTimeField("Fecha de actualización", default=timezone.now)
-    base_op = models.ForeignKey(
-        OperationProgram,
-        related_name="change_op_processes",
-        on_delete=models.PROTECT,
-        verbose_name="Programa de Operación Base",
-        blank=True,
-        null=True,
-    )
-    creator = models.ForeignKey(
-        User,
-        related_name="change_op_processes",
-        on_delete=models.PROTECT,
-        blank=False,
-        verbose_name="Creador",
-    )
-
-    status = models.ForeignKey(
-        ChangeOPProcessStatus,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Estado",
-    )
+    base_op = models.ForeignKey(OperationProgram, related_name="change_op_processes", on_delete=models.PROTECT,
+                                verbose_name="Programa de Operación Base", blank=True, null=True)
+    creator = models.ForeignKey(User, related_name="change_op_processes", on_delete=models.PROTECT, blank=False,
+                                verbose_name="Creador")
+    status = models.ForeignKey(ChangeOPProcessStatus, related_name="+", on_delete=models.PROTECT, verbose_name="Estado")
     op_release_date = models.DateField("Fecha de implementación", blank=True, null=True)
 
     def __str__(self):
@@ -413,27 +334,13 @@ class ChangeOPProcess(models.Model):
 
 class ChangeOPProcessStatusLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    user = models.ForeignKey(
-        User, related_name="+", on_delete=models.PROTECT, verbose_name="Usuario"
-    )
-    previous_status = models.ForeignKey(
-        ChangeOPProcessStatus,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Estado previo",
-    )
-    new_status = models.ForeignKey(
-        ChangeOPProcessStatus,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Estado nuevo",
-    )
-    change_op_process = models.ForeignKey(
-        ChangeOPProcess,
-        related_name="change_op_process_status_logs",
-        on_delete=models.PROTECT,
-        verbose_name="Proceso de cambio de PO",
-    )
+    user = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT, verbose_name="Usuario")
+    previous_status = models.ForeignKey(ChangeOPProcessStatus, related_name="+", on_delete=models.PROTECT,
+                                        verbose_name="Estado previo")
+    new_status = models.ForeignKey(ChangeOPProcessStatus, related_name="+", on_delete=models.PROTECT,
+                                   verbose_name="Estado nuevo")
+    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="change_op_process_status_logs",
+                                          on_delete=models.PROTECT, verbose_name="Proceso de cambio de PO")
 
     def __str__(self):
         return str(self.created_at)
@@ -445,12 +352,9 @@ class ChangeOPProcessStatusLog(models.Model):
 
 class ChangeOPProcessFile(models.Model):
     file = models.FileField("Archivo")
-    change_op_process = models.ForeignKey(
-        ChangeOPProcess,
-        related_name="change_op_process_files",
-        on_delete=models.PROTECT,
-        verbose_name="Proceso de cambio de Programa de Operación",
-    )
+    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="change_op_process_files",
+                                          on_delete=models.PROTECT,
+                                          verbose_name="Proceso de cambio de Programa de Operación")
 
     def __str__(self):
         return str(self.file)
@@ -462,21 +366,12 @@ class ChangeOPProcessFile(models.Model):
 
 class ChangeOPProcessMessage(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    creator = models.ForeignKey(
-        User,
-        related_name="change_op_process_messages",
-        on_delete=models.PROTECT,
-        blank=False,
-        verbose_name="Creador",
-    )
+    creator = models.ForeignKey(User, related_name="change_op_process_messages", on_delete=models.PROTECT, blank=False,
+                                verbose_name="Creador")
     message = models.TextField("Mensaje")
-    change_op_process = models.ForeignKey(
-        ChangeOPProcess,
-        related_name="change_op_process_messages",
-        on_delete=models.PROTECT,
-        null=False,
-        verbose_name="Solicitud de cambio de PO",
-    )
+    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="change_op_process_messages",
+                                          on_delete=models.PROTECT, null=False,
+                                          verbose_name="Solicitud de cambio de PO")
 
     def __str__(self):
         return str(self.message)
@@ -488,53 +383,29 @@ class ChangeOPProcessMessage(models.Model):
 
 class ChangeOPProcessMessageFile(models.Model):
     file = models.FileField("Archivo")
-    change_op_process_message = models.ForeignKey(
-        ChangeOPProcessMessage,
-        related_name="change_op_process_message_files",
-        on_delete=models.PROTECT,
-        verbose_name="Mensaje de proceso de cambio de Programa de Operación",
-    )
+    change_op_process_message = models.ForeignKey(ChangeOPProcessMessage,
+                                                  related_name="change_op_process_message_files",
+                                                  on_delete=models.PROTECT,
+                                                  verbose_name="Mensaje de proceso de cambio de Programa de Operación")
 
     def __str__(self):
         return str(self.file)
 
     class Meta:
         verbose_name = "Archivo asociado al mensaje de solicitud de cambio de PO"
-        verbose_name_plural = (
-            "Archivos asociados a mensaje de solicitud de cambio de PO"
-        )
+        verbose_name_plural = "Archivos asociados a mensaje de solicitud de cambio de PO"
 
 
 class OPChangeLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    creator = models.ForeignKey(
-        User,
-        related_name="op_change_logs",
-        on_delete=models.PROTECT,
-        blank=False,
-        verbose_name="Creador",
-    )
-    previous_op = models.ForeignKey(
-        OperationProgram,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Programa de Operación previo",
-        null=True,
-    )
-    new_op = models.ForeignKey(
-        OperationProgram,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Nuevo Programa de Operación",
-        null=True,
-    )
-    change_op_process = models.ForeignKey(
-        ChangeOPProcess,
-        related_name="op_change_logs",
-        on_delete=models.PROTECT,
-        verbose_name="Solicitud de cambio de PO",
-    )
-
+    creator = models.ForeignKey(User, related_name="op_change_logs", on_delete=models.PROTECT, blank=False,
+                                verbose_name="Creador")
+    previous_op = models.ForeignKey(OperationProgram, related_name="+", on_delete=models.PROTECT,
+                                    verbose_name="Programa de Operación previo", null=True)
+    new_op = models.ForeignKey(OperationProgram, related_name="+", on_delete=models.PROTECT,
+                               verbose_name="Nuevo Programa de Operación", null=True)
+    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="op_change_logs", on_delete=models.PROTECT,
+                                          verbose_name="Solicitud de cambio de PO")
     update_deadlines = models.BooleanField("Actualiza plazos", default=False)
 
     def __str__(self):
@@ -547,33 +418,14 @@ class OPChangeLog(models.Model):
 
 class ChangeOPRequestOPChangeLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    creator = models.ForeignKey(
-        User,
-        related_name="change_op_request_op_change_logs",
-        on_delete=models.PROTECT,
-        blank=False,
-        verbose_name="Creador",
-    )
-    previous_op = models.ForeignKey(
-        OperationProgram,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Programa de Operación previo",
-        null=True,
-    )
-    new_op = models.ForeignKey(
-        OperationProgram,
-        related_name="+",
-        on_delete=models.PROTECT,
-        verbose_name="Nuevo Programa de Operación",
-        null=True,
-    )
-    change_op_request = models.ForeignKey(
-        ChangeOPRequest,
-        related_name="change_op_request_op_change_logs",
-        on_delete=models.PROTECT,
-        verbose_name="Solicitud de cambio de PO",
-    )
+    creator = models.ForeignKey(User, related_name="change_op_request_op_change_logs", on_delete=models.PROTECT,
+                                blank=False, verbose_name="Creador")
+    previous_op = models.ForeignKey(OperationProgram, related_name="+", on_delete=models.PROTECT,
+                                    verbose_name="Programa de Operación previo", null=True)
+    new_op = models.ForeignKey(OperationProgram, related_name="+", on_delete=models.PROTECT,
+                               verbose_name="Nuevo Programa de Operación", null=True)
+    change_op_request = models.ForeignKey(ChangeOPRequest, related_name="change_op_request_op_change_logs",
+                                          on_delete=models.PROTECT, verbose_name="Solicitud de cambio de PO")
 
     def __str__(self):
         return str(self.created_at)
@@ -585,25 +437,12 @@ class ChangeOPRequestOPChangeLog(models.Model):
 
 class ChangeOPRequestReasonChangeLog(models.Model):
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    creator = models.ForeignKey(
-        User,
-        related_name="change_op_request_reason_change_logs",
-        on_delete=models.PROTECT,
-        blank=False,
-        verbose_name="Creador",
-    )
-    previous_reason = models.CharField(
-        "Motivo", max_length=30, choices=ChangeOPRequest.REASON_CHOICES
-    )
-    new_reason = models.CharField(
-        "Motivo", max_length=30, choices=ChangeOPRequest.REASON_CHOICES
-    )
-    change_op_request = models.ForeignKey(
-        ChangeOPRequest,
-        related_name="change_op_request_reason_change_logs",
-        on_delete=models.PROTECT,
-        verbose_name="Solicitud de cambio de PO",
-    )
+    creator = models.ForeignKey(User, related_name="change_op_request_reason_change_logs", on_delete=models.PROTECT,
+                                blank=False, verbose_name="Creador")
+    previous_reason = models.CharField("Motivo", max_length=30, choices=ChangeOPRequest.REASON_CHOICES)
+    new_reason = models.CharField("Motivo", max_length=30, choices=ChangeOPRequest.REASON_CHOICES)
+    change_op_request = models.ForeignKey(ChangeOPRequest, related_name="change_op_request_reason_change_logs",
+                                          on_delete=models.PROTECT, verbose_name="Solicitud de cambio de PO")
 
     def __str__(self):
         return str(self.created_at)
