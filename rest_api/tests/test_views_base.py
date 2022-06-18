@@ -4,16 +4,8 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework.test import APITestCase, APIClient
 
-from rest_api.models import (
-    ContractType,
-    Organization,
-    OperationProgram,
-    ChangeOPRequest,
-    ChangeOPRequestStatus,
-    CounterPartContact,
-    ChangeOPProcessMessage,
-    OperationProgramType,
-)
+from rest_api.models import ContractType, Organization, OperationProgram, CounterPartContact, ChangeOPProcessMessage, \
+    OperationProgramType, ChangeOPProcess, ChangeOPProcessStatus
 
 
 class BaseTestCase(APITestCase):
@@ -24,6 +16,7 @@ class BaseTestCase(APITestCase):
         "groups.json",
         "grouppermissions.json",
         "changeoprequeststatuses.json",
+        "changeopprocessstatuses.json",
     ]
 
     GET_REQUEST = "get"
@@ -115,22 +108,25 @@ class BaseTestCase(APITestCase):
 
     @staticmethod
     def create_operation_program(start_at, op_type=OperationProgramType.BASE):
-        return OperationProgram.objects.create(start_at=start_at, op_type=op_type)
+        return OperationProgram.objects.create(start_at=start_at, op_type_id=op_type)
 
     @staticmethod
-    def create_change_request(user, op, counter_part, contract_type, status_id=1, title="Change OP Request test"):
+    def create_op_process(user, counter_part, contract_type, op=None, status_id=1, title="Change OP Request test"):
         params = {
             "created_at": timezone.now(),
             "creator": user,
-            "op": op,
-            "status": ChangeOPRequestStatus.objects.get(id=status_id),
+            "operation_program": op,
+            "status": ChangeOPProcessStatus.objects.get(id=status_id),
             "counterpart": counter_part,
             "contract_type": contract_type,
             "title": title,
             "op_release_date": "2030-01-01",
-            "reason": "other",
         }
-        return ChangeOPRequest.objects.create(**params)
+        return ChangeOPProcess.objects.create(**params)
+
+    @staticmethod
+    def create_op_request():
+        pass
 
     @staticmethod
     def create_counter_part_contact(organization, user):
