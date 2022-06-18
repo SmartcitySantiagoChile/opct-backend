@@ -10,32 +10,13 @@ from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_200_OK,
-    HTTP_409_CONFLICT,
-    HTTP_204_NO_CONTENT
-)
+from rest_framework.status import HTTP_200_OK, HTTP_409_CONFLICT, HTTP_204_NO_CONTENT
 
 from rest_api.exceptions import CustomValidation
-from rest_api.models import (
-    User,
-    Organization,
-    ContractType,
-    ChangeOPRequest,
-    ChangeOPRequestOPChangeLog,
-    ChangeOPRequestReasonChangeLog,
-)
+from rest_api.models import User, Organization, ContractType, ChangeOPRequest
 from rest_api.permissions import HasGroupPermission
-from rest_api.serializers import (
-    UserSerializer,
-    UserLoginSerializer,
-    UserTokenSerializer,
-    OrganizationSerializer,
-    ContractTypeSerializer,
-    OrganizationCreateSerializer,
-    ChangeOPRequestOPChangeLogSerializer,
-    ChangeOPRequestReasonChangeLogSerializer, ChangePasswordSerializer,
-)
+from rest_api.serializers import UserSerializer, UserLoginSerializer, UserTokenSerializer, OrganizationSerializer, \
+    ContractTypeSerializer, OrganizationCreateSerializer, ChangePasswordSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -139,24 +120,6 @@ class ContractTypeViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = ContractType.objects.all().order_by("-name")
     serializer_class = ContractTypeSerializer
-
-
-class ChangeOPRequestOPChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows Change OP Request OP Change Log to be viewed.
-    """
-
-    queryset = ChangeOPRequestOPChangeLog.objects.all().order_by("id")
-    serializer_class = ChangeOPRequestOPChangeLogSerializer
-
-
-class ChangeOPRequestReasonChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows Change OP Request Reason Change Log to be viewed.
-    """
-
-    queryset = ChangeOPRequestReasonChangeLog.objects.all().order_by("id")
-    serializer_class = ChangeOPRequestReasonChangeLogSerializer
 
 
 @api_view(["GET"])

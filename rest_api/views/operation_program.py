@@ -3,36 +3,23 @@ from rest_framework import filters
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_409_CONFLICT,
-    HTTP_204_NO_CONTENT,
-)
+from rest_framework.status import HTTP_409_CONFLICT, HTTP_204_NO_CONTENT
 
 from rest_api.exceptions import CustomValidation
-from rest_api.models import (
-    OperationProgram,
-    OperationProgramType,
-    OPChangeDataLog,
-    OperationProgramStatus,
-)
+from rest_api.models import OperationProgram, OperationProgramType, OPChangeLog, OperationProgramStatus
 from rest_api.permissions import HasGroupPermission
-from rest_api.serializers import (
-    OperationProgramSerializer,
-    OperationProgramTypeSerializer,
-    OperationProgramDetailSerializer,
-    OPChangeDataLogSerializer,
-    OperationProgramStatusSerializer,
-    OperationProgramCreateSerializer,
-)
+from rest_api.serializers import OperationProgramSerializer, OperationProgramTypeSerializer, \
+    OperationProgramDetailSerializer, OPChangeLogSerializer, OperationProgramStatusSerializer, \
+    OperationProgramCreateSerializer
 
 
-class OPChangeDataLogViewset(viewsets.ReadOnlyModelViewSet):
+class OPChangeLogViewset(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows OPChangeDataLog to be viewed.
+    API endpoint that allows OPChangeLog to be viewed.
     """
 
-    queryset = OPChangeDataLog.objects.all()
-    serializer_class = OPChangeDataLogSerializer
+    queryset = OPChangeLog.objects.all()
+    serializer_class = OPChangeLogSerializer
 
 
 class OperationProgramStatusViewSet(viewsets.ReadOnlyModelViewSet):
@@ -93,19 +80,13 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
         # TODO: send email
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
-        op_change_data_logs = (
-            OPChangeDataLog.objects.all().filter(op=instance).order_by("-created_at")
-        )
+        op_change_data_logs = OPChangeLog.objects.all().filter(operation_program=instance).order_by("-created_at")
         if op_change_data_logs:
             previous_data = op_change_data_logs[0].new_data
         else:
-            previous_data = {
-                "date": instance.start_at.isoformat(),
-                "op_type": instance.op_type.name,
-            }
-        serializer = OperationProgramCreateSerializer(
-            instance, context={"request": request}, data=request.data, partial=partial
-        )
+            previous_data = {"date": instance.start_at.isoformat(), "op_type": instance.op_type.name, }
+        serializer = OperationProgramCreateSerializer(instance, context={"request": request}, data=request.data,
+                                                      partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
@@ -113,13 +94,8 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
         new_data["date"] = instance.start_at.isoformat()
         new_data["op_type"] = instance.op_type.name
         try:
-            OPChangeDataLog.objects.create(
-                created_at=timezone.now(),
-                user=request.user,
-                previous_data=previous_data,
-                new_data=new_data,
-                op=instance,
-            )
+            OPChangeLog.objects.create(created_at=timezone.now(), user=request.user, previous_data=previous_data,
+                                       new_data=new_data, operation_program=instance, )
         except Exception as e:
             print(e)
         if getattr(instance, "_prefetched_objects_cache", None):
@@ -139,10 +115,10 @@ class OperationProgramTypeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = OperationProgramTypeSerializer
 
 
-class OPChangeDataLogViewSet(viewsets.ReadOnlyModelViewSet):
+class OPChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows OPChangeDataLog to be viewed.
+    API endpoint that allows OPChangeLog to be viewed.
     """
 
-    queryset = OPChangeDataLog.objects.all().order_by("-created_at")
-    serializer_class = OPChangeDataLogSerializer
+    queryset = OPChangeLog.objects.all().order_by("-created_at")
+    serializer_class = OPChangeLogSerializer

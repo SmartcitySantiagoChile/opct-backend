@@ -6,97 +6,56 @@ from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_200_OK,
-    HTTP_201_CREATED,
-)
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
-from rest_api.models import (
-    OperationProgram,
-    ChangeOPRequest,
-    ChangeOPRequestStatus,
-    OPChangeLog,
-    ChangeOPProcessMessage,
-    ChangeOPProcessFile,
-    ChangeOPProcessMessageFile,
-    ChangeOPProcess,
-    ChangeOPProcessStatus,
-    ChangeOPProcessStatusLog,
-)
-from rest_api.serializers import (
-    OPChangeLogSerializer,
-    ChangeOPRequestCreateSerializer,
-    ChangeOPProcessMessageSerializer,
-    CreateChangeOPProcessMessageSerializer,
-    ChangeOPProcessFileSerializer,
-    ChangeOPProcessMessageFileSerializer,
-    ChangeOPProcessSerializer,
-    ChangeOPProcessStatusSerializer,
-    ChangeOPProcessDetailSerializer,
-    ChangeOPProcessStatusLogSerializer,
-    ChangeOPProcessCreateSerializer,
-)
+from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, \
+    ChangeOPProcessMessage, ChangeOPProcessFile, ChangeOPProcessMessageFile, ChangeOPProcess, ChangeOPProcessStatus, \
+    ChangeOPProcessLog, OPChangeLog
+from rest_api.serializers import OPChangeLogSerializer, ChangeOPProcessMessageSerializer, \
+    CreateChangeOPProcessMessageSerializer, ChangeOPProcessFileSerializer, \
+    ChangeOPProcessMessageFileSerializer, ChangeOPProcessSerializer, ChangeOPProcessStatusSerializer, \
+    ChangeOPProcessDetailSerializer, ChangeOPProcessCreateSerializer, ChangeOPProcessLogSerializer
 
 
-class ChangeOPProcessViewSet(
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
+class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                             mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     API endpoint that allows Change OP Process to be viewed, created and updated.
     """
-
     queryset = ChangeOPProcess.objects.all().order_by("-created_at")
     serializer_class = ChangeOPProcessSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = [
-        "op__start_at",
-        "id",
-        "title",
-    ]  # TODO: verificar si está filtrando por motivo
+    search_fields = ["op__start_at", "id", "title", ]
+
+    # TODO: verificar si está filtrando por motivo
 
     def list(self, request, *args, **kwargs):
         user = request.user
         user_organization = user.organization
         queryset = self.filter_queryset(self.get_queryset()).filter(
-            Q(counterpart=user_organization)
-            | Q(creator__organization=user_organization)
-        )
+            Q(counterpart=user_organization) | Q(creator__organization=user_organization))
         page = self.paginate_queryset(queryset)
-        serializer = ChangeOPProcessSerializer(
-            page, context={"request": request}, many=True
-        )
+        serializer = ChangeOPProcessSerializer(page, context={"request": request}, many=True)
         return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        print(request.data["base_op"])
         # TODO: send email
         contract_type_id = request.data["contract_type"].split("/")[-2]
         if contract_type_id == "3":
             contract_type_id = "2"
-        status_id = ChangeOPProcessStatus.objects.get(
-            contract_type_id=contract_type_id, name="Evaluando admisibilidad"
-        ).pk
-        status_url = reverse_url(
-            "changeopprocessstatus-detail", kwargs=dict(pk=status_id)
-        )
+        status_id = ChangeOPProcessStatus.objects.get(contract_type_id=contract_type_id,
+                                                      name="Evaluando admisibilidad").pk
+        status_url = reverse_url("changeopprocessstatus-detail", kwargs=dict(pk=status_id))
         data = request.data.copy()
         data["status"] = status_url
-        serializer = ChangeOPProcessCreateSerializer(
-            data=data, context={"request": request}
-        )
+        serializer = ChangeOPProcessCreateSerializer(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         change_op_process = serializer.save()
         errors = []
         try:
             files = request.FILES.getlist("files")
             for file in files:
-                instance = ChangeOPProcessFile(
-                    file=file, change_op_process_id=change_op_process.id
-                )
+                instance = ChangeOPProcessFile(file=file, change_op_process_id=change_op_process.id)
                 instance.save()
         except Exception as e:
             errors.append(e)
@@ -105,9 +64,7 @@ class ChangeOPProcessViewSet(
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = ChangeOPProcessDetailSerializer(
-            instance, context={"request": request}
-        )
+        serializer = ChangeOPProcessDetailSerializer(instance, context={"request": request})
         return Response(serializer.data)
 
     @action(detail=True, methods=["put"], url_path="change-op")
@@ -117,9 +74,7 @@ class ChangeOPProcessViewSet(
         new_op_key = request.data.get("op")
         update_deadlines = request.data.get("update_deadlines")
         queryset = self.get_queryset()
-        serializer = ChangeOPProcessSerializer(
-            queryset, context={"request": request}, many=True
-        )
+        serializer = ChangeOPProcessSerializer(queryset, context={"request": request}, many=True)
         try:
             previous_op = obj.base_op
             if new_op_key:
@@ -127,6 +82,7 @@ class ChangeOPProcessViewSet(
             else:
                 new_op = new_op_key
                 obj.op_release_date = new_op_key
+
             if previous_op:
                 if new_op_key == previous_op.pk:
                     return Response(serializer.data, status=HTTP_200_OK)
@@ -136,18 +92,15 @@ class ChangeOPProcessViewSet(
             obj.base_op = new_op
             if update_deadlines:
                 obj.op_release_date = new_op.start_at
+                log_type = ChangeOPProcessLog.OP_CHANGE
             else:
                 update_deadlines = False
+                log_type = ChangeOPProcessLog.OP_CHANGE_WITH_DEADLINE_UPDATED
             obj.save()
-            op_change_log = OPChangeLog(
-                created_at=timezone.now(),
-                creator=request.user,
-                previous_op=previous_op,
-                new_op=new_op,
-                change_op_process=obj,
-                update_deadlines=update_deadlines,
-            )
-            op_change_log.save()
+            ChangeOPProcessLog.objects.create(
+                created_at=timezone.now(), user=request.user, change_op_process=obj, type=log_type,
+                previous_data=dict(date=str(previous_op.start_at), type=previous_op.op_type.name),
+                new_data=dict(date=str(new_op.start_at), type=new_op.op_type.name, update_deadlines=update_deadlines))
             return Response(serializer.data, status=HTTP_200_OK)
         except OperationProgram.DoesNotExist:
             raise NotFound()
@@ -162,17 +115,11 @@ class ChangeOPProcessViewSet(
             previous_status = obj.status
             obj.status = new_status
             obj.save()
-            change_op_process_status_log = ChangeOPProcessStatusLog(
-                created_at=timezone.now(),
-                user=request.user,
-                previous_status=previous_status,
-                new_status=new_status,
-                change_op_process=obj,
-            )
-            change_op_process_status_log.save()
-            serializer = ChangeOPProcessSerializer(
-                queryset, context={"request": request}, many=True
-            )
+            ChangeOPProcessLog.objects.create(created_at=timezone.now(), user=request.user,
+                                              type=ChangeOPProcessLog.STATUS_CHANGE,
+                                              previous_data=dict(value=previous_status),
+                                              new_status=dict(value=new_status), change_op_process=obj)
+            serializer = ChangeOPProcessSerializer(queryset, context={"request": request}, many=True)
             return Response(serializer.data, status=HTTP_200_OK)
         except ChangeOPProcessStatus.DoesNotExist:
             raise NotFound()
@@ -210,13 +157,12 @@ class ChangeOPProcessMessageFileViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = ChangeOPProcessMessageFileSerializer
 
 
-class ChangeOPProcessStatusLogViewSet(viewsets.ReadOnlyModelViewSet):
+class ChangeOPProcessLogViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows ChangeOPProcessStatusLog to be viewed.
+    API endpoint that allows ChangeOPProcessLog to be viewed.
     """
-
-    queryset = ChangeOPProcessStatusLog.objects.all().order_by("-created_at")
-    serializer_class = ChangeOPProcessStatusLogSerializer
+    queryset = ChangeOPProcessLog.objects.all().order_by("-created_at")
+    serializer_class = ChangeOPProcessLogSerializer
 
 
 class OPChangeLogViewSet(viewsets.ReadOnlyModelViewSet):
@@ -259,10 +205,8 @@ class ChangeOPProcessMessageViewSet(
         try:
             files = request.FILES.getlist("files")
             for file in files:
-                instance = ChangeOPProcessMessageFile(
-                    file=file, change_op_process_message_id=change_op_process_message.id
-                )
-                instance.save()
+                ChangeOPProcessMessageFile.objects.create(file=file,
+                                                          change_op_process_message_id=change_op_process_message.id)
         except Exception as e:
             errors.append(e)
         headers = self.get_success_headers(serializer.data)

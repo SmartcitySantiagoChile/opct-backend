@@ -4,30 +4,17 @@ from rest_framework import filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
-from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
 )
 
-from rest_api.models import (
-    OperationProgram,
-    ChangeOPRequest,
-    ChangeOPRequestStatus,
-    OPChangeLog,
-    StatusLog,
-    ChangeOPProcessFile,
-    ChangeOPRequestOPChangeLog,
-    ChangeOPRequestReasonChangeLog,
-)
-from rest_api.serializers import (
-    ChangeOPRequestSerializer,
-    ChangeOPRequestStatusSerializer,
-    ChangeOPRequestDetailSerializer,
-    StatusLogSerializer,
-    ChangeOPRequestCreateSerializer,
-)
+from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, ChangeOPProcessFile, \
+    ChangeOPRequestLog
+from rest_api.serializers import ChangeOPRequestSerializer, ChangeOPRequestStatusSerializer, \
+    ChangeOPRequestDetailSerializer, ChangeOPRequestCreateSerializer
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -48,22 +35,8 @@ class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ["contract_type__name"]
 
 
-class StatusLogViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows StatusLog to be viewed.
-    """
-
-    queryset = StatusLog.objects.all().order_by("-created_at")
-    serializer_class = StatusLogSerializer
-
-
-class ChangeOPRequestViewSet(
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
+class ChangeOPRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                             mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     API endpoint that allows Change OP Request to be viewed, created and updated.
     """
@@ -149,14 +122,10 @@ class ChangeOPRequestViewSet(
                     return Response(serializer.data, status=HTTP_200_OK)
             obj.op = new_op
             obj.save()
-            op_change_log = ChangeOPRequestOPChangeLog(
-                created_at=timezone.now(),
-                creator=request.user,
-                previous_op=previous_op,
-                new_op=new_op,
-                change_op_request=obj,
-            )
-            op_change_log.save()
+            ChangeOPRequestLog.objects.create(
+                created_at=timezone.now(), user=request.user, type=ChangeOPRequestLog.OP_CHANGE, change_op_request=obj,
+                previous_data=dict(date=str(previous_op.start_at), type=previous_op.op_type.name),
+                new_data=dict(date=str(new_op.start_at), type=new_op.op_type.name))
             return Response(serializer.data, status=HTTP_200_OK)
         except OperationProgram.DoesNotExist:
             raise NotFound()
@@ -171,17 +140,10 @@ class ChangeOPRequestViewSet(
             previous_status = obj.status
             obj.status = new_status
             obj.save()
-            status_log = StatusLog(
-                created_at=timezone.now(),
-                user=request.user,
-                previous_status=previous_status,
-                new_status=new_status,
-                change_op_request=obj,
-            )
-            status_log.save()
-            serializer = ChangeOPRequestSerializer(
-                queryset, context={"request": request}, many=True
-            )
+            ChangeOPRequestLog.objects.create(
+                created_at=timezone.now(), user=request.user, type=ChangeOPRequestLog.STATUS_CHANGE,
+                change_op_request=obj, previous_data=dict(value=previous_status), new_data=dict(value=new_status))
+            serializer = ChangeOPRequestSerializer(queryset, context={"request": request}, many=True)
             return Response(serializer.data, status=HTTP_200_OK)
         except ChangeOPRequestStatus.DoesNotExist:
             raise NotFound()
@@ -196,14 +158,9 @@ class ChangeOPRequestViewSet(
             previous_reason = obj.reason
             obj.reason = new_reason
             obj.save()
-            reason_log = ChangeOPRequestReasonChangeLog(
-                created_at=timezone.now(),
-                creator=request.user,
-                previous_reason=previous_reason,
-                new_reason=new_reason,
-                change_op_request=obj,
-            )
-            reason_log.save()
+            ChangeOPRequestLog.objects.create(
+                created_at=timezone.now(), user=request.user, type=ChangeOPRequestLog.REASON_CHANGE,
+                change_op_request=obj, previous_data=dict(value=previous_reason), new_data=dict(value=new_reason))
             serializer = ChangeOPRequestSerializer(
                 queryset, context={"request": request}, many=True
             )

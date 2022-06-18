@@ -81,11 +81,6 @@ class ChangeOPProcessFile(NestedStackedInline):
     fk_name = "change_op_process"
 
 
-class StatusLog(NestedStackedInline):
-    model = models.StatusLog
-    fk_name = "change_op_process"
-
-
 class OPChangeLog(NestedStackedInline):
     model = models.OPChangeLog
     fk_name = "change_op_process"
@@ -100,16 +95,20 @@ class ChangeOpProcessAdmin(NestedModelAdmin):
     inlines = [ChangeOPProcessFile, ChangeOPProcessMessage]
 
 
-class OPChangeDataLogAdmin(admin.ModelAdmin):
-    model = models.OPChangeDataLog
+class OPChangeLogAdmin(admin.ModelAdmin):
+    model = models.OPChangeLog
 
 
 class ChangeOpRequestAdmin(admin.ModelAdmin):
     model = models.ChangeOPRequest
 
 
-class OPChangeLogAdmin(admin.ModelAdmin):
-    model = models.OPChangeLog
+class ChangeOPProcessLogAdmin(admin.ModelAdmin):
+    model = models.ChangeOPProcessLog
+
+
+class ChangeOPRequestLogAdmin(admin.ModelAdmin):
+    model = models.ChangeOPRequestLog
 
 
 admin.site.register(models.ChangeOPProcess, ChangeOpProcessAdmin)
@@ -122,7 +121,6 @@ admin.site.register(models.OperationProgram)
 admin.site.register(models.OperationProgramStatus, OperationProgramStatusAdmin)
 admin.site.register(models.OperationProgramType)
 admin.site.register(models.Organization, OrganizationAdmin)
-admin.site.register(models.ChangeOPProcessStatusLog)
-admin.site.register(models.OPChangeDataLog, OPChangeDataLogAdmin)
-admin.site.register(models.StatusLog)
-admin.site.register(models.ChangeOPRequestReasonChangeLog)
+admin.site.register(models.ChangeOPProcessLog, ChangeOPProcessLogAdmin)
+admin.site.register(models.ChangeOPRequestLog, ChangeOPRequestLogAdmin)
+admin.site.register(RouteDictionary, RouteDictionaryAdmin)

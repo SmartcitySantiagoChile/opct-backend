@@ -19,39 +19,14 @@ from django.views.generic.base import RedirectView
 from rest_framework import routers
 
 from opct import settings
-from rest_api.views.change_op_process import (
-    ChangeOPProcessMessageViewSet,
-    OPChangeLogViewSet,
-    ChangeOPProcessStatusLogViewSet,
-    ChangeOPProcessFileViewset,
-    ChangeOPProcessMessageFileViewset,
-    ChangeOPProcessViewSet,
-    ChangeOPProcessStatusViewSet,
-)
-from rest_api.views.change_op_request import (
-    ChangeOPRequestViewSet,
-    ChangeOPRequestStatusViewSet,
-    StatusLogViewSet,
-)
-from rest_api.views.helper import (
-    login,
-    verify,
-    send_email,
-    change_op_request_reasons,
-    UserViewSet,
-    OrganizationViewSet,
-    ContractTypeViewSet,
-    ChangeOPRequestOPChangeLogViewSet,
-    ChangeOPRequestReasonChangeLogViewSet,
-    ChangePasswordAPIView,
-)
-from rest_api.views.operation_program import (
-    OperationProgramViewSet,
-    OperationProgramTypeViewSet,
-    OPChangeDataLogViewset,
-    OperationProgramStatusViewSet,
-    OPChangeDataLogViewSet,
-)
+from rest_api.views.change_op_process import ChangeOPProcessMessageViewSet, \
+    ChangeOPProcessFileViewset, ChangeOPProcessMessageFileViewset, \
+    ChangeOPProcessViewSet, ChangeOPProcessStatusViewSet
+from rest_api.views.change_op_request import ChangeOPRequestViewSet, ChangeOPRequestStatusViewSet
+from rest_api.views.helper import login, verify, send_email, change_op_request_reasons, UserViewSet, \
+    OrganizationViewSet, ContractTypeViewSet, ChangePasswordAPIView
+from rest_api.views.operation_program import OperationProgramViewSet, OperationProgramTypeViewSet, \
+    OPChangeLogViewset, OperationProgramStatusViewSet, OPChangeLogViewSet
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
@@ -61,19 +36,14 @@ router.register(r"organizations", OrganizationViewSet)
 router.register(r"contract-types", ContractTypeViewSet)
 router.register(r"change-op-requests", ChangeOPRequestViewSet),
 router.register(r"change-op-request-statuses", ChangeOPRequestStatusViewSet)
-router.register(r"change-op-data-logs", OPChangeDataLogViewset)
+router.register(r"change-op-logs", OPChangeLogViewset)
 router.register(r"change-op-process-messages", ChangeOPProcessMessageViewSet)
 router.register(r"op-change-logs", OPChangeLogViewSet)
-router.register(r"status-logs", StatusLogViewSet)
-router.register(r"change-op-process-status-logs", ChangeOPProcessStatusLogViewSet)
 router.register(r"change-op-process-files", ChangeOPProcessFileViewset)
 router.register(r"change-op-process-message-files", ChangeOPProcessMessageFileViewset)
 router.register(r"operation-program-statuses", OperationProgramStatusViewSet)
-router.register(r"op-change-data-logs", OPChangeDataLogViewSet)
 router.register(r"change-op-processes", ChangeOPProcessViewSet)
 router.register(r"change-op-process-statuses", ChangeOPProcessStatusViewSet)
-router.register(r"change-op-request-op-change-log", ChangeOPRequestOPChangeLogViewSet)
-router.register(r"change-op-request-reason-change-log", ChangeOPRequestReasonChangeLogViewSet)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),
