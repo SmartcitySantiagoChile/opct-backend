@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.models import Group
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -281,6 +282,7 @@ class ChangeOPRequest(models.Model):
     related_requests = models.ManyToManyField("self", blank=True, verbose_name="Solicitudes relacionadas")
     change_op_process = models.ForeignKey("ChangeOPProcess", related_name="change_op_requests",
                                           verbose_name="Solicitudes de cambio", blank=False, on_delete=models.PROTECT)
+    routes_related = ArrayField(models.CharField(max_length=30, blank=False))
 
     def __str__(self):
         return str(self.title)
@@ -430,57 +432,15 @@ class ChangeOPProcessMessageFile(models.Model):
         verbose_name_plural = "Archivos asociados a mensajes de procesos de cambio de PO"
 
 
-class OPChangeLog(models.Model):
-    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    creator = models.ForeignKey(User, related_name="op_change_logs", on_delete=models.PROTECT, blank=False,
-                                verbose_name="Creador")
-    previous_op = models.ForeignKey(OperationProgram, related_name="+", on_delete=models.PROTECT,
-                                    verbose_name="Programa de Operación previo", null=True)
-    new_op = models.ForeignKey(OperationProgram, related_name="+", on_delete=models.PROTECT,
-                               verbose_name="Nuevo Programa de Operación", null=True)
-    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="op_change_logs", on_delete=models.PROTECT,
-                                          verbose_name="Solicitud de cambio de PO")
-    update_deadlines = models.BooleanField("Actualiza plazos", default=False)
-
-    def __str__(self):
-        return str(self.created_at)
+class RouteDictionary(models.Model):
+    """ Operation program to know routes available """
+    auth_route_code = models.CharField("Código transantiago", max_length=30, unique=True)
+    op_route_code = models.CharField("Código de operación", max_length=30)
+    user_route_code = models.CharField("Código de usuario", max_length=30, null=True)
+    route_type = models.CharField("Tipo de ruta", max_length=30, null=True)
+    created_at = models.DateTimeField("Fecha de creación", null=True)
+    operator = models.CharField(max_length=30)
 
     class Meta:
-        verbose_name = "Log de solicitud de cambio de PO"
-        verbose_name_plural = "Logs de solicitud de cambio de PO"
-
-
-class ChangeOPRequestOPChangeLog(models.Model):
-    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    creator = models.ForeignKey(User, related_name="change_op_request_op_change_logs", on_delete=models.PROTECT,
-                                blank=False, verbose_name="Creador")
-    previous_op = models.ForeignKey(OperationProgram, related_name="+", on_delete=models.PROTECT,
-                                    verbose_name="Programa de Operación previo", null=True)
-    new_op = models.ForeignKey(OperationProgram, related_name="+", on_delete=models.PROTECT,
-                               verbose_name="Nuevo Programa de Operación", null=True)
-    change_op_request = models.ForeignKey(ChangeOPRequest, related_name="change_op_request_op_change_logs",
-                                          on_delete=models.PROTECT, verbose_name="Solicitud de cambio de PO")
-
-    def __str__(self):
-        return str(self.created_at)
-
-    class Meta:
-        verbose_name = "Log de solicitud de cambio de PO"
-        verbose_name_plural = "Logs de solicitud de cambio de PO"
-
-
-class ChangeOPRequestReasonChangeLog(models.Model):
-    created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    creator = models.ForeignKey(User, related_name="change_op_request_reason_change_logs", on_delete=models.PROTECT,
-                                blank=False, verbose_name="Creador")
-    previous_reason = models.CharField("Motivo", max_length=30, choices=ChangeOPRequest.REASON_CHOICES)
-    new_reason = models.CharField("Motivo", max_length=30, choices=ChangeOPRequest.REASON_CHOICES)
-    change_op_request = models.ForeignKey(ChangeOPRequest, related_name="change_op_request_reason_change_logs",
-                                          on_delete=models.PROTECT, verbose_name="Solicitud de cambio de PO")
-
-    def __str__(self):
-        return str(self.created_at)
-
-    class Meta:
-        verbose_name = "Log de razón de solicitud de cambio de PO"
-        verbose_name_plural = "Logs razón de solicitud de cambio de PO"
+        verbose_name = "diccionario PO "
+        verbose_name_plural = "diccionarios PO"
