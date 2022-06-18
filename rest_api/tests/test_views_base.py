@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework.test import APITestCase, APIClient
 
 from rest_api.models import ContractType, Organization, OperationProgram, CounterPartContact, ChangeOPProcessMessage, \
-    OperationProgramType, ChangeOPProcess, ChangeOPProcessStatus
+    OperationProgramType, ChangeOPProcess, ChangeOPProcessStatus, ChangeOPRequest, ChangeOPRequestStatus
 
 
 class BaseTestCase(APITestCase):
@@ -111,7 +111,7 @@ class BaseTestCase(APITestCase):
         return OperationProgram.objects.create(start_at=start_at, op_type_id=op_type)
 
     @staticmethod
-    def create_op_process(user, counter_part, contract_type, op=None, status_id=1, title="Change OP Request test"):
+    def create_op_process(user, counter_part, contract_type, op=None, status_id=1, title="Change OP Process test"):
         params = {
             "created_at": timezone.now(),
             "creator": user,
@@ -125,8 +125,19 @@ class BaseTestCase(APITestCase):
         return ChangeOPProcess.objects.create(**params)
 
     @staticmethod
-    def create_op_request():
-        pass
+    def create_op_request(user, change_op_process, reason=ChangeOPRequest.PATH_MODIFICATION, op=None, status_id=1,
+                          title="Change OP Request test"):
+        params = {
+            "title": title,
+            "created_at": timezone.now(),
+            "creator": user,
+            "operation_program": op,
+            "status": ChangeOPRequestStatus.objects.get(id=status_id),
+            "reason": reason,
+            "change_op_process": change_op_process,
+            "routes_related": []
+        }
+        return ChangeOPRequest.objects.create(**params)
 
     @staticmethod
     def create_counter_part_contact(organization, user):

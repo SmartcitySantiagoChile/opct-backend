@@ -39,7 +39,7 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
     Only can delete if does not exist a related ChangeOPRequest.
     """
 
-    queryset = OperationProgram.objects.all().order_by("-start_at")
+    queryset = OperationProgram.objects.select_related('op_type').order_by("-start_at")
     serializer_class = OperationProgramSerializer
     permission_classes = [HasGroupPermission]
     required_groups = {

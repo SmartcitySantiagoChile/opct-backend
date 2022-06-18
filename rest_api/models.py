@@ -112,10 +112,7 @@ class OperationProgram(models.Model):
                                 verbose_name="Tipo de Programa de Operación")
 
     def __str__(self):
-        return str(self.start_at)
-
-    def logs(self):
-        return OPChangeLog.objects.filter(operation_program=self)
+        return '{0} ({1})'.format(self.start_at, self.op_type.name)
 
     class Meta:
         verbose_name = "Programa de Operación"
@@ -232,8 +229,10 @@ class ChangeOPProcessStatus(models.Model):
 class ChangeOPRequest(models.Model):
     title = models.CharField("Titulo", max_length=50)
     created_at = models.DateTimeField("Fecha de Creación", default=timezone.now)
-    op = models.ForeignKey(OperationProgram, related_name="change_op_requests", on_delete=models.PROTECT,
-                           verbose_name="Programa de Operación", blank=True, null=True)
+    creator = models.ForeignKey(User, related_name="change_op_requests", on_delete=models.PROTECT, blank=False,
+                                verbose_name="Usuario creador del proceso")
+    operation_program = models.ForeignKey(OperationProgram, related_name="change_op_requests", on_delete=models.PROTECT,
+                                          verbose_name="Programa de Operación", blank=True, null=True)
     status = models.ForeignKey('ChangeOPRequestStatus', related_name="change_op_requests", on_delete=models.PROTECT,
                                verbose_name="Estado")
     updated_at = models.DateTimeField("Fecha de actualización", default=timezone.now)
@@ -347,7 +346,7 @@ class OPChangeLog(models.Model):
     user = models.ForeignKey(User, related_name="op_change_data_logs", on_delete=models.PROTECT, verbose_name="Usuario")
     previous_data = models.JSONField("Datos anteriores")
     new_data = models.JSONField("Datos nuevos")
-    operation_program = models.ForeignKey(OperationProgram, related_name="op_change_data_logs",
+    operation_program = models.ForeignKey(OperationProgram, related_name="logs",
                                           on_delete=models.PROTECT, verbose_name="Programa de Operación")
 
     def __str__(self):

@@ -176,8 +176,8 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = ["created_at", "creator", "contract_type", "counterpart", "op", "reason", "related_requests", "status",
-                  "status_logs", "title", "updated_at", "url"]
+        fields = ["created_at", "creator", "contract_type", "counterpart", "operation_program", "reason",
+                  "related_requests", "status", "status_logs", "title", "updated_at", "url"]
         depth = 1
         ordering = ["-start_at"]
 
@@ -236,7 +236,7 @@ class ChangeOPProcessMessageSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestDetailMiniSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = ["url", "op", "title", "reason"]
+        fields = ["url", "operation_program", "title", "reason"]
 
 
 class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
@@ -277,9 +277,9 @@ class ChangeOPProcessFileSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = ["url", "creator", "op", "status", "counterpart", "contract_type", "created_at", "title", "updated_at",
-                  "reason", "op_change_logs", "status_logs", "related_requests", "change_op_request_op_change_logs",
-                  "change_op_request_reason_change_logs"]
+        fields = ["url", "creator", "operation_program", "status", "counterpart", "contract_type", "created_at",
+                  "title", "updated_at", "reason", "op_change_logs", "status_logs", "related_requests",
+                  "change_op_request_op_change_logs", "change_op_request_reason_change_logs"]
         ordering = ["-start_at"]
         depth = 2
 
