@@ -55,22 +55,18 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = OperationProgramDetailSerializer(
-            instance, context={"request": request}
-        )
+        serializer = OperationProgramDetailSerializer(instance, context={"request": request})
         return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         object_key = kwargs.get("pk")
         try:
             operation_program = OperationProgram.objects.get(id=object_key)
-            change_op_request = operation_program.change_op_requests.all()
-            if change_op_request:
-                raise CustomValidation(
-                    detail="Hay solicitudes de cambio asociadas al Programa de Operación",
-                    field="detail",
-                    status_code=HTTP_409_CONFLICT,
-                )
+            change_op_process = operation_program.change_op_processes.all().exists()
+            change_op_request = operation_program.change_op_requests.all().exists()
+            if change_op_process or change_op_request:
+                raise CustomValidation(detail="Hay solicitudes de cambio asociadas al Programa de Operación",
+                                       field="detail", status_code=HTTP_409_CONFLICT)
             self.perform_destroy(operation_program)
             return Response(status=HTTP_204_NO_CONTENT)
         except OperationProgram.DoesNotExist:
@@ -80,11 +76,13 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
         # TODO: send email
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
-        op_change_data_logs = OPChangeLog.objects.all().filter(operation_program=instance).order_by("-created_at")
-        if op_change_data_logs:
-            previous_data = op_change_data_logs[0].new_data
+        latest_op_change_log = OPChangeLog.objects.filter(operation_program=instance).order_by("-created_at").first()
+        if latest_op_change_log:
+            previous_data = latest_op_change_log.new_data
         else:
-            previous_data = {"date": instance.start_at.isoformat(), "op_type": instance.op_type.name, }
+            previous_data = {"date": instance.start_at.isoformat(), "op_type": instance.op_type.name}
+
+        # update records
         serializer = OperationProgramCreateSerializer(instance, context={"request": request}, data=request.data,
                                                       partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -95,7 +93,7 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
         new_data["op_type"] = instance.op_type.name
         try:
             OPChangeLog.objects.create(created_at=timezone.now(), user=request.user, previous_data=previous_data,
-                                       new_data=new_data, operation_program=instance, )
+                                       new_data=new_data, operation_program=instance)
         except Exception as e:
             print(e)
         if getattr(instance, "_prefetched_objects_cache", None):
