@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin
 
 from rest_api import models
+from rest_api.models import RouteDictionary
 
 
 @admin.register(models.User)
@@ -50,6 +51,12 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ("email", "first_name", "last_name", "is_staff", "organization")
     search_fields = ("email", "first_name", "last_name")
     ordering = ("email",)
+
+
+class RouteDictionaryAdmin(admin.ModelAdmin):
+    actions = None
+    search_fields = ['auth_route_code', 'user_route_code', 'op_route_code', 'route_type']
+    list_display = ('auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'operator')
 
 
 class OperationProgramStatusAdmin(admin.ModelAdmin):
