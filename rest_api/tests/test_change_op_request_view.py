@@ -4,10 +4,99 @@ from django.test.client import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, \
-    HTTP_405_METHOD_NOT_ALLOWED
+    HTTP_405_METHOD_NOT_ALLOWED, HTTP_403_FORBIDDEN
 
-from rest_api.serializers import ChangeOPRequestSerializer
+from rest_api.models import OperationProgramType
+from rest_api.serializers import ChangeOPRequestSerializer, ChangeOPProcessSerializer
 from rest_api.tests.test_views_base import BaseTestCase
+
+
+class ChangeOPProcessViewSetTest(BaseTestCase):
+
+    def setUp(self):
+        super(ChangeOPProcessViewSetTest, self).setUp()
+        self.op_program = self.create_operation_program('2022-01-01', OperationProgramType.BASE)
+        self.change_op_process = self.create_op_process(self.dtpm_viewer_user, self.op1_organization,
+                                                        self.op1_contract_type, op=self.op_program)
+
+    # ------------------------------ helper methods ------------------------------ #
+    def change_op_process_list(self, client, data, status_code=HTTP_200_OK):
+        url = reverse("changeopprocess-list")
+        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
+
+    def change_op_process_retrieve(self, client, pk, status_code=HTTP_200_OK):
+        url = reverse("changeopprocess-detail", kwargs=dict(pk=pk))
+        data = dict()
+        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
+
+    def change_op_process_create(self, client, data, status_code=HTTP_201_CREATED):
+        url = reverse("changeopprocess-list")
+        return self._make_request(client, self.POST_REQUEST, url, data, status_code)
+
+    def change_op_process_patch(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("changeopprocess-detail", kwargs=dict(pk=pk))
+        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
+
+    def change_op_process_delete(self, client, pk, status_code=HTTP_204_NO_CONTENT):
+        url = reverse("changeopprocess-detail", kwargs=dict(pk=pk))
+        data = dict()
+        return self._make_request(client, self.DELETE_REQUEST, url, data, status_code)
+
+    def change_op_process_change_op(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("changeopprocess-change-op", kwargs=dict(pk=pk))
+        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
+
+    def change_op_process_change_status(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("changeopprocess-change-status", kwargs=dict(pk=pk))
+        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
+
+    def change_op_process_filter_by_op(self, client, op_start_at, data, status_code=HTTP_200_OK):
+        url = f"{reverse('changeopprocess-list')}?search={op_start_at}"
+        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
+
+    # ------------------------------ tests ----------------------------------------
+    def test_list_with_organization_permissions(self):
+        self.login_dtpm_viewer_user()
+        response = self.change_op_process_list(self.client, {})
+
+        url = reverse("changeoprequest-list")
+        context = {"request": RequestFactory().get(url)}
+        # simulate annotation
+        self.change_op_process.change_op_requests_count = 0
+        serializer_data = ChangeOPProcessSerializer(self.change_op_process, context=context).data
+        expected_response = OrderedDict(
+            [
+                ("count", 1),
+                ("next", None),
+                ("previous", None),
+                ("results", [
+                    OrderedDict([
+                        ("url", serializer_data["url"]),
+                        ("title", serializer_data["title"]),
+                        ("message", serializer_data["message"]),
+                        ("created_at", serializer_data["created_at"]),
+                        ("updated_at", serializer_data["updated_at"]),
+                        ("counterpart", serializer_data["counterpart"],),
+                        ("contract_type", serializer_data["contract_type"],),
+                        ("creator", serializer_data["creator"]),
+                        ("status", serializer_data["status"]),
+                        ("op_release_date", serializer_data["op_release_date"]),
+                        ("change_op_requests_count", 0),
+                        ("operation_program", serializer_data["operation_program"]),
+                    ])
+                ]),
+            ]
+        )
+
+        self.assertEqual(response.data, expected_response)
+
+    def test_list_without_organization_permissions(self):
+        self.login_dtpm_viewer_user()
+        self.change_op_process_list(self.client, {}, HTTP_403_FORBIDDEN)
+
+    def test_list_without_active_session(self):
+        self.client.logout()
+        self.change_op_process_list(self.client, {}, HTTP_403_FORBIDDEN)
 
 
 class ChangeOPRequestViewSetTest(BaseTestCase):
