@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
+from django.utils import timezone
 from rest_framework import serializers
 
 from rest_api.models import User as ApiUser, OperationProgram, OperationProgramType, Organization, ContractType, \
@@ -342,8 +343,39 @@ class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
-        fields = "__all__"
+        fields = ['title', 'message', 'counterpart', 'operation_program']
 
-    creator = UserSerializer
-    status = ChangeOPProcessStatusSerializer
     counterpart = OrganizationSerializer
+
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        organization = user.organization
+        contract_type = organization.contract_type
+
+        data = self.validated_data
+        data['created_at'] = timezone.now()
+        data['updated_at'] = timezone.now()
+        data['creator'] = user
+
+        if contract_type.pk == ContractType.BOTH:
+            data['contract_type'] = data['counterpart'].contract_type
+        else:
+            data['contract_type'] = contract_type
+
+        status_obj = ChangeOPProcessStatus.objects.get(contract_type=data['contract_type'],
+                                                       name="Evaluando admisibilidad")
+        data["status"] = status_obj
+        if 'operation_program' in data and data['operation_program'] is not None:
+            data['op_release_date'] = data['operation_program'].start_at
+
+        change_op_process_obj = ChangeOPProcess.objects.create(**data)
+
+        errors = []
+        try:
+            files = self.context['request'].FILES.getlist("files")
+            for file in files:
+                ChangeOPProcessFile.objects.create(file=file, change_op_process_id=change_op_process_obj.pk)
+        except Exception as e:
+            errors.append(e)
+
+        return change_op_process_obj

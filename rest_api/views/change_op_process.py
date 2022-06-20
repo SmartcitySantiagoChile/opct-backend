@@ -1,5 +1,4 @@
 from django.db.models import Q, Count
-from django.urls import reverse as reverse_url
 from django.utils import timezone
 from rest_framework import filters
 from rest_framework import mixins, viewsets
@@ -10,7 +9,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, \
     ChangeOPProcessMessage, ChangeOPProcessFile, ChangeOPProcessMessageFile, ChangeOPProcess, ChangeOPProcessStatus, \
-    ChangeOPProcessLog, OPChangeLog, ContractType
+    ChangeOPProcessLog, OPChangeLog
 from rest_api.serializers import OPChangeLogSerializer, ChangeOPProcessMessageSerializer, \
     CreateChangeOPProcessMessageSerializer, ChangeOPProcessFileSerializer, \
     ChangeOPProcessMessageFileSerializer, ChangeOPProcessSerializer, ChangeOPProcessStatusSerializer, \
@@ -47,30 +46,10 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             return ChangeOPProcessSerializer
 
     def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
         # TODO: send email
-        contract_type_id = int(request.data["contract_type"].split("/")[-2])
-        if contract_type_id == ContractType.BOTH:
-            # TODO: aquí hay que usar el tipo de contrato de la contraparte
-            contract_type_id = ContractType.NEW
-        status_id = ChangeOPProcessStatus.objects.get(contract_type_id=contract_type_id,
-                                                      name="Evaluando admisibilidad").pk
-        status_url = reverse_url("changeopprocessstatus-detail", kwargs=dict(pk=status_id))
-        data = request.data.copy()
-        data["status"] = status_url
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(data=data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
-        change_op_process = serializer.save()
-        errors = []
-        try:
-            files = request.FILES.getlist("files")
-            for file in files:
-                instance = ChangeOPProcessFile(file=file, change_op_process_id=change_op_process.id)
-                instance.save()
-        except Exception as e:
-            errors.append(e)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
+
+        return response
 
     @action(detail=True, methods=["put"], url_path="change-op")
     def change_op(self, request, *args, **kwargs):

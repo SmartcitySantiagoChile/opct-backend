@@ -6,7 +6,7 @@ from django.utils import timezone
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, \
     HTTP_405_METHOD_NOT_ALLOWED, HTTP_403_FORBIDDEN
 
-from rest_api.models import OperationProgramType
+from rest_api.models import OperationProgramType, ChangeOPProcess
 from rest_api.serializers import ChangeOPRequestSerializer, ChangeOPProcessSerializer
 from rest_api.tests.test_views_base import BaseTestCase
 
@@ -129,6 +129,77 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
     def test_retrieve_without_active_session(self):
         self.client.logout()
         self.change_op_process_retrieve(self.client, self.change_op_process.pk, HTTP_403_FORBIDDEN)
+
+    def test_create_with_contract_type_both(self):
+        self.login_dtpm_viewer_user()
+        title = 'Change OP Request TEST'
+        message = 'message'
+        data = {
+            "title": title,
+            "message": message,
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk)),
+            "operation_program": reverse("operationprogram-detail", kwargs=dict(pk=self.op_program.pk)),
+        }
+
+        self.change_op_process_create(self.client, data)
+
+        change_op_process_obj = ChangeOPProcess.objects.order_by('-created_at').first()
+        self.assertEqual(self.op1_contract_type.pk, change_op_process_obj.contract_type_id)
+        self.assertEqual(title, change_op_process_obj.title)
+        self.assertEqual(message, change_op_process_obj.message)
+        self.assertIsNotNone(change_op_process_obj.created_at)
+        self.assertIsNotNone(change_op_process_obj.updated_at)
+        self.assertEqual(self.op1_organization.pk, change_op_process_obj.counterpart.pk)
+        self.assertEqual(self.op_program.pk, change_op_process_obj.operation_program.pk)
+        self.assertEqual(self.dtpm_viewer_user, change_op_process_obj.creator)
+        self.assertEqual(1, change_op_process_obj.status.pk)
+        self.assertEqual(str(self.op_program.start_at), str(change_op_process_obj.op_release_date))
+
+    def test_create_with_empty_op(self):
+        self.login_dtpm_viewer_user()
+        title = 'Another title'
+        message = 'another custom message'
+        data = {
+            "title": title,
+            "message": message,
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk))
+        }
+
+        self.change_op_process_create(self.client, data)
+
+        change_op_process_obj = ChangeOPProcess.objects.order_by('-created_at').first()
+        self.assertIsNone(change_op_process_obj.operation_program)
+        self.assertIsNone(change_op_process_obj.op_release_date)
+
+    def test_create_with_contract_type_old(self):
+        self.login_op1_viewer_user()
+        title = 'Another title again'
+        message = 'yes, another custom message'
+        data = {
+            "title": title,
+            "message": message,
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk))
+        }
+
+        self.change_op_process_create(self.client, data)
+
+        change_op_process_obj = ChangeOPProcess.objects.order_by('-created_at').first()
+        self.assertEqual(self.op1_contract_type, change_op_process_obj.contract_type)
+
+    def test_create_attaching_files(self):
+        #TODO: adjuntar archivos al test
+        self.login_op1_viewer_user()
+        title = 'Another title again'
+        message = 'yes, another custom message'
+        data = {
+            "title": title,
+            "message": message,
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk))
+        }
+        self.change_op_process_create(self.client, data)
+
+    def test_create_with_op_requests(self):
+        pass
 
 
 class ChangeOPRequestViewSetTest(BaseTestCase):
