@@ -18,7 +18,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.op_program = self.create_operation_program('2022-01-01', OperationProgramType.BASE)
         self.change_op_process = self.create_op_process(self.dtpm_viewer_user, self.op1_organization,
                                                         self.op1_contract_type, op=self.op_program)
-        self.create_op_request()
+        self.create_op_request(self.dtpm_viewer_user, self.change_op_process)
 
     # ------------------------------ helper methods ------------------------------ #
     def change_op_process_list(self, client, data, status_code=HTTP_200_OK):
@@ -63,7 +63,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         url = reverse("changeoprequest-list")
         context = {"request": RequestFactory().get(url)}
         # simulate annotation
-        self.change_op_process.change_op_requests_count = 0
+        self.change_op_process.change_op_requests_count = 1
         serializer_data = ChangeOPProcessSerializer(self.change_op_process, context=context).data
         expected_response = OrderedDict(
             [
@@ -82,7 +82,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                         ("creator", serializer_data["creator"]),
                         ("status", serializer_data["status"]),
                         ("op_release_date", serializer_data["op_release_date"]),
-                        ("change_op_requests_count", 0),
+                        ("change_op_requests_count", serializer_data["change_op_requests_count"]),
                         ("operation_program", serializer_data["operation_program"]),
                     ])
                 ]),

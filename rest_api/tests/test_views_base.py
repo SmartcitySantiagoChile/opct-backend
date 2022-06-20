@@ -140,8 +140,9 @@ class BaseTestCase(APITestCase):
             "reason": reason,
             "change_op_process": change_op_process,
             "related_routes": related_routes,
-            "related_requests": related_requests
+            # "related_requests": related_requests
         }
+        # TODO: arreglar la asignación de solicitudes relacionadas
         return ChangeOPRequest.objects.create(**params)
 
     @staticmethod
