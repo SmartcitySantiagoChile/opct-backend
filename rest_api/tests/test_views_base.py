@@ -55,10 +55,20 @@ class BaseTestCase(APITestCase):
         CounterPartContact.objects.create(organization=self.dtpm_organization,
                                           counter_part_user=self.op2_contact_user)
 
-        self.dtpm_admin_user = self.create_user("admin@dtpm.com", "testpassword1", access_to_users=True,
-                                                access_to_organizations=True, access_to_ops=True)
-        self.dtpm_viewer_user = self.create_user("viewer@dtpm.com", "testpassword1", access_to_users=False,
+        self.dtpm_admin_user = self.create_user("admin@dtpm.com", "testpassword1", organization=self.dtpm_organization,
+                                                access_to_users=True, access_to_organizations=True, access_to_ops=True)
+        self.dtpm_viewer_user = self.create_user("viewer@dtpm.com", "testpassword1",
+                                                 organization=self.dtpm_organization, access_to_users=False,
                                                  access_to_organizations=False, access_to_ops=False)
+        self.op1_viewer_user = self.create_user("viewer@op1.com", "testpassword1", organization=self.op1_organization,
+                                                access_to_users=False, access_to_organizations=False,
+                                                access_to_ops=False)
+        self.op2_viewer_user = self.create_user("viewer@op2.com", "testpassword1", organization=self.op2_organization,
+                                                access_to_users=False, access_to_organizations=False,
+                                                access_to_ops=False)
+        self.user_without_organization = self.create_user("viewer@withoutorganization.com", "testpassword1",
+                                                          access_to_users=False, access_to_organizations=False,
+                                                          access_to_ops=False)
 
         self.client = APIClient()
 
@@ -165,6 +175,18 @@ class BaseTestCase(APITestCase):
     def login_dtpm_viewer_user(self):
         self.client.logout()
         self.assertTrue(self.client.login(username="viewer@dtpm.com", password="testpassword1"))
+
+    def login_op1_viewer_user(self):
+        self.client.logout()
+        self.assertTrue(self.client.login(username="viewer@op1.com", password="testpassword1"))
+
+    def login_op2_viewer_user(self):
+        self.client.logout()
+        self.assertTrue(self.client.login(username="viewer@op2.com", password="testpassword1"))
+
+    def login_user_without_organization(self):
+        self.client.logout()
+        self.assertTrue(self.client.login(username="viewer@withoutorganization.com", password="testpassword1"))
 
 
 class ChangeProcessTestCase(BaseTestCase):

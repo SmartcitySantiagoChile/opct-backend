@@ -23,7 +23,6 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     API endpoint that allows Change OP Process to be viewed, created and updated.
     """
     queryset = ChangeOPProcess.objects.order_by("-created_at")
-    serializer_class = ChangeOPProcessSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["op__start_at", "id", "title", ]
 
@@ -39,6 +38,14 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             return queryset.annotate(change_op_requests_count=Count('change_op_requests'))
         return queryset
 
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return ChangeOPProcessDetailSerializer
+        elif self.action == 'create':
+            return ChangeOPProcessCreateSerializer
+        else:
+            return ChangeOPProcessSerializer
+
     def create(self, request, *args, **kwargs):
         # TODO: send email
         contract_type_id = int(request.data["contract_type"].split("/")[-2])
@@ -50,7 +57,8 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         status_url = reverse_url("changeopprocessstatus-detail", kwargs=dict(pk=status_id))
         data = request.data.copy()
         data["status"] = status_url
-        serializer = ChangeOPProcessCreateSerializer(data=data, context={"request": request})
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         change_op_process = serializer.save()
         errors = []
@@ -63,11 +71,6 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             errors.append(e)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = ChangeOPProcessDetailSerializer(instance, context={"request": request})
-        return Response(serializer.data)
 
     @action(detail=True, methods=["put"], url_path="change-op")
     def change_op(self, request, *args, **kwargs):

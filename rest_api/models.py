@@ -327,8 +327,8 @@ class ChangeOPRequestLog(models.Model):
                              verbose_name="Usuario que realizó la acción")
     previous_data = models.JSONField("Datos anteriores")
     new_data = models.JSONField("Datos nuevos")
-    change_op_request = models.ForeignKey(ChangeOPRequest, related_name="status_logs", on_delete=models.PROTECT,
-                                          verbose_name="Solicitud de modificación")
+    change_op_request = models.ForeignKey(ChangeOPRequest, related_name="change_op_requests_logs",
+                                          on_delete=models.PROTECT, verbose_name="Solicitud de modificación")
 
     def __str__(self):
         return '{0} -> {1}: {2}'.format(self.change_op_request, self.created_at, self.type)

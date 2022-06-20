@@ -56,7 +56,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         return self._make_request(client, self.GET_REQUEST, url, data, status_code)
 
     # ------------------------------ tests ----------------------------------------
-    def test_list_with_organization_permissions(self):
+    def test_list_with_user_related_to_owner_organization(self):
         self.login_dtpm_viewer_user()
         response = self.change_op_process_list(self.client, {})
 
@@ -91,13 +91,44 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
 
         self.assertEqual(response.data, expected_response)
 
-    def test_list_without_organization_permissions(self):
-        self.login_dtpm_viewer_user()
-        self.change_op_process_list(self.client, {}, HTTP_403_FORBIDDEN)
+    def test_list_with_user_related_to_counterpart_organization(self):
+        self.login_op1_viewer_user()
+        response = self.change_op_process_list(self.client, {})
+        self.assertEqual(1, len(response.data['results']))
+
+    def test_list_with_user_not_related_to_any_organization(self):
+        self.login_op2_viewer_user()
+        response = self.change_op_process_list(self.client, {})
+        self.assertEqual(0, len(response.data['results']))
+
+    def test_list_with_user_without_organization(self):
+        self.login_user_without_organization()
+        response = self.change_op_process_list(self.client, {})
+        self.assertEqual(0, len(response.data['results']))
 
     def test_list_without_active_session(self):
         self.client.logout()
         self.change_op_process_list(self.client, {}, HTTP_403_FORBIDDEN)
+
+    def test_retrieve_user_related_to_creator_organization(self):
+        self.login_dtpm_viewer_user()
+        self.change_op_process_retrieve(self.client, self.change_op_process.pk)
+
+    def test_retrieve_user_related_to_counterpart_organization(self):
+        self.login_op1_viewer_user()
+        self.change_op_process_retrieve(self.client, self.change_op_process.pk)
+
+    def test_retrieve_user_related_to_third_organization(self):
+        self.login_op2_viewer_user()
+        self.change_op_process_retrieve(self.client, self.change_op_process.pk, HTTP_404_NOT_FOUND)
+
+    def test_retrieve_user_without_organization(self):
+        self.login_user_without_organization()
+        self.change_op_process_retrieve(self.client, self.change_op_process.pk, HTTP_404_NOT_FOUND)
+
+    def test_retrieve_without_active_session(self):
+        self.client.logout()
+        self.change_op_process_retrieve(self.client, self.change_op_process.pk, HTTP_403_FORBIDDEN)
 
 
 class ChangeOPRequestViewSetTest(BaseTestCase):
