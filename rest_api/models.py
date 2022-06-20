@@ -281,7 +281,7 @@ class ChangeOPRequest(models.Model):
     related_requests = models.ManyToManyField("self", blank=True, verbose_name="Solicitudes relacionadas")
     change_op_process = models.ForeignKey("ChangeOPProcess", related_name="change_op_requests",
                                           verbose_name="Solicitudes de cambio", blank=False, on_delete=models.PROTECT)
-    routes_related = ArrayField(models.CharField(max_length=30, blank=False))
+    related_routes = ArrayField(models.CharField(max_length=30, blank=False))
 
     def __str__(self):
         return str(self.title)

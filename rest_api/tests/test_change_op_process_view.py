@@ -18,6 +18,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.op_program = self.create_operation_program('2022-01-01', OperationProgramType.BASE)
         self.change_op_process = self.create_op_process(self.dtpm_viewer_user, self.op1_organization,
                                                         self.op1_contract_type, op=self.op_program)
+        self.create_op_request()
 
     # ------------------------------ helper methods ------------------------------ #
     def change_op_process_list(self, client, data, status_code=HTTP_200_OK):

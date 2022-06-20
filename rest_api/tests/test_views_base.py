@@ -126,7 +126,11 @@ class BaseTestCase(APITestCase):
 
     @staticmethod
     def create_op_request(user, change_op_process, reason=ChangeOPRequest.PATH_MODIFICATION, op=None, status_id=1,
-                          title="Change OP Request test"):
+                          title="Change OP Request test", related_routes=None, related_requests=None):
+        if related_routes is None:
+            related_routes = []
+        if related_requests is None:
+            related_requests = []
         params = {
             "title": title,
             "created_at": timezone.now(),
@@ -135,7 +139,8 @@ class BaseTestCase(APITestCase):
             "status": ChangeOPRequestStatus.objects.get(id=status_id),
             "reason": reason,
             "change_op_process": change_op_process,
-            "routes_related": []
+            "related_routes": related_routes,
+            "related_requests": related_requests
         }
         return ChangeOPRequest.objects.create(**params)
 
