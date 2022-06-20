@@ -151,12 +151,12 @@ class OPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
 class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OperationProgram
-        fields = ("url", "start_at", "op_type", "logs")
+        fields = ("url", "start_at", "op_type", "change_op_logs")
         ordering = ["-start_at"]
         depth = 1
 
     op_type = OperationProgramTypeSerializer(many=False, read_only=True)
-    logs = OPChangeLogSerializer(many=True, read_only=True)
+    change_op_logs = OPChangeLogSerializer(many=True, read_only=True)
 
 
 class OperationProgramCreateSerializer(serializers.HyperlinkedModelSerializer):
@@ -242,12 +242,12 @@ class ChangeOPRequestDetailMiniSerializer(serializers.HyperlinkedModelSerializer
 class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OperationProgram
-        fields = ("url", "start_at", "op_type", "logs")
+        fields = ("url", "start_at", "op_type", "change_op_logs")
         ordering = ["-start_at"]
         depth = 1
 
-    op_type = OperationProgramTypeSerializer
-    logs = OPChangeLogSerializer
+    op_type = OperationProgramTypeSerializer(many=False, read_only=True)
+    change_op_logs = OPChangeLogSerializer(many=True, read_only=True)
 
 
 class ChangeOPProcessStatusSerializer(serializers.HyperlinkedModelSerializer):
@@ -305,39 +305,41 @@ class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
-        fields = ["url", "creator", "base_op", "status", "counterpart", "contract_type", "title", "message",
-                  "created_at", "updated_at", "change_op_requests", "change_op_process_messages",
-                  "change_op_process_files", "change_op_process_status_logs", "op_change_logs", "op_release_date"]
+        fields = ["url", "title", "message", "created_at", "updated_at", "counterpart", "contract_type", "creator",
+                  "status", "op_release_date", "change_op_requests_count",
+                  "operation_program"]
         depth = 1
         ordering = ["created_at"]
 
-    change_op_requests = ChangeOPRequestDetailSerializer(many=True)
     creator = UserSerializer(many=False, read_only=True)
-    base_op = OperationProgramSerializer(many=False, read_only=True)
     status = ChangeOPProcessStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
+
+    operation_program = OperationProgramSerializer(many=False, read_only=True)
+    change_op_requests_count = serializers.IntegerField()
 
 
 class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
-        fields = ["url", "creator", "base_op", "status", "counterpart", "contract_type", "title", "message",
-                  "created_at", "updated_at", "change_op_requests", "change_op_process_messages",
-                  "change_op_process_files", "change_op_process_status_logs", "op_change_logs", "op_release_date"]
+        fields = ["url", "title", "message", "created_at", "updated_at", "counterpart", "contract_type",
+                  "operation_program", "creator", "status", "op_release_date",
+                  "change_op_requests", "change_op_process_messages", "change_op_process_files",
+                  "change_op_process_logs"]
         ordering = ["-start_at"]
         depth = 2
 
-    creator = BasicUserSerializer(many=False, read_only=True)
-    base_op = OperationProgramSerializer(many=False, read_only=True)
-    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
+    operation_program = OperationProgramSerializer(many=False, read_only=True)
+    creator = BasicUserSerializer(many=False, read_only=True)
+    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
+
     change_op_requests = ChangeOPRequestDetailSerializer(many=True)
     change_op_process_messages = ChangeOPProcessMessageSerializer(many=True, read_only=True)
     change_op_process_files = ChangeOPProcessFileSerializer(many=True, read_only=True)
-    op_change_logs = OPChangeLogSerializer(many=True, read_only=True)
-    change_logs = ChangeOPProcessLogSerializer(many=True, read_only=True)
+    change_op_process_logs = ChangeOPProcessLogSerializer(many=True, read_only=True)
 
 
 class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):

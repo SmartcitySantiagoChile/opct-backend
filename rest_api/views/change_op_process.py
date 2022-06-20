@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.urls import reverse as reverse_url
 from django.utils import timezone
 from rest_framework import filters
@@ -10,7 +10,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, \
     ChangeOPProcessMessage, ChangeOPProcessFile, ChangeOPProcessMessageFile, ChangeOPProcess, ChangeOPProcessStatus, \
-    ChangeOPProcessLog, OPChangeLog
+    ChangeOPProcessLog, OPChangeLog, ContractType
 from rest_api.serializers import OPChangeLogSerializer, ChangeOPProcessMessageSerializer, \
     CreateChangeOPProcessMessageSerializer, ChangeOPProcessFileSerializer, \
     ChangeOPProcessMessageFileSerializer, ChangeOPProcessSerializer, ChangeOPProcessStatusSerializer, \
@@ -22,27 +22,29 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     """
     API endpoint that allows Change OP Process to be viewed, created and updated.
     """
-    queryset = ChangeOPProcess.objects.all().order_by("-created_at")
+    queryset = ChangeOPProcess.objects.order_by("-created_at")
     serializer_class = ChangeOPProcessSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["op__start_at", "id", "title", ]
 
     # TODO: verificar si está filtrando por motivo
-
-    def list(self, request, *args, **kwargs):
-        user = request.user
+    def get_queryset(self):
+        queryset = ChangeOPProcess.objects.order_by("-created_at")
+        user = self.request.user
         user_organization = user.organization
-        queryset = self.filter_queryset(self.get_queryset()).filter(
+        queryset = self.filter_queryset(queryset).filter(
             Q(counterpart=user_organization) | Q(creator__organization=user_organization))
-        page = self.paginate_queryset(queryset)
-        serializer = ChangeOPProcessSerializer(page, context={"request": request}, many=True)
-        return self.get_paginated_response(serializer.data)
+
+        if self.action == 'list':
+            return queryset.annotate(change_op_requests_count=Count('change_op_requests'))
+        return queryset
 
     def create(self, request, *args, **kwargs):
         # TODO: send email
-        contract_type_id = request.data["contract_type"].split("/")[-2]
-        if contract_type_id == "3":
-            contract_type_id = "2"
+        contract_type_id = int(request.data["contract_type"].split("/")[-2])
+        if contract_type_id == ContractType.BOTH:
+            # TODO: aquí hay que usar el tipo de contrato de la contraparte
+            contract_type_id = ContractType.NEW
         status_id = ChangeOPProcessStatus.objects.get(contract_type_id=contract_type_id,
                                                       name="Evaluando admisibilidad").pk
         status_url = reverse_url("changeopprocessstatus-detail", kwargs=dict(pk=status_id))
@@ -196,9 +198,7 @@ class ChangeOPProcessMessageViewSet(
     serializer_class = ChangeOPProcessMessageSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = CreateChangeOPProcessMessageSerializer(
-            data=request.data, context={"request": request}
-        )
+        serializer = CreateChangeOPProcessMessageSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         change_op_process_message = serializer.save()
         errors = []

@@ -346,7 +346,7 @@ class OPChangeLog(models.Model):
     user = models.ForeignKey(User, related_name="op_change_data_logs", on_delete=models.PROTECT, verbose_name="Usuario")
     previous_data = models.JSONField("Datos anteriores")
     new_data = models.JSONField("Datos nuevos")
-    operation_program = models.ForeignKey(OperationProgram, related_name="logs",
+    operation_program = models.ForeignKey(OperationProgram, related_name="op_change_logs",
                                           on_delete=models.PROTECT, verbose_name="Programa de Operación")
 
     def __str__(self):
@@ -374,7 +374,7 @@ class ChangeOPProcessLog(models.Model):
     user = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT, verbose_name="Usuario")
     previous_data = models.JSONField("Datos anteriores")
     new_data = models.JSONField("Datos nuevos")
-    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="change_op_process_status_logs",
+    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="change_op_process_logs",
                                           on_delete=models.PROTECT, verbose_name="Proceso de cambio de PO")
 
     def __str__(self):
