@@ -1,10 +1,11 @@
 from collections import OrderedDict
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, \
-    HTTP_405_METHOD_NOT_ALLOWED, HTTP_403_FORBIDDEN
+    HTTP_405_METHOD_NOT_ALLOWED, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 
 from rest_api.models import OperationProgramType, ChangeOPProcess
 from rest_api.serializers import ChangeOPRequestSerializer, ChangeOPProcessSerializer
@@ -32,7 +33,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
 
     def change_op_process_create(self, client, data, status_code=HTTP_201_CREATED):
         url = reverse("changeopprocess-list")
-        return self._make_request(client, self.POST_REQUEST, url, data, status_code)
+        return self._make_request(client, self.POST_REQUEST, url, data, status_code, format='multipart')
 
     def change_op_process_patch(self, client, pk, data, status_code=HTTP_200_OK):
         url = reverse("changeopprocess-detail", kwargs=dict(pk=pk))
@@ -186,17 +187,41 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         change_op_process_obj = ChangeOPProcess.objects.order_by('-created_at').first()
         self.assertEqual(self.op1_contract_type, change_op_process_obj.contract_type)
 
-    def test_create_attaching_files(self):
-        #TODO: adjuntar archivos al test
+    def test_create_without_counterpart(self):
         self.login_op1_viewer_user()
+        title = 'Another title again!'
+        message = 'oh! yes, another custom message'
+        data = {
+            "title": title,
+            "message": message
+        }
+
+        self.change_op_process_create(self.client, data, HTTP_400_BAD_REQUEST)
+
+    def test_create_attaching_files(self):
+        self.login_op1_viewer_user()
+        file_obj1 = SimpleUploadedFile('filename.xlsx', b'text content',
+                                       content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        file_obj2 = SimpleUploadedFile('filename.xlsx', b'text content',
+                                       content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        file_obj3 = SimpleUploadedFile('filename.docx', b'another text content',
+                                       content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
         title = 'Another title again'
         message = 'yes, another custom message'
         data = {
             "title": title,
             "message": message,
-            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk))
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk)),
+            "files": [file_obj1, file_obj2, file_obj3]
         }
         self.change_op_process_create(self.client, data)
+
+        change_op_process_obj = ChangeOPProcess.objects.order_by('-created_at').first()
+        files = change_op_process_obj.change_op_process_files.all()
+        self.assertEqual(3, len(files))
+        for file_obj in files:
+            self.assertIn(file_obj.filename, ['filename.xlsx', 'filename.docx'])
+            file_obj.file.delete()
 
     def test_create_with_op_requests(self):
         pass

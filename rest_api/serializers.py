@@ -373,7 +373,8 @@ class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
         try:
             files = self.context['request'].FILES.getlist("files")
             for file in files:
-                ChangeOPProcessFile.objects.create(file=file, change_op_process_id=change_op_process_obj.pk)
+                ChangeOPProcessFile.objects.create(filename=file.name, file=file,
+                                                   change_op_process=change_op_process_obj)
         except Exception as e:
             errors.append(e)
 

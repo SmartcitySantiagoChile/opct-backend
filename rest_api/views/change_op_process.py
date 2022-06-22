@@ -169,9 +169,7 @@ class ChangeOPProcessStatusViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ["contract_type__name"]
 
 
-class ChangeOPProcessMessageViewSet(
-    viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin
-):
+class ChangeOPProcessMessageViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin):
     """
     API endpoint that allows ChangeOPRequestMessage to be viewed.
     """
@@ -187,8 +185,8 @@ class ChangeOPProcessMessageViewSet(
         try:
             files = request.FILES.getlist("files")
             for file in files:
-                ChangeOPProcessMessageFile.objects.create(file=file,
-                                                          change_op_process_message_id=change_op_process_message.id)
+                ChangeOPProcessMessageFile.objects.create(filename=file.name, file=file,
+                                                          change_op_process_message=change_op_process_message)
         except Exception as e:
             errors.append(e)
         headers = self.get_success_headers(serializer.data)

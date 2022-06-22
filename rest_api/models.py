@@ -388,6 +388,7 @@ class ChangeOPProcessLog(models.Model):
 # TODO: esto debe estar relacionado a un mensaje ¿cómo sé en qué mensaje se adjuntó este archivo?
 # Parece que se usa para almacenar los archivos adjuntados en la creación de un proceso
 class ChangeOPProcessFile(models.Model):
+    filename = models.CharField(max_length=128, null=False)
     file = models.FileField("Archivo")
     change_op_process = models.ForeignKey(ChangeOPProcess, related_name="change_op_process_files",
                                           on_delete=models.PROTECT, verbose_name="Proceso de cambio de PO")
@@ -417,6 +418,7 @@ class ChangeOPProcessMessage(models.Model):
 
 
 class ChangeOPProcessMessageFile(models.Model):
+    filename = models.CharField(max_length=128, null=False)
     file = models.FileField("Archivo")
     change_op_process_message = models.ForeignKey(ChangeOPProcessMessage,
                                                   related_name="change_op_process_message_files",
