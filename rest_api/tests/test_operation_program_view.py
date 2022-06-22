@@ -80,7 +80,7 @@ class OperationProgramViewSetTest(BaseTestCase):
         serializer_context = {'request': Request(request)}
         expected_response = json.loads(
             json.dumps(OperationProgramSerializer(self.op_program, context=serializer_context).data))
-        expected_response['logs'][0]['user'] = expected_response['logs'][0]['user']['url']
+
         self.assertEqual(expected_response, json_response)
 
     def test_retrieve_without_group_permissions(self):

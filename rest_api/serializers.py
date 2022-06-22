@@ -152,12 +152,11 @@ class OPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
 class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OperationProgram
-        fields = ("url", "start_at", "op_type", "change_op_logs")
+        fields = ("url", "start_at", "op_type", "op_change_logs")
         ordering = ["-start_at"]
-        depth = 1
 
     op_type = OperationProgramTypeSerializer(many=False, read_only=True)
-    change_op_logs = OPChangeLogSerializer(many=True, read_only=True)
+    op_change_logs = OPChangeLogSerializer(many=True, read_only=True)
 
 
 class OperationProgramCreateSerializer(serializers.HyperlinkedModelSerializer):
@@ -243,12 +242,12 @@ class ChangeOPRequestDetailMiniSerializer(serializers.HyperlinkedModelSerializer
 class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OperationProgram
-        fields = ("url", "start_at", "op_type", "change_op_logs")
+        fields = ("url", "start_at", "op_type", "op_change_logs")
         ordering = ["-start_at"]
         depth = 1
 
     op_type = OperationProgramTypeSerializer(many=False, read_only=True)
-    change_op_logs = OPChangeLogSerializer(many=True, read_only=True)
+    op_change_logs = OPChangeLogSerializer(many=True, read_only=True)
 
 
 class ChangeOPProcessStatusSerializer(serializers.HyperlinkedModelSerializer):
