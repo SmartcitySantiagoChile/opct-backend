@@ -1,19 +1,23 @@
+import logging
+
 from django.db.models import Q, Count
 from django.utils import timezone
 from rest_framework import filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, \
-    ChangeOPProcessMessage, ChangeOPProcessFile, ChangeOPProcessMessageFile, ChangeOPProcess, ChangeOPProcessStatus, \
+    ChangeOPProcessMessage, ChangeOPProcessMessageFile, ChangeOPProcess, ChangeOPProcessStatus, \
     ChangeOPProcessLog, OPChangeLog
 from rest_api.serializers import OPChangeLogSerializer, ChangeOPProcessMessageSerializer, \
-    CreateChangeOPProcessMessageSerializer, ChangeOPProcessFileSerializer, \
-    ChangeOPProcessMessageFileSerializer, ChangeOPProcessSerializer, ChangeOPProcessStatusSerializer, \
-    ChangeOPProcessDetailSerializer, ChangeOPProcessCreateSerializer, ChangeOPProcessLogSerializer
+    CreateChangeOPProcessMessageSerializer, ChangeOPProcessMessageFileSerializer, ChangeOPProcessSerializer, \
+    ChangeOPProcessStatusSerializer, ChangeOPProcessDetailSerializer, ChangeOPProcessCreateSerializer, \
+    ChangeOPProcessLogSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
@@ -23,7 +27,7 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     """
     queryset = ChangeOPProcess.objects.order_by("-created_at")
     filter_backends = [filters.SearchFilter]
-    search_fields = ["op__start_at", "id", "title", ]
+    search_fields = ["op__start_at", "id", "title"]
 
     # TODO: verificar si está filtrando por motivo
     def get_queryset(self):
@@ -122,14 +126,24 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         except ChangeOPRequestStatus.DoesNotExist:
             raise NotFound()
 
+    @action(detail=True, methods=["post"])
+    def add_message(self, request, *args, **kwargs):
+        obj = self.get_object()
 
-class ChangeOPProcessFileViewset(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows ChangeOPProcessFile to be viewed.
-    """
+        message = request.data.get("message")
+        message_obj = ChangeOPProcessMessage.objects.create(creator=request.user, message=message,
+                                                            change_op_process=obj)
 
-    queryset = ChangeOPProcessFile.objects.all()
-    serializer_class = ChangeOPProcessFileSerializer
+        try:
+            files = request.FILES.getlist("files")
+            for file in files:
+                ChangeOPProcessMessageFile.objects.create(filename=file.name, file=file,
+                                                          change_op_process_message=message_obj)
+        except Exception as e:
+            logger.error(e)
+            raise ParseError(detail='Error al cargar archivo')
+
+        return Response(None, status=HTTP_200_OK)
 
 
 class ChangeOPProcessMessageFileViewset(viewsets.ReadOnlyModelViewSet):

@@ -199,14 +199,13 @@ class ChangeOPRequestLogSerializer(serializers.HyperlinkedModelSerializer):
     change_op_request = ChangeOPRequestSerializer(many=False, read_only=True)
 
 
-class ChangeOPRequestCreateSerializer(serializers.HyperlinkedModelSerializer):
+class ChangeOPRequestCreateSerializer(serializers.ModelSerializer):
+    reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
+    related_routes = serializers.ListField(child=serializers.CharField(), allow_empty=True)
+
     class Meta:
         model = ChangeOPRequest
-        fields = "__all__"
-
-    creator = UserSerializer
-    status = ChangeOPRequestStatusSerializer
-    counterpart = OrganizationSerializer
+        fields = ['title', 'reason', 'related_requests', 'related_routes']
 
 
 class ChangeOPProcessMessageFileSerializer(serializers.HyperlinkedModelSerializer):
@@ -327,23 +326,25 @@ class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
 
     change_op_requests = ChangeOPRequestDetailSerializer(many=True)
     change_op_process_messages = ChangeOPProcessMessageSerializer(many=True, read_only=True)
-    change_op_process_files = ChangeOPProcessFileSerializer(many=True, read_only=True)
     change_op_process_logs = ChangeOPProcessLogSerializer(many=True, read_only=True)
 
 
 class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
+    change_op_requests = ChangeOPRequestCreateSerializer(many=True, required=True)
+
     class Meta:
         model = ChangeOPProcess
-        fields = ['title', 'message', 'counterpart', 'operation_program']
+        fields = ['title', 'counterpart', 'operation_program', 'change_op_requests']
 
-    counterpart = OrganizationSerializer
-
-    def save(self, **kwargs):
+    def create(self, validated_data):
         user = self.context['request'].user
         organization = user.organization
         contract_type = organization.contract_type
 
         data = self.validated_data
+        change_op_requests = []
+        if 'change_op_requests' in data:
+            change_op_requests = data.pop('change_op_requests')
         data['created_at'] = timezone.now()
         data['updated_at'] = timezone.now()
         data['creator'] = user
@@ -361,13 +362,13 @@ class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
 
         change_op_process_obj = ChangeOPProcess.objects.create(**data)
 
-        errors = []
-        try:
-            files = self.context['request'].FILES.getlist("files")
-            for file in files:
-                ChangeOPProcessFile.objects.create(filename=file.name, file=file,
-                                                   change_op_process=change_op_process_obj)
-        except Exception as e:
-            errors.append(e)
+        for change_op_request_data in change_op_requests:
+            related_requests = change_op_request_data.pop('related_requests')
+            status_obj = ChangeOPRequestStatus.objects.get(contract_type=data['contract_type'],
+                                                           name="Evaluando admisibilidad")
+            copr = ChangeOPRequest.objects.create(**change_op_request_data, status=status_obj, creator=user,
+                                                  change_op_process=change_op_process_obj)
+
+            copr.related_requests.set(related_requests)
 
         return change_op_process_obj

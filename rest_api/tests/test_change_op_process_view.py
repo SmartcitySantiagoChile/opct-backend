@@ -7,7 +7,7 @@ from django.utils import timezone
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, \
     HTTP_405_METHOD_NOT_ALLOWED, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 
-from rest_api.models import OperationProgramType, ChangeOPProcess
+from rest_api.models import OperationProgramType, ChangeOPProcess, ChangeOPRequest
 from rest_api.serializers import ChangeOPRequestSerializer, ChangeOPProcessSerializer
 from rest_api.tests.test_views_base import BaseTestCase
 
@@ -33,7 +33,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
 
     def change_op_process_create(self, client, data, status_code=HTTP_201_CREATED):
         url = reverse("changeopprocess-list")
-        return self._make_request(client, self.POST_REQUEST, url, data, status_code, format='multipart')
+        return self._make_request(client, self.POST_REQUEST, url, data, status_code)
 
     def change_op_process_patch(self, client, pk, data, status_code=HTTP_200_OK):
         url = reverse("changeopprocess-detail", kwargs=dict(pk=pk))
@@ -55,6 +55,10 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
     def change_op_process_filter_by_op(self, client, op_start_at, data, status_code=HTTP_200_OK):
         url = f"{reverse('changeopprocess-list')}?search={op_start_at}"
         return self._make_request(client, self.GET_REQUEST, url, data, status_code)
+
+    def change_op_process_add_message(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("changeopprocess-add-message", kwargs=dict(pk=pk))
+        return self._make_request(client, self.POST_REQUEST, url, data, status_code, format='multipart')
 
     # ------------------------------ tests ----------------------------------------
     def test_list_with_user_related_to_owner_organization(self):
@@ -134,12 +138,11 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
     def test_create_with_contract_type_both(self):
         self.login_dtpm_viewer_user()
         title = 'Change OP Request TEST'
-        message = 'message'
         data = {
             "title": title,
-            "message": message,
             "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk)),
             "operation_program": reverse("operationprogram-detail", kwargs=dict(pk=self.op_program.pk)),
+            "change_op_requests": []
         }
 
         self.change_op_process_create(self.client, data)
@@ -147,7 +150,6 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         change_op_process_obj = ChangeOPProcess.objects.order_by('-created_at').first()
         self.assertEqual(self.op1_contract_type.pk, change_op_process_obj.contract_type_id)
         self.assertEqual(title, change_op_process_obj.title)
-        self.assertEqual(message, change_op_process_obj.message)
         self.assertIsNotNone(change_op_process_obj.created_at)
         self.assertIsNotNone(change_op_process_obj.updated_at)
         self.assertEqual(self.op1_organization.pk, change_op_process_obj.counterpart.pk)
@@ -159,11 +161,10 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
     def test_create_with_empty_op(self):
         self.login_dtpm_viewer_user()
         title = 'Another title'
-        message = 'another custom message'
         data = {
             "title": title,
-            "message": message,
-            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk))
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk)),
+            "change_op_requests": []
         }
 
         self.change_op_process_create(self.client, data)
@@ -175,11 +176,10 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
     def test_create_with_contract_type_old(self):
         self.login_op1_viewer_user()
         title = 'Another title again'
-        message = 'yes, another custom message'
         data = {
             "title": title,
-            "message": message,
-            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk))
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk)),
+            "change_op_requests": []
         }
 
         self.change_op_process_create(self.client, data)
@@ -190,15 +190,80 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
     def test_create_without_counterpart(self):
         self.login_op1_viewer_user()
         title = 'Another title again!'
-        message = 'oh! yes, another custom message'
         data = {
             "title": title,
-            "message": message
+            "change_op_requests": []
         }
 
         self.change_op_process_create(self.client, data, HTTP_400_BAD_REQUEST)
 
-    def test_create_attaching_files(self):
+    def test_create_with_op_requests(self):
+        self.login_dtpm_viewer_user()
+        title = 'Another title'
+        data = {
+            "title": title,
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk)),
+            "change_op_requests": [
+                {
+                    "title": "request title 1",
+                    "reason": ChangeOPRequest.REASON_CHOICES[0][1],
+                    "related_requests": [],
+                    "related_routes": []
+                },
+                {
+                    "title": "request title 2",
+                    "reason": ChangeOPRequest.REASON_CHOICES[1][1],
+                    "related_requests": [],
+                    "related_routes": []
+                },
+                {
+                    "title": "request title 3",
+                    "reason": ChangeOPRequest.REASON_CHOICES[2][1],
+                    "related_requests": [],
+                    "related_routes": ['T506 00I', 'T507 00R']
+                },
+                {
+                    "title": "request title 4",
+                    "reason": ChangeOPRequest.REASON_CHOICES[3][1],
+                    "related_requests": [],
+                    "related_routes": []
+                }
+            ]
+        }
+        self.change_op_process_create(self.client, data)
+
+        change_op_process_obj = ChangeOPProcess.objects.prefetch_related('change_op_requests'). \
+            order_by('-created_at').first()
+        self.assertEqual(4, len(change_op_process_obj.change_op_requests.all()))
+
+        change_op_request_obj = ChangeOPRequest.objects.get(title='request title 3')
+        self.assertListEqual(['T506 00I', 'T507 00R'], change_op_request_obj.related_routes)
+
+    def test_create_with_related_op_requests(self):
+        self.login_dtpm_viewer_user()
+
+        change_op_request_pk = ChangeOPRequest.objects.first().pk
+        data = {
+            "title": 'change op process title',
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk)),
+            "change_op_requests": [
+                {
+                    "title": "request title 1",
+                    "reason": ChangeOPRequest.REASON_CHOICES[0][1],
+                    "related_requests": [change_op_request_pk],
+                    "related_routes": []
+                }
+            ]
+        }
+        self.change_op_process_create(self.client, data)
+        change_op_process_obj = ChangeOPProcess.objects.prefetch_related('change_op_requests'). \
+            order_by('-created_at').first()
+        self.assertEqual(1, change_op_process_obj.change_op_requests.all().count())
+        self.assertEqual(1, change_op_process_obj.change_op_requests.all()[0].related_requests.all().count())
+        self.assertEqual(change_op_process_obj.change_op_requests.all()[0].related_requests.all()[0].pk,
+                         change_op_request_pk)
+
+    def test_add_message_with_files(self):
         self.login_op1_viewer_user()
         file_obj1 = SimpleUploadedFile('filename.xlsx', b'text content',
                                        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -206,25 +271,54 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                                        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         file_obj3 = SimpleUploadedFile('filename.docx', b'another text content',
                                        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-        title = 'Another title again'
         message = 'yes, another custom message'
         data = {
-            "title": title,
             "message": message,
-            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk)),
             "files": [file_obj1, file_obj2, file_obj3]
         }
-        self.change_op_process_create(self.client, data)
+        self.change_op_process_add_message(self.client, self.change_op_process.pk, data)
 
-        change_op_process_obj = ChangeOPProcess.objects.order_by('-created_at').first()
-        files = change_op_process_obj.change_op_process_files.all()
-        self.assertEqual(3, len(files))
-        for file_obj in files:
-            self.assertIn(file_obj.filename, ['filename.xlsx', 'filename.docx'])
-            file_obj.file.delete()
+        change_op_process_obj = ChangeOPProcess.objects.prefetch_related(
+            'change_op_process_messages__change_op_process_message_files').order_by('-created_at').first()
+        messages = change_op_process_obj.change_op_process_messages.all()
+        for message in messages:
+            files = message.change_op_process_message_files.all()
+            self.assertEqual(3, len(files))
+            for file_obj in files:
+                self.assertIn(file_obj.filename, ['filename.xlsx', 'filename.docx'])
+                file_obj.file.delete()
 
-    def test_create_with_op_requests(self):
-        pass
+
+def test_update(self):
+    pass
+
+
+def test_delete(self):
+    self.login_dtpm_viewer_user()
+    self.change_op_process_delete(self.client, self.change_op_process.pk, HTTP_405_METHOD_NOT_ALLOWED)
+
+    # methods related to change_op_requests
+
+
+def test_create_change_op_requests(self):
+    pass
+
+
+def test_update_change_op_requests(self):
+    pass
+
+
+def test_delete_change_op_requests(self):
+    pass
+    # no se puede eliminar
+
+
+def test_create_message(self):
+    pass
+
+
+def test_create_message_with_files(self):
+    pass
 
 
 class ChangeOPRequestViewSetTest(BaseTestCase):
