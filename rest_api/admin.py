@@ -83,11 +83,6 @@ class ChangeOPProcessMessage(NestedStackedInline):
     inlines = [ChangeOPProcessMessageFile]
 
 
-class ChangeOPProcessFile(NestedStackedInline):
-    model = models.ChangeOPProcessFile
-    fk_name = "change_op_process"
-
-
 class OPChangeLog(NestedStackedInline):
     model = models.OPChangeLog
     fk_name = "change_op_process"
@@ -99,7 +94,7 @@ class ChangeOPProcessMessageAdmin(admin.ModelAdmin):
 
 class ChangeOpProcessAdmin(NestedModelAdmin):
     save_as = True
-    inlines = [ChangeOPProcessFile, ChangeOPProcessMessage]
+    inlines = [ChangeOPProcessMessage]
 
 
 class OPChangeLogAdmin(admin.ModelAdmin):
@@ -120,7 +115,6 @@ class ChangeOPRequestLogAdmin(admin.ModelAdmin):
 
 admin.site.register(models.ChangeOPProcess, ChangeOpProcessAdmin)
 admin.site.register(models.ChangeOPRequest, ChangeOpRequestAdmin)
-admin.site.register(models.ChangeOPProcessFile)
 admin.site.register(models.ChangeOPProcessMessage, ChangeOPProcessMessageAdmin)
 admin.site.register(models.ContractType)
 admin.site.register(models.OPChangeLog, OPChangeLogAdmin)

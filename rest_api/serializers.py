@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from rest_api.models import User as ApiUser, OperationProgram, OperationProgramType, Organization, ContractType, \
     ChangeOPRequest, ChangeOPRequestStatus, OPChangeLog, OperationProgramStatus, \
-    ChangeOPProcessMessageFile, ChangeOPProcessMessage, ChangeOPProcessFile, ChangeOPProcess, ChangeOPProcessStatus, \
+    ChangeOPProcessMessageFile, ChangeOPProcessMessage, ChangeOPProcess, ChangeOPProcessStatus, \
     ChangeOPProcessLog, ChangeOPRequestLog
 
 
@@ -267,13 +267,6 @@ class ChangeOPProcessLogSerializer(serializers.HyperlinkedModelSerializer):
     user = BasicUserSerializer(many=False, read_only=True)
 
 
-class ChangeOPProcessFileSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ChangeOPProcessFile
-        fields = "__all__"
-        ordering = ["-file"]
-
-
 class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
@@ -320,10 +313,9 @@ class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
-        fields = ["url", "title", "message", "created_at", "updated_at", "counterpart", "contract_type",
-                  "operation_program", "creator", "status", "op_release_date",
-                  "change_op_requests", "change_op_process_messages", "change_op_process_files",
-                  "change_op_process_logs"]
+        fields = ["url", "title", "created_at", "updated_at", "counterpart", "contract_type", "operation_program",
+                  "creator", "status", "op_release_date", "change_op_requests", "change_op_process_messages",
+                  "change_op_process_files", "change_op_process_logs"]
         ordering = ["-start_at"]
         depth = 2
 

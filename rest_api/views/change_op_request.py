@@ -11,8 +11,7 @@ from rest_framework.status import (
     HTTP_201_CREATED,
 )
 
-from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, ChangeOPProcessFile, \
-    ChangeOPRequestLog
+from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, ChangeOPRequestLog
 from rest_api.serializers import ChangeOPRequestSerializer, ChangeOPRequestStatusSerializer, \
     ChangeOPRequestDetailSerializer, ChangeOPRequestCreateSerializer
 
@@ -80,12 +79,7 @@ class ChangeOPRequestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         change_op_request = serializer.save()
         errors = []
         try:
-            files = request.FILES.getlist("files")
-            for file in files:
-                instance = ChangeOPProcessFile(
-                    file=file, change_op_request_id=change_op_request.id
-                )
-                instance.save()
+            pass
         except Exception as e:
             errors.append(e)
         headers = self.get_success_headers(serializer.data)
