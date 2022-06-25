@@ -186,7 +186,6 @@ class User(AbstractUser):
 
 class ChangeOPProcess(models.Model):
     title = models.CharField("Titulo", max_length=50)
-    message = models.TextField("Mensaje")
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
     updated_at = models.DateTimeField("Fecha de la última actualización", default=timezone.now)
     counterpart = models.ForeignKey(Organization, related_name="change_op_processes", on_delete=models.PROTECT,
@@ -280,8 +279,9 @@ class ChangeOPRequest(models.Model):
     reason = models.CharField("Motivo", max_length=30, choices=REASON_CHOICES)
     related_requests = models.ManyToManyField("self", blank=True, verbose_name="Solicitudes relacionadas")
     change_op_process = models.ForeignKey("ChangeOPProcess", related_name="change_op_requests",
-                                          verbose_name="Solicitudes de cambio", blank=False, on_delete=models.PROTECT)
-    related_routes = ArrayField(models.CharField(max_length=30, blank=False))
+                                          on_delete=models.PROTECT, null=False, blank=False,
+                                          verbose_name="Proceso de cambio de PO")
+    related_routes = ArrayField(models.CharField(max_length=30, blank=True))
 
     def __str__(self):
         return str(self.title)
@@ -383,22 +383,6 @@ class ChangeOPProcessLog(models.Model):
     class Meta:
         verbose_name = "Log de estado de proceso"
         verbose_name_plural = "Logs de estado de proceso"
-
-
-# TODO: esto debe estar relacionado a un mensaje ¿cómo sé en qué mensaje se adjuntó este archivo?
-# Parece que se usa para almacenar los archivos adjuntados en la creación de un proceso
-class ChangeOPProcessFile(models.Model):
-    filename = models.CharField(max_length=128, null=False)
-    file = models.FileField("Archivo")
-    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="change_op_process_files",
-                                          on_delete=models.PROTECT, verbose_name="Proceso de cambio de PO")
-
-    def __str__(self):
-        return str(self.file)
-
-    class Meta:
-        verbose_name = "Archivo de proceso de cambio de PO"
-        verbose_name_plural = "Archivos de proceso de cambio de PO"
 
 
 class ChangeOPProcessMessage(models.Model):
