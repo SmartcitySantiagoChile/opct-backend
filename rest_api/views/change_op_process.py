@@ -20,8 +20,8 @@ from rest_api.serializers import OPChangeLogSerializer, ChangeOPProcessMessageSe
 logger = logging.getLogger(__name__)
 
 
-class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                             mixins.ListModelMixin, viewsets.GenericViewSet):
+class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin,
+                             viewsets.GenericViewSet):
     """
     API endpoint that allows Change OP Process to be viewed, created and updated.
     """
@@ -59,36 +59,34 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     def change_op(self, request, *args, **kwargs):
         # TODO: send email
         obj = self.get_object()
-        new_op_key = request.data.get("op")
-        update_deadlines = request.data.get("update_deadlines")
+        new_operation_program_key = request.data.get("operation_program", None)
+        update_deadlines = request.data.get("update_deadlines", False)
         queryset = self.get_queryset()
         serializer = ChangeOPProcessSerializer(queryset, context={"request": request}, many=True)
         try:
-            previous_op = obj.base_op
-            if new_op_key:
-                new_op = OperationProgram.objects.get(pk=new_op_key)
-            else:
-                new_op = new_op_key
-                obj.op_release_date = new_op_key
+            previous_operation_program = obj.operation_program
+            new_operation_program = OperationProgram.objects.get(pk=new_operation_program_key)
 
-            if previous_op:
-                if new_op_key == previous_op.pk:
+            if previous_operation_program:
+                if new_operation_program_key == previous_operation_program.pk:
                     return Response(serializer.data, status=HTTP_200_OK)
             else:
-                if new_op_key == previous_op:
+                if new_operation_program_key == previous_operation_program:
                     return Response(serializer.data, status=HTTP_200_OK)
-            obj.base_op = new_op
+            obj.operation_program = new_operation_program
             if update_deadlines:
-                obj.op_release_date = new_op.start_at
-                log_type = ChangeOPProcessLog.OP_CHANGE
+                obj.op_release_date = new_operation_program.start_at
+                log_type = ChangeOPProcessLog.OP_CHANGE_WITH_DEADLINE_UPDATED
             else:
                 update_deadlines = False
-                log_type = ChangeOPProcessLog.OP_CHANGE_WITH_DEADLINE_UPDATED
+                log_type = ChangeOPProcessLog.OP_CHANGE
             obj.save()
             ChangeOPProcessLog.objects.create(
                 created_at=timezone.now(), user=request.user, change_op_process=obj, type=log_type,
-                previous_data=dict(date=str(previous_op.start_at), type=previous_op.op_type.name),
-                new_data=dict(date=str(new_op.start_at), type=new_op.op_type.name, update_deadlines=update_deadlines))
+                previous_data=dict(date=str(previous_operation_program.start_at),
+                                   type=previous_operation_program.op_type.name),
+                new_data=dict(date=str(new_operation_program.start_at), type=new_operation_program.op_type.name,
+                              update_deadlines=update_deadlines))
             return Response(serializer.data, status=HTTP_200_OK)
         except OperationProgram.DoesNotExist:
             raise NotFound()
@@ -96,7 +94,7 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     @action(detail=True, methods=["put"], url_path="change-status")
     def change_status(self, request, *args, **kwargs):
         obj = self.get_object()
-        new_status_key = request.data.get("status")
+        new_status_key = request.data.get("status", None)
         queryset = self.get_queryset()
         try:
             new_status = ChangeOPProcessStatus.objects.get(pk=new_status_key)
@@ -105,8 +103,8 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             obj.save()
             ChangeOPProcessLog.objects.create(created_at=timezone.now(), user=request.user,
                                               type=ChangeOPProcessLog.STATUS_CHANGE,
-                                              previous_data=dict(value=previous_status),
-                                              new_status=dict(value=new_status), change_op_process=obj)
+                                              previous_data=dict(value=previous_status.name),
+                                              new_data=dict(value=new_status.name), change_op_process=obj)
             serializer = ChangeOPProcessSerializer(queryset, context={"request": request}, many=True)
             return Response(serializer.data, status=HTTP_200_OK)
         except ChangeOPProcessStatus.DoesNotExist:
@@ -144,6 +142,27 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             raise ParseError(detail='Error al cargar archivo')
 
         return Response(None, status=HTTP_200_OK)
+
+    @action(detail=True, methods=["post"])
+    def create_change_op_request(self, request, *args, **kwargs):
+        obj = self.get_object()
+        change_op_request = request.data.get("change_op_request")
+        try:
+            related_requests = change_op_request.pop('related_requests')
+            status_obj = ChangeOPRequestStatus.objects.get(contract_type=obj.contract_type,
+                                                           name="Evaluando admisibilidad")
+            copr = ChangeOPRequest.objects.create(**change_op_request, status=status_obj, creator=request.user,
+                                                  change_op_process=obj)
+            copr.related_requests.set(related_requests)
+            ChangeOPProcessLog.objects.create(created_at=timezone.now(), user=request.user,
+                                              type=ChangeOPProcessLog.CHANGE_OP_REQUEST_CREATION,
+                                              previous_data=dict(),
+                                              new_data=dict(title=copr.title, reason=copr.reason),
+                                              change_op_process=obj)
+
+            return Response(None, status=HTTP_200_OK)
+        except ChangeOPRequestStatus.DoesNotExist:
+            raise NotFound()
 
 
 class ChangeOPProcessMessageFileViewset(viewsets.ReadOnlyModelViewSet):

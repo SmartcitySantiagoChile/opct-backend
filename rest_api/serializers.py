@@ -176,17 +176,17 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = ["created_at", "creator", "contract_type", "counterpart", "operation_program", "reason",
-                  "related_requests", "status", "status_logs", "title", "updated_at", "url"]
+        fields = ["url", "title", "created_at", "creator", "operation_program", "status", "updated_at", "reason",
+                  "related_requests", "related_routes"]
         depth = 1
         ordering = ["-start_at"]
+        read_only_fields = ["created_at", "updated_at"]
 
-    reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
     creator = UserSerializer(many=False, read_only=True)
-    op = OperationProgramSerializer(many=False, read_only=True)
-    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
-    counterpart = OrganizationSerializer(many=False, read_only=True)
-    contract_type = ContractTypeSerializer(many=False, read_only=True)
+    operation_program = OperationProgramSerializer(many=False)
+    status = ChangeOPRequestStatusSerializer(many=False)
+    reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
+    related_routes = serializers.ListField(child=serializers.CharField(), allow_empty=True)
 
 
 class ChangeOPRequestLogSerializer(serializers.HyperlinkedModelSerializer):
@@ -294,9 +294,9 @@ class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
-        fields = ["url", "title", "message", "created_at", "updated_at", "counterpart", "contract_type", "creator",
-                  "status", "op_release_date", "change_op_requests_count",
-                  "operation_program"]
+        fields = ["url", "title", "created_at", "updated_at", "counterpart", "contract_type", "creator", "status",
+                  "op_release_date", "operation_program",
+                  "change_op_requests_count"]
         depth = 1
         ordering = ["created_at"]
 
@@ -304,25 +304,25 @@ class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
     status = ChangeOPProcessStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
-
     operation_program = OperationProgramSerializer(many=False, read_only=True)
-    change_op_requests_count = serializers.IntegerField()
+
+    change_op_requests_count = serializers.IntegerField(read_only=True)
 
 
 class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
-        fields = ["url", "title", "created_at", "updated_at", "counterpart", "contract_type", "operation_program",
-                  "creator", "status", "op_release_date", "change_op_requests", "change_op_process_messages",
-                  "change_op_process_files", "change_op_process_logs"]
+        fields = ["url", "title", "created_at", "updated_at", "counterpart", "contract_type", "creator", "status",
+                  "op_release_date", "operation_program",
+                  "change_op_requests", "change_op_process_messages", "change_op_process_logs"]
         ordering = ["-start_at"]
         depth = 2
 
+    creator = BasicUserSerializer(many=False, read_only=True)
+    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
     operation_program = OperationProgramSerializer(many=False, read_only=True)
-    creator = BasicUserSerializer(many=False, read_only=True)
-    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
 
     change_op_requests = ChangeOPRequestDetailSerializer(many=True)
     change_op_process_messages = ChangeOPProcessMessageSerializer(many=True, read_only=True)

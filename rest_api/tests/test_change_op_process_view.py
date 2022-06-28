@@ -1,14 +1,15 @@
+import json
 from collections import OrderedDict
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.client import RequestFactory
 from django.urls import reverse
-from django.utils import timezone
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, \
     HTTP_405_METHOD_NOT_ALLOWED, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 
-from rest_api.models import OperationProgramType, ChangeOPProcess, ChangeOPRequest
-from rest_api.serializers import ChangeOPRequestSerializer, ChangeOPProcessSerializer
+from rest_api.models import OperationProgramType, ChangeOPProcess, ChangeOPRequest, ChangeOPProcessLog, \
+    ChangeOPProcessStatus
+from rest_api.serializers import ChangeOPProcessSerializer
 from rest_api.tests.test_views_base import BaseTestCase
 
 
@@ -60,6 +61,10 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         url = reverse("changeopprocess-add-message", kwargs=dict(pk=pk))
         return self._make_request(client, self.POST_REQUEST, url, data, status_code, format='multipart')
 
+    def change_op_process_create_change_op_request(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("changeopprocess-create-change-op-request", kwargs=dict(pk=pk))
+        return self._make_request(client, self.POST_REQUEST, url, data, status_code)
+
     # ------------------------------ tests ----------------------------------------
     def test_list_with_user_related_to_owner_organization(self):
         self.login_dtpm_viewer_user()
@@ -79,7 +84,6 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                     OrderedDict([
                         ("url", serializer_data["url"]),
                         ("title", serializer_data["title"]),
-                        ("message", serializer_data["message"]),
                         ("created_at", serializer_data["created_at"]),
                         ("updated_at", serializer_data["updated_at"]),
                         ("counterpart", serializer_data["counterpart"],),
@@ -93,8 +97,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                 ]),
             ]
         )
-
-        self.assertEqual(response.data, expected_response)
+        self.assertJSONEqual(json.dumps(response.data), json.dumps(expected_response))
 
     def test_list_with_user_related_to_counterpart_organization(self):
         self.login_op1_viewer_user()
@@ -288,221 +291,125 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                 self.assertIn(file_obj.filename, ['filename.xlsx', 'filename.docx'])
                 file_obj.file.delete()
 
-
-def test_update(self):
-    pass
-
-
-def test_delete(self):
-    self.login_dtpm_viewer_user()
-    self.change_op_process_delete(self.client, self.change_op_process.pk, HTTP_405_METHOD_NOT_ALLOWED)
-
-    # methods related to change_op_requests
-
-
-def test_create_change_op_requests(self):
-    pass
-
-
-def test_update_change_op_requests(self):
-    pass
-
-
-def test_delete_change_op_requests(self):
-    pass
-    # no se puede eliminar
-
-
-def test_create_message(self):
-    pass
-
-
-def test_create_message_with_files(self):
-    pass
-
-
-class ChangeOPRequestViewSetTest(BaseTestCase):
-    def setUp(self) -> None:
-        super(ChangeOPRequestViewSetTest, self).setUp()
-        self.organization_base_2 = self.create_organization("ChangeOPRequest", self.contract_type)
-
-        self.op_user_2 = self.create_op_user("op2@opct.com", "testpassword1", self.organization_base_2)
-
-        self.op = self.create_op("2021-05-01")
-        self.change_op_request = self.create_change_op_request(self.op_user_2, self.op, self.organization_base_2,
-                                                               self.contract_type)
-
-    # ------------------------------ helper methods ------------------------------ #
-    def change_op_request_list(self, client, data, status_code=HTTP_200_OK):
-        url = reverse("changeoprequest-list")
-        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
-
-    def change_op_request_retrieve(self, client, pk, status_code=HTTP_200_OK):
-        url = reverse("changeoprequest-detail", kwargs=dict(pk=pk))
-        data = dict()
-        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
-
-    def change_op_request_create(self, client, data, status_code=HTTP_201_CREATED):
-        url = reverse("changeoprequest-list")
-        return self._make_request(client, self.POST_REQUEST, url, data, status_code)
-
-    def change_op_request_patch(self, client, pk, data, status_code=HTTP_200_OK):
-        url = reverse("changeoprequest-detail", kwargs=dict(pk=pk))
-        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
-
-    def change_op_request_delete(self, client, pk, status_code=HTTP_204_NO_CONTENT):
-        url = reverse("changeoprequest-detail", kwargs=dict(pk=pk))
-        data = dict()
-        return self._make_request(client, self.DELETE_REQUEST, url, data, status_code)
-
-    def change_op_request_change_op(self, client, pk, data, status_code=HTTP_200_OK):
-        url = reverse("changeoprequest-change-op", kwargs=dict(pk=pk))
-        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
-
-    def change_op_request_change_status(self, client, pk, data, status_code=HTTP_200_OK):
-        url = reverse("changeoprequest-change-status", kwargs=dict(pk=pk))
-        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
-
-    def change_op_request_filter_by_op(self, client, op_start_at, data, status_code=HTTP_200_OK):
-        url = f"{reverse('changeoprequest-list')}?search={op_start_at}"
-        return self._make_request(client, self.GET_REQUEST, url, data, status_code)
-
-    # ------------------------------ tests ----------------------------------------
-    def test_list_with_no_organization_permissions(self):
-        self.login_op_user()
-        response = self.change_op_request_list(self.client, {})
-        expected_result = OrderedDict([("count", 0), ("next", None), ("previous", None), ("results", [])])
-        self.assertEqual(expected_result, response.data)
-
-    def test_list_with_organization_permissions(self):
-        self.client.logout()
-        self.client.login(username="op2@opct.com", password="testpassword1")
-        response = self.change_op_request_list(self.client, {})
-        url = reverse("changeoprequest-list")
-        context = {"request": RequestFactory().get(url)}
-        serializer_data = ChangeOPRequestSerializer(self.change_op_request, context=context).data
-        expected_response = OrderedDict(
-            [
-                ("count", 1),
-                ("next", None),
-                ("previous", None),
-                ("results", [
-                    OrderedDict([
-                        ("url", serializer_data["url"]),
-                        ("reason", serializer_data["reason"]),
-                        ("creator", serializer_data["creator"]),
-                        ("op", serializer_data["op"]),
-                        ("status", serializer_data["status"]),
-                        ("counterpart", serializer_data["counterpart"],),
-                        ("contract_type", serializer_data["contract_type"],),
-                        ("created_at", serializer_data["created_at"]),
-                        ("title", serializer_data["title"]),
-                        ("message", serializer_data["message"]),
-                        ("updated_at", serializer_data["updated_at"]),
-                        ("op_release_date", serializer_data["op_release_date"]),
-                    ])
-                ]),
-            ]
-        )
-        self.assertEqual(response.data, expected_response)
-
-    def test_retrieve_with_group_permissions(self):
-        self.login_op_user()
-        self.change_op_request_retrieve(self.client, self.change_op_request.pk)
-
-    def test_create_with_group_permissions(self):
-        self.login_op_user()
+    def test_add_message_without_files(self):
+        self.login_op1_viewer_user()
+        message = 'yes, another custom message'
         data = {
-            "created_at": timezone.now(),
-            "creator": reverse("user-detail", kwargs=dict(pk=self.op_user.pk)),
-            "op": reverse("operationprogram-detail", kwargs=dict(pk=self.op.pk)),
-            "status": reverse("changeoprequeststatus-detail", kwargs=dict(pk=1)),
-            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk)),
-            "contract_type": reverse("contracttype-detail", kwargs=dict(pk=self.contract_type.pk)),
-            "title": "Change OP Request TEST",
-            "message": "test",
-            "updated_at": timezone.now(),
-            "op_release_date": "2030-01-01",
-            "reason": "Otros",
+            "message": message,
+            "files": []
         }
+        self.change_op_process_add_message(self.client, self.change_op_process.pk, data)
 
-        self.change_op_request_create(self.client, data)
+        change_op_process_obj = ChangeOPProcess.objects.prefetch_related(
+            'change_op_process_messages__change_op_process_message_files').order_by('-created_at').first()
+        messages = change_op_process_obj.change_op_process_messages.all()
+        for message in messages:
+            files = message.change_op_process_message_files.all()
+            self.assertEqual(0, len(files))
 
-    def test_create_with_empty_op(self):
-        self.login_op_user()
-        data = {
-            "created_at": timezone.now(),
-            "creator": reverse("user-detail", kwargs=dict(pk=self.op_user.pk)),
-            "op": "",
-            "status": reverse("changeoprequeststatus-detail", kwargs=dict(pk=1)),
-            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk)),
-            "contract_type": reverse("contracttype-detail", kwargs=dict(pk=self.contract_type.pk)),
-            "title": "Change OP Request TEST",
-            "message": "test",
-            "updated_at": timezone.now(),
-            "op_release_date": "2030-01-01",
-            "reason": "Otros",
-        }
+    def test_update(self):
+        self.login_op1_viewer_user()
+        self.change_op_process_patch(self.client, self.change_op_process.pk, {}, HTTP_405_METHOD_NOT_ALLOWED)
 
-        self.change_op_request_create(self.client, data)
+    def test_delete(self):
+        self.login_dtpm_viewer_user()
+        self.change_op_process_delete(self.client, self.change_op_process.pk, HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_update_with_group_permissions(self):
-        self.login_op_user()
-        data = {
-            "created_at": timezone.now(),
-            "creator": reverse("user-detail", kwargs=dict(pk=self.op_user.pk)),
-            "op": reverse("operationprogram-detail", kwargs=dict(pk=self.op.pk)),
-            "status": reverse("changeoprequeststatus-detail", kwargs=dict(pk=1)),
-            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk)),
-            "contract_type": reverse("contracttype-detail", kwargs=dict(pk=self.contract_type.pk)),
-            "title": "Change OP Request TEST",
-            "message": "test",
-            "updated_at": timezone.now(),
-            "op_release_date": "2030-01-01",
-            "reason": "Acortamiento",
-        }
-        self.change_op_request_patch(self.client, self.change_op_request.pk, data)
+    def test_create_change_op_requests(self):
+        pass
 
-    def test_delete_not_implemented(self):
-        self.login_op_user()
-        self.change_op_request_delete(
-            self.client, self.change_op_request.pk, HTTP_405_METHOD_NOT_ALLOWED
-        )
+    def test_update_change_op_requests(self):
+        pass
 
-    def test_change_op_request(self):
-        self.login_op_user()
-        new_op = self.create_op("2040-04-20")
-        data = {"op": new_op.pk}
-        self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
+    def test_update_operation_program(self):
+        self.login_dtpm_viewer_user()
+        new_operation_program = self.create_operation_program("2040-04-20", OperationProgramType.MODIFIED)
+        data = {"operation_program": new_operation_program.pk}
+        self.change_op_process_change_op(self.client, self.change_op_process.pk, data)
 
-    def test_change_op_request_with_update_deadlines(self):
-        self.login_op_user()
-        new_op = self.create_op("2040-04-20")
-        data = {"op": new_op.pk, "update_deadlines": True}
-        self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
+        self.change_op_process.refresh_from_db()
+        self.assertEqual(new_operation_program, self.change_op_process.operation_program)
+        self.assertEqual(1, ChangeOPProcessLog.objects.count())
+        log_obj = ChangeOPProcessLog.objects.first()
+        self.assertEqual(self.dtpm_viewer_user, log_obj.user)
+        self.assertEqual(self.change_op_process, log_obj.change_op_process)
+        self.assertEqual(ChangeOPProcessLog.OP_CHANGE, log_obj.type)
+        self.assertDictEqual(dict(date='2022-01-01', type='Base'), log_obj.previous_data)
+        self.assertDictEqual(dict(date='2040-04-20', type='Modificado', update_deadlines=False), log_obj.new_data)
 
-    def test_change_op_request_with_same_op(self):
-        self.login_op_user()
-        data = {"op": self.op.pk}
-        self.change_op_request_change_op(self.client, self.change_op_request.pk, data)
+    def test_update_operation_program_with_deadlines(self):
+        self.login_dtpm_viewer_user()
+        new_operation_program = self.create_operation_program("2024-01-15")
+        data = {"operation_program": new_operation_program.pk, "update_deadlines": True}
+        self.change_op_process_change_op(self.client, self.change_op_process.pk, data)
 
-    def test_change_op_not_found_request(self):
-        self.login_op_user()
-        data = {"op": 5}
-        self.change_op_request_change_op(self.client, self.change_op_request.pk, data, HTTP_404_NOT_FOUND)
+        log_obj = ChangeOPProcessLog.objects.first()
+        self.assertDictEqual(dict(date='2024-01-15', type='Base', update_deadlines=True), log_obj.new_data)
 
-    def test_change_status_request(self):
-        self.login_op_user()
-        data = {"status": 2}
-        self.change_op_request_change_status(
-            self.client, self.change_op_request.pk, data
-        )
+    def test_update_operation_program_with_same_operation_program(self):
+        self.login_dtpm_viewer_user()
+        data = {"operation_program": self.op_program.pk}
+        self.change_op_process_change_op(self.client, self.change_op_process.pk, data)
+
+        self.change_op_process.refresh_from_db()
+        self.assertEqual(self.op_program, self.change_op_process.operation_program)
+        self.assertEqual(0, ChangeOPProcessLog.objects.count())
+
+    def test_update_operation_program_but_it_does_not_exist(self):
+        self.login_dtpm_viewer_user()
+        data = {"operation_program": 5}
+        self.change_op_process_change_op(self.client, self.change_op_process.pk, data, HTTP_404_NOT_FOUND)
+        self.assertEqual(0, ChangeOPProcessLog.objects.count())
+
+    def test_change_status(self):
+        self.login_op1_viewer_user()
+        previous_status_name = self.change_op_process.status.name
+        new_status_obj = ChangeOPProcessStatus.objects.get(pk=2)
+        data = {"status": new_status_obj.pk}
+        self.change_op_process_change_status(self.client, self.change_op_process.pk, data)
+
+        self.change_op_process.refresh_from_db()
+        self.assertEqual(new_status_obj, self.change_op_process.status)
+        self.assertEqual(1, ChangeOPProcessLog.objects.count())
+        log_obj = ChangeOPProcessLog.objects.first()
+        self.assertEqual(self.op1_viewer_user, log_obj.user)
+        self.assertEqual(self.change_op_process, log_obj.change_op_process)
+        self.assertEqual(ChangeOPProcessLog.STATUS_CHANGE, log_obj.type)
+        self.assertDictEqual(dict(value=previous_status_name), log_obj.previous_data)
+        self.assertDictEqual(dict(value=new_status_obj.name), log_obj.new_data)
 
     def test_change_status_not_found_request(self):
-        self.login_op_user()
+        self.login_dtpm_viewer_user()
         data = {"status": -1}
-        self.change_op_request_change_status(self.client, self.change_op_request.pk, data, HTTP_404_NOT_FOUND)
+        self.change_op_process_change_status(self.client, self.change_op_process.pk, data, HTTP_404_NOT_FOUND)
+        self.assertEqual(0, ChangeOPProcessLog.objects.count())
 
-    def test_change_op_request_filter_by_op(self):
-        self.login_op_user()
-        self.change_op_request_filter_by_op(self.client, "2021-10-25", {})
+    def test_create_change_op_request(self):
+        self.login_dtpm_viewer_user()
+        related_routes = ['T506 00I', 'T507 00R']
+        title = 'new title'
+        reason = ChangeOPRequest.REASON_CHOICES[0][1]
+        data = {
+            "change_op_request": {
+                "title": title,
+                "reason": reason,
+                "related_requests": [],
+                "related_routes": related_routes
+            }
+        }
+        self.change_op_process_create_change_op_request(self.client, self.change_op_process.pk, data)
+
+        self.assertEqual(2, ChangeOPRequest.objects.count())
+        change_op_request_obj = ChangeOPRequest.objects.order_by('-id').first()
+        self.assertEqual(title, change_op_request_obj.title)
+        self.assertEqual(reason, change_op_request_obj.reason)
+        self.assertListEqual([], list(change_op_request_obj.related_requests.all()))
+        self.assertListEqual(related_routes, change_op_request_obj.related_routes)
+
+        self.assertEqual(1, ChangeOPProcessLog.objects.count())
+        log_obj = ChangeOPProcessLog.objects.first()
+        self.assertEqual(self.dtpm_viewer_user, log_obj.user)
+        self.assertEqual(self.change_op_process, log_obj.change_op_process)
+        self.assertEqual(ChangeOPProcessLog.CHANGE_OP_REQUEST_CREATION, log_obj.type)
+        self.assertDictEqual(dict(), log_obj.previous_data)
+        self.assertDictEqual(dict(title=title, reason=reason), log_obj.new_data)
