@@ -67,12 +67,9 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             previous_operation_program = obj.operation_program
             new_operation_program = OperationProgram.objects.get(pk=new_operation_program_key)
 
-            if previous_operation_program:
-                if new_operation_program_key == previous_operation_program.pk:
-                    return Response(serializer.data, status=HTTP_200_OK)
-            else:
-                if new_operation_program_key == previous_operation_program:
-                    return Response(serializer.data, status=HTTP_200_OK)
+            if previous_operation_program is not None and new_operation_program_key == previous_operation_program.pk:
+                return Response(serializer.data, status=HTTP_200_OK)
+
             obj.operation_program = new_operation_program
             if update_deadlines:
                 obj.op_release_date = new_operation_program.start_at
@@ -81,10 +78,14 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                 update_deadlines = False
                 log_type = ChangeOPProcessLog.OP_CHANGE
             obj.save()
+
+            previous_data = dict()
+            if previous_operation_program is not None:
+                previous_data = dict(date=str(previous_operation_program.start_at),
+                                     type=previous_operation_program.op_type.name)
             ChangeOPProcessLog.objects.create(
                 created_at=timezone.now(), user=request.user, change_op_process=obj, type=log_type,
-                previous_data=dict(date=str(previous_operation_program.start_at),
-                                   type=previous_operation_program.op_type.name),
+                previous_data=previous_data,
                 new_data=dict(date=str(new_operation_program.start_at), type=new_operation_program.op_type.name,
                               update_deadlines=update_deadlines))
             return Response(serializer.data, status=HTTP_200_OK)
@@ -211,6 +212,7 @@ class ChangeOPProcessMessageViewSet(viewsets.ReadOnlyModelViewSet, mixins.Create
     serializer_class = ChangeOPProcessMessageSerializer
 
     def create(self, request, *args, **kwargs):
+        # TODO: no se usa, fue reemplazado por una acción en el viewset de changeOPProcess
         serializer = CreateChangeOPProcessMessageSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         change_op_process_message = serializer.save()

@@ -315,9 +315,6 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.login_dtpm_viewer_user()
         self.change_op_process_delete(self.client, self.change_op_process.pk, HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_create_change_op_requests(self):
-        pass
-
     def test_update_change_op_requests(self):
         pass
 
@@ -354,6 +351,15 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.change_op_process.refresh_from_db()
         self.assertEqual(self.op_program, self.change_op_process.operation_program)
         self.assertEqual(0, ChangeOPProcessLog.objects.count())
+
+    def test_udpdate_operation_program_without_previos_operation_program(self):
+        self.change_op_process.operation_program = None
+        self.change_op_process.save()
+
+        self.login_dtpm_viewer_user()
+        data = {"operation_program": self.op_program.pk}
+        self.change_op_process_change_op(self.client, self.change_op_process.pk, data)
+        self.assertEqual(1, ChangeOPProcessLog.objects.count())
 
     def test_update_operation_program_but_it_does_not_exist(self):
         self.login_dtpm_viewer_user()
