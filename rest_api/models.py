@@ -362,10 +362,12 @@ class ChangeOPProcessLog(models.Model):
     Historial de modificaciones a un proceso de cambio de programa de operación
     """
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
+    CHANGE_OP_REQUEST_CREATION = 'change_op_request_creation'
     STATUS_CHANGE = 'status_change'
     OP_CHANGE = 'op_change'
     OP_CHANGE_WITH_DEADLINE_UPDATED = 'op_change_with_deadline_updated'
     TYPE_CHOICES = (
+        (CHANGE_OP_REQUEST_CREATION, 'Creación de Solicitud de modificación'),
         (STATUS_CHANGE, 'Cambio de estado'),
         (OP_CHANGE, 'Cambio de programa de operación'),
         (OP_CHANGE_WITH_DEADLINE_UPDATED, 'Cambio de programa de operación con actualización de deadlines'),
