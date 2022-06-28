@@ -352,7 +352,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.assertEqual(self.op_program, self.change_op_process.operation_program)
         self.assertEqual(0, ChangeOPProcessLog.objects.count())
 
-    def test_udpdate_operation_program_without_previos_operation_program(self):
+    def test_update_operation_program_without_previos_operation_program(self):
         self.change_op_process.operation_program = None
         self.change_op_process.save()
 
