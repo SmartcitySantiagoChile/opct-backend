@@ -42,9 +42,14 @@ class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
+    can_change_counterpart = serializers.SerializerMethodField()
+
+    def get_can_change_counterpart(self, obj):
+        return obj.contract_type.pk == ContractType.BOTH
+
     class Meta:
         model = Organization
-        fields = ("url", "name", "created_at", "contract_type", "default_counterpart")
+        fields = ("url", "name", "created_at", "contract_type", "default_counterpart", "can_change_counterpart")
 
     contract_type = ContractTypeSerializer(many=False, read_only=True)
 
