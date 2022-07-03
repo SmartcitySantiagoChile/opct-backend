@@ -42,16 +42,15 @@ class ChangeOPRequestStatusSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
-    can_change_counterpart = serializers.SerializerMethodField()
-
-    def get_can_change_counterpart(self, obj):
-        return obj.contract_type.pk == ContractType.BOTH
-
     class Meta:
         model = Organization
         fields = ("url", "name", "created_at", "contract_type", "default_counterpart", "can_change_counterpart")
 
     contract_type = ContractTypeSerializer(many=False, read_only=True)
+    can_change_counterpart = serializers.SerializerMethodField()
+
+    def get_can_change_counterpart(self, obj):
+        return obj.contract_type.pk == ContractType.BOTH
 
 
 class OrganizationCreateSerializer(serializers.HyperlinkedModelSerializer):
@@ -353,6 +352,8 @@ class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
         data['created_at'] = timezone.now()
         data['updated_at'] = timezone.now()
         data['creator'] = user
+
+        # TODO: revisar que la organización del usuario puede elegir esa contraparte
 
         if contract_type.pk == ContractType.BOTH:
             data['contract_type'] = data['counterpart'].contract_type
