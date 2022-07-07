@@ -27,7 +27,7 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     """
     queryset = ChangeOPProcess.objects.order_by("-created_at")
     filter_backends = [filters.SearchFilter]
-    search_fields = ["op__start_at", "id", "title"]
+    search_fields = ["operation_program__start_at", "id", "title"]
 
     # TODO: verificar si está filtrando por motivo
     def get_queryset(self):
@@ -142,7 +142,7 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             logger.error(e)
             raise ParseError(detail='Error al cargar archivo')
 
-        return Response(None, status=HTTP_200_OK)
+        return Response(None, status=HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"])
     def create_change_op_request(self, request, *args, **kwargs):

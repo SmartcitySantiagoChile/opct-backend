@@ -57,7 +57,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         url = f"{reverse('changeopprocess-list')}?search={op_start_at}"
         return self._make_request(client, self.GET_REQUEST, url, data, status_code)
 
-    def change_op_process_add_message(self, client, pk, data, status_code=HTTP_200_OK):
+    def change_op_process_add_message(self, client, pk, data, status_code=HTTP_201_CREATED):
         url = reverse("changeopprocess-add-message", kwargs=dict(pk=pk))
         return self._make_request(client, self.POST_REQUEST, url, data, status_code, format='multipart')
 
