@@ -83,6 +83,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     """
     queryset = Organization.objects.all().order_by("-name")
     permission_classes = [HasGroupPermission]
+    pagination_class = None
 
     required_groups = {
         "GET": ["Organization"],
