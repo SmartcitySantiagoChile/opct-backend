@@ -38,7 +38,7 @@ class OrganizationViewSetTest(BaseTestCase):
     def test_list_with_group_permissions(self):
         self.login_dtpm_admin_user()
         json_response = self.organization_list(self.client, {})
-        self.assertEqual(3, len(json_response['results']))
+        self.assertEqual(3, len(json_response))
 
     def test_list_without_group_permissions(self):
         self.login_dtpm_viewer_user()

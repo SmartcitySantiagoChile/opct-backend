@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_api.models import User as ApiUser, OperationProgram, OperationProgramType, Organization, ContractType, \
     ChangeOPRequest, ChangeOPRequestStatus, OPChangeLog, OperationProgramStatus, \
     ChangeOPProcessMessageFile, ChangeOPProcessMessage, ChangeOPProcess, ChangeOPProcessStatus, \
-    ChangeOPProcessLog, ChangeOPRequestLog
+    ChangeOPProcessLog, ChangeOPRequestLog, RouteDictionary
 
 
 class ChoiceField(serializers.ChoiceField):
@@ -378,3 +378,9 @@ class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
             copr.related_requests.set(related_requests)
 
         return change_op_process_obj
+
+
+class RouteDictionarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RouteDictionary
+        fields = ['auth_route_code', 'user_route_code']

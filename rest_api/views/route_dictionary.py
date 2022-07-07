@@ -10,10 +10,12 @@ from django.db import transaction
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
+from rest_framework import viewsets
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAdminUser
 
 from rest_api.models import RouteDictionary
+from rest_api.serializers import RouteDictionarySerializer
 
 
 def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile) -> dict:
@@ -86,3 +88,13 @@ class UploadRouteDictionaryFileAPIView(CreateAPIView):
         messages.add_message(request, level, message)
         url = reverse('admin:rest_api_routedictionary_changelist')
         return redirect(url)
+
+
+class RouteDictionaryViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows ChangeOPRequestStatus to be viewed.
+    """
+
+    queryset = RouteDictionary.objects.all().order_by("auth_route_code")
+    serializer_class = RouteDictionarySerializer
+    pagination_class = None

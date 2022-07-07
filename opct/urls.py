@@ -26,7 +26,7 @@ from rest_api.views.helper import login, verify, send_email, change_op_request_r
     OrganizationViewSet, ContractTypeViewSet, ChangePasswordAPIView
 from rest_api.views.operation_program import OperationProgramViewSet, OperationProgramTypeViewSet, \
     OPChangeLogViewset, OperationProgramStatusViewSet, OPChangeLogViewSet
-from rest_api.views.route_dictionary import UploadRouteDictionaryFileAPIView
+from rest_api.views.route_dictionary import UploadRouteDictionaryFileAPIView, RouteDictionaryViewSet
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
@@ -43,6 +43,7 @@ router.register(r"change-op-process-message-files", ChangeOPProcessMessageFileVi
 router.register(r"operation-program-statuses", OperationProgramStatusViewSet)
 router.register(r"change-op-processes", ChangeOPProcessViewSet)
 router.register(r"change-op-process-statuses", ChangeOPProcessStatusViewSet)
+router.register(r"route-definitions", RouteDictionaryViewSet)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/api/")),
