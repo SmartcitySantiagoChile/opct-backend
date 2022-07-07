@@ -26,6 +26,7 @@ from rest_api.views.helper import login, verify, send_email, change_op_request_r
     OrganizationViewSet, ContractTypeViewSet, ChangePasswordAPIView
 from rest_api.views.operation_program import OperationProgramViewSet, OperationProgramTypeViewSet, \
     OPChangeLogViewset, OperationProgramStatusViewSet, OPChangeLogViewSet
+from rest_api.views.route_dictionary import UploadRouteDictionaryFileAPIView
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
@@ -51,8 +52,9 @@ urlpatterns = [
     path("api/send-mail/", send_email, name="send-email"),
     path("api/change-op-request-reasons/", change_op_request_reasons, name="change-op-request-reasons"),
     path("api/change-password/", ChangePasswordAPIView.as_view(), name="change-password"),
-    path("admin/", admin.site.urls),
     path("auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("admin/upload-route-dictionary", UploadRouteDictionaryFileAPIView.as_view(), name="upload-route-dictionary"),
+    path("admin/", admin.site.urls),
 ]
 
 if settings.DEBUG:

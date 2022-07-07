@@ -1,3 +1,5 @@
+import os.path
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import gettext_lazy as _
@@ -57,6 +59,7 @@ class RouteDictionaryAdmin(admin.ModelAdmin):
     actions = None
     search_fields = ['auth_route_code', 'user_route_code', 'op_route_code', 'route_type']
     list_display = ('auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'operator')
+    change_list_template = os.path.join('rest_api', 'routedictionary', 'change_list.html')
 
 
 class OperationProgramStatusAdmin(admin.ModelAdmin):
