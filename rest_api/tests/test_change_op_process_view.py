@@ -82,6 +82,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                 ("previous", None),
                 ("results", [
                     OrderedDict([
+                        ("id", serializer_data["id"]),
                         ("url", serializer_data["url"]),
                         ("title", serializer_data["title"]),
                         ("created_at", serializer_data["created_at"]),
@@ -209,25 +210,25 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
             "change_op_requests": [
                 {
                     "title": "request title 1",
-                    "reason": ChangeOPRequest.REASON_CHOICES[0][1],
+                    "reason": ChangeOPRequest.REASON_CHOICES[0][0],
                     "related_requests": [],
                     "related_routes": []
                 },
                 {
                     "title": "request title 2",
-                    "reason": ChangeOPRequest.REASON_CHOICES[1][1],
+                    "reason": ChangeOPRequest.REASON_CHOICES[1][0],
                     "related_requests": [],
                     "related_routes": []
                 },
                 {
                     "title": "request title 3",
-                    "reason": ChangeOPRequest.REASON_CHOICES[2][1],
+                    "reason": ChangeOPRequest.REASON_CHOICES[2][0],
                     "related_requests": [],
                     "related_routes": ['T506 00I', 'T507 00R']
                 },
                 {
                     "title": "request title 4",
-                    "reason": ChangeOPRequest.REASON_CHOICES[3][1],
+                    "reason": ChangeOPRequest.REASON_CHOICES[3][0],
                     "related_requests": [],
                     "related_routes": []
                 }
@@ -252,7 +253,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
             "change_op_requests": [
                 {
                     "title": "request title 1",
-                    "reason": ChangeOPRequest.REASON_CHOICES[0][1],
+                    "reason": ChangeOPRequest.REASON_CHOICES[0][0],
                     "related_requests": [change_op_request_pk],
                     "related_routes": []
                 }
