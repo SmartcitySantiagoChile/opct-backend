@@ -20,7 +20,7 @@ from rest_framework import routers
 
 from opct import settings
 from rest_api.views.change_op_process import ChangeOPProcessMessageViewSet, \
-    ChangeOPProcessMessageFileViewset, ChangeOPProcessViewSet, ChangeOPProcessStatusViewSet
+    ChangeOPProcessMessageFileViewset, ChangeOPProcessViewSet, ChangeOPProcessStatusViewSet, ChangeOPProcessLogViewSet
 from rest_api.views.change_op_request import ChangeOPRequestViewSet, ChangeOPRequestStatusViewSet
 from rest_api.views.helper import login, verify, send_email, change_op_request_reasons, UserViewSet, \
     OrganizationViewSet, ContractTypeViewSet, ChangePasswordAPIView
@@ -36,9 +36,10 @@ router.register(r"organizations", OrganizationViewSet)
 router.register(r"contract-types", ContractTypeViewSet)
 router.register(r"change-op-requests", ChangeOPRequestViewSet),
 router.register(r"change-op-request-statuses", ChangeOPRequestStatusViewSet)
-router.register(r"change-op-logs", OPChangeLogViewset)
 router.register(r"change-op-process-messages", ChangeOPProcessMessageViewSet)
 router.register(r"op-change-logs", OPChangeLogViewSet)
+router.register(r"change-op-logs", OPChangeLogViewset)
+router.register(r"change-op-process-logs", ChangeOPProcessLogViewSet)
 router.register(r"change-op-process-message-files", ChangeOPProcessMessageFileViewset)
 router.register(r"operation-program-statuses", OperationProgramStatusViewSet)
 router.register(r"change-op-processes", ChangeOPProcessViewSet)

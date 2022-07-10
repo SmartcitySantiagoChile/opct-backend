@@ -3,28 +3,12 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.fields import ChoiceField
 
 from rest_api.models import User as ApiUser, OperationProgram, OperationProgramType, Organization, ContractType, \
     ChangeOPRequest, ChangeOPRequestStatus, OPChangeLog, OperationProgramStatus, \
     ChangeOPProcessMessageFile, ChangeOPProcessMessage, ChangeOPProcess, ChangeOPProcessStatus, \
     ChangeOPProcessLog, ChangeOPRequestLog, RouteDictionary
-
-
-class ChoiceField(serializers.ChoiceField):
-    def to_representation(self, obj):
-        if obj == "" and self.allow_blank:
-            return obj
-        return self._choices[obj]
-
-    def to_internal_value(self, data):
-        # To support inserts with the value
-        if data == "" and self.allow_blank:
-            return ""
-
-        for key, val in self._choices.items():
-            if val == data:
-                return key
-        self.fail("invalid_choice", input=data)
 
 
 class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -298,7 +282,7 @@ class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
-        fields = ["url", "title", "created_at", "updated_at", "counterpart", "contract_type", "creator", "status",
+        fields = ["id", "url", "title", "created_at", "updated_at", "counterpart", "contract_type", "creator", "status",
                   "op_release_date", "operation_program",
                   "change_op_requests_count"]
         depth = 1
@@ -316,7 +300,7 @@ class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
-        fields = ["url", "title", "created_at", "updated_at", "counterpart", "contract_type", "creator", "status",
+        fields = ["id", "url", "title", "created_at", "updated_at", "counterpart", "contract_type", "creator", "status",
                   "op_release_date", "operation_program",
                   "change_op_requests", "change_op_process_messages", "change_op_process_logs"]
         ordering = ["-start_at"]
