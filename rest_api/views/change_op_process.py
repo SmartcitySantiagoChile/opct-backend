@@ -63,34 +63,41 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         update_deadlines = request.data.get("update_deadlines", False)
         queryset = self.get_queryset()
         serializer = ChangeOPProcessSerializer(queryset, context={"request": request}, many=True)
-        try:
-            previous_operation_program = obj.operation_program
-            new_operation_program = OperationProgram.objects.get(pk=new_operation_program_key)
 
-            if previous_operation_program is not None and new_operation_program_key == previous_operation_program.pk:
-                return Response(serializer.data, status=HTTP_200_OK)
+        previous_operation_program = obj.operation_program
 
-            obj.operation_program = new_operation_program
-            if update_deadlines:
-                obj.op_release_date = new_operation_program.start_at
-                log_type = ChangeOPProcessLog.OP_CHANGE_WITH_DEADLINE_UPDATED
-            else:
-                update_deadlines = False
-                log_type = ChangeOPProcessLog.OP_CHANGE
-            obj.save()
-
-            previous_data = dict()
-            if previous_operation_program is not None:
-                previous_data = dict(date=str(previous_operation_program.start_at),
-                                     type=previous_operation_program.op_type.name)
-            ChangeOPProcessLog.objects.create(
-                created_at=timezone.now(), user=request.user, change_op_process=obj, type=log_type,
-                previous_data=previous_data,
-                new_data=dict(date=str(new_operation_program.start_at), type=new_operation_program.op_type.name,
-                              update_deadlines=update_deadlines))
+        if new_operation_program_key is None:
+            new_operation_program = None
+            new_log_data = dict(date='', type='', update_deadlines=False)
+            new_op_release_date = None
+        else:
+            try:
+                new_operation_program = OperationProgram.objects.get(pk=new_operation_program_key)
+                new_log_data = dict(date=str(new_operation_program.start_at), type=new_operation_program.op_type.name,
+                                    update_deadlines=update_deadlines)
+                new_op_release_date = new_operation_program.start_at
+            except OperationProgram.DoesNotExist:
+                raise NotFound()
+        if previous_operation_program is not None and new_operation_program_key == previous_operation_program.pk:
             return Response(serializer.data, status=HTTP_200_OK)
-        except OperationProgram.DoesNotExist:
-            raise NotFound()
+
+        obj.operation_program = new_operation_program
+        obj.op_release_date = new_op_release_date
+        if update_deadlines:
+            log_type = ChangeOPProcessLog.OP_CHANGE_WITH_DEADLINE_UPDATED
+        else:
+            log_type = ChangeOPProcessLog.OP_CHANGE
+        obj.save()
+
+        previous_data = dict(date='', type='')
+        if previous_operation_program is not None:
+            previous_data = dict(date=str(previous_operation_program.start_at),
+                                 type=previous_operation_program.op_type.name)
+        ChangeOPProcessLog.objects.create(
+            created_at=timezone.now(), user=request.user, change_op_process=obj, type=log_type,
+            previous_data=previous_data,
+            new_data=new_log_data)
+        return Response(serializer.data, status=HTTP_200_OK)
 
     @action(detail=True, methods=["put"], url_path="change-status")
     def change_status(self, request, *args, **kwargs):

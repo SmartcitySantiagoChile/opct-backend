@@ -353,6 +353,16 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.assertEqual(self.op_program, self.change_op_process.operation_program)
         self.assertEqual(0, ChangeOPProcessLog.objects.count())
 
+    def test_update_operation_program_with_none(self):
+        self.login_dtpm_viewer_user()
+        data = {}
+        self.change_op_process_change_op(self.client, self.change_op_process.pk, data)
+
+        self.change_op_process.refresh_from_db()
+        self.assertIsNone(self.change_op_process.operation_program)
+        self.assertIsNone(self.change_op_process.op_release_date)
+        self.assertEqual(1, ChangeOPProcessLog.objects.count())
+
     def test_update_operation_program_without_previos_operation_program(self):
         self.change_op_process.operation_program = None
         self.change_op_process.save()
