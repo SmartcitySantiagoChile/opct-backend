@@ -196,6 +196,15 @@ class ChangeOPRequestCreateSerializer(serializers.ModelSerializer):
         fields = ['title', 'reason', 'related_requests', 'related_routes']
 
 
+class ChangeOPRequestCreateWithStatusAndOPSerializer(serializers.HyperlinkedModelSerializer):
+    reason = ChoiceField(ChangeOPRequest.REASON_CHOICES)
+    related_routes = serializers.ListField(child=serializers.CharField(), allow_empty=True)
+
+    class Meta:
+        model = ChangeOPRequest
+        fields = ['title', 'reason', 'related_requests', 'related_routes', 'status', 'operation_program']
+
+
 class ChangeOPProcessMessageFileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcessMessageFile

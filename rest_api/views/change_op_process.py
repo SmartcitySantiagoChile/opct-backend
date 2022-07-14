@@ -15,7 +15,7 @@ from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestSt
 from rest_api.serializers import OPChangeLogSerializer, ChangeOPProcessMessageSerializer, \
     CreateChangeOPProcessMessageSerializer, ChangeOPProcessMessageFileSerializer, ChangeOPProcessSerializer, \
     ChangeOPProcessStatusSerializer, ChangeOPProcessDetailSerializer, ChangeOPProcessCreateSerializer, \
-    ChangeOPProcessLogSerializer
+    ChangeOPProcessLogSerializer, ChangeOPRequestCreateWithStatusAndOPSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -118,20 +118,6 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         except ChangeOPProcessStatus.DoesNotExist:
             raise NotFound()
 
-    @action(detail=True, methods=["put"], url_path="change-related-requests")
-    def change_related_requests(self, request, *args, **kwargs):
-        obj = self.get_object()
-        new_requests = request.data.get("related_requests")
-        try:
-            obj.related_requests.clear()
-            for request in new_requests:
-                request_object = ChangeOPRequest.objects.get(id=request)
-                obj.related_requests.add(request_object)
-            obj.save()
-            return Response(None, status=HTTP_200_OK)
-        except ChangeOPRequestStatus.DoesNotExist:
-            raise NotFound()
-
     @action(detail=True, methods=["post"])
     def add_message(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -151,23 +137,56 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
 
         return Response(None, status=HTTP_201_CREATED)
 
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], url_path="create-change-op-request")
     def create_change_op_request(self, request, *args, **kwargs):
         obj = self.get_object()
         change_op_request = request.data.get("change_op_request")
         try:
+            change_op_request.pop('id')
             related_requests = change_op_request.pop('related_requests')
-            status_obj = ChangeOPRequestStatus.objects.get(contract_type=obj.contract_type,
-                                                           name="Evaluando admisibilidad")
-            copr = ChangeOPRequest.objects.create(**change_op_request, status=status_obj, creator=request.user,
-                                                  change_op_process=obj)
+
+            serializer = ChangeOPRequestCreateWithStatusAndOPSerializer(data=change_op_request)
+            serializer.is_valid(raise_exception=True)
+            copr = serializer.save(creator=request.user, change_op_process=obj)
+
             copr.related_requests.set(related_requests)
+            operation_program_data = dict(date="", type="")
+            if copr.operation_program:
+                operation_program_data = dict(date=copr.operation_program.start_at.strftime('%d-%m-%Y'),
+                                              type=copr.operation_program.op_type.name)
             ChangeOPProcessLog.objects.create(created_at=timezone.now(), user=request.user,
                                               type=ChangeOPProcessLog.CHANGE_OP_REQUEST_CREATION,
                                               previous_data=dict(),
-                                              new_data=dict(title=copr.title, reason=copr.reason),
+                                              new_data=dict(title=copr.title, reason=copr.reason,
+                                                            related_routes=copr.related_routes,
+                                                            operation_program=operation_program_data,
+                                                            status=copr.status.name),
                                               change_op_process=obj)
 
+            return Response(None, status=HTTP_200_OK)
+        except ChangeOPRequestStatus.DoesNotExist:
+            raise NotFound()
+
+    @action(detail=True, methods=["put", "patch"], url_path="update-change-op-requests")
+    def update_change_op_requests(self, request, *args, **kwargs):
+        obj = self.get_object()
+        change_op_requests = request.data.get("change_op_requests")
+
+        for change_op_request in change_op_requests:
+            print(change_op_request)
+
+        # ChangeOPRequestLog.objects.create()
+
+    @action(detail=True, methods=["put"], url_path="change-related-requests")
+    def change_related_requests(self, request, *args, **kwargs):
+        obj = self.get_object()
+        new_requests = request.data.get("related_requests")
+        try:
+            obj.related_requests.clear()
+            for request in new_requests:
+                request_object = ChangeOPRequest.objects.get(id=request)
+                obj.related_requests.add(request_object)
+            obj.save()
             return Response(None, status=HTTP_200_OK)
         except ChangeOPRequestStatus.DoesNotExist:
             raise NotFound()
