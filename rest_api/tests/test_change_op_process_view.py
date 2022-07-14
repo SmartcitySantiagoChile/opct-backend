@@ -405,13 +405,19 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.login_dtpm_viewer_user()
         related_routes = ['T506 00I', 'T507 00R']
         title = 'new title'
-        reason = ChangeOPRequest.REASON_CHOICES[0][1]
+        reason = ChangeOPRequest.REASON_CHOICES[0][0]
+
+        status_url = 'http://localhost:8000/api/change-op-request-statuses/12/'
+        operation_program_url = 'http://localhost:8000/api/operation-programs/1/'
         data = {
             "change_op_request": {
+                "id": None,
                 "title": title,
                 "reason": reason,
                 "related_requests": [],
-                "related_routes": related_routes
+                "related_routes": related_routes,
+                "status": status_url,
+                "operation_program": operation_program_url
             }
         }
         self.change_op_process_create_change_op_request(self.client, self.change_op_process.pk, data)
@@ -429,4 +435,6 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.assertEqual(self.change_op_process, log_obj.change_op_process)
         self.assertEqual(ChangeOPProcessLog.CHANGE_OP_REQUEST_CREATION, log_obj.type)
         self.assertDictEqual(dict(), log_obj.previous_data)
-        self.assertDictEqual(dict(title=title, reason=reason), log_obj.new_data)
+        expected_new_data = dict(title=title, reason=reason, operation_program=dict(date='01-01-2022', type="Base"),
+                                 related_routes=['T506 00I', 'T507 00R'], status='Solicitud observada')
+        self.assertDictEqual(expected_new_data, log_obj.new_data)
