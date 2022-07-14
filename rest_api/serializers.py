@@ -257,8 +257,8 @@ class ChangeOPProcessLogSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = ["url", "title", "created_at", "creator", "operation_program", "status", "reason", "related_requests",
-                  "related_routes", "change_op_requests_logs"]
+        fields = ["id", "url", "title", "created_at", "creator", "operation_program", "status", "reason",
+                  "related_requests", "related_routes", "change_op_requests_logs"]
         ordering = ["-start_at"]
         depth = 2
 
