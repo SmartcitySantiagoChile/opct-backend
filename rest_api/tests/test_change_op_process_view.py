@@ -8,7 +8,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
     HTTP_405_METHOD_NOT_ALLOWED, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 
 from rest_api.models import OperationProgramType, ChangeOPProcess, ChangeOPRequest, ChangeOPProcessLog, \
-    ChangeOPProcessStatus
+    ChangeOPProcessStatus, ChangeOPProcessMessage
 from rest_api.serializers import ChangeOPProcessSerializer
 from rest_api.tests.test_views_base import BaseTestCase
 
@@ -20,7 +20,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.op_program = self.create_operation_program('2022-01-01', OperationProgramType.BASE)
         self.change_op_process = self.create_op_process(self.dtpm_viewer_user, self.op1_organization,
                                                         self.op1_contract_type, op=self.op_program)
-        self.create_op_request(self.dtpm_viewer_user, self.change_op_process)
+        self.change_op_request = self.create_op_request(self.dtpm_viewer_user, self.change_op_process)
 
     # ------------------------------ helper methods ------------------------------ #
     def change_op_process_list(self, client, data, status_code=HTTP_200_OK):
@@ -267,6 +267,28 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.assertEqual(change_op_process_obj.change_op_requests.all()[0].related_requests.all()[0].pk,
                          change_op_request_pk)
 
+    def test_add_message_without_related_requests(self):
+        self.login_op1_viewer_user()
+        data = {
+            "message": "test message",
+            "files": [],
+            "related_requests": []
+        }
+        self.change_op_process_add_message(self.client, self.change_op_process.pk, data,
+                                           status_code=HTTP_400_BAD_REQUEST)
+        self.assertEqual(0, ChangeOPProcessMessage.objects.filter(change_op_process=self.change_op_process).count())
+
+    def test_add_message_but_related_request_is_not_valid(self):
+        self.login_op1_viewer_user()
+        data = {
+            "message": "test message",
+            "files": [],
+            "related_requests": [100]
+        }
+        self.change_op_process_add_message(self.client, self.change_op_process.pk, data,
+                                           status_code=HTTP_400_BAD_REQUEST)
+        self.assertEqual(0, ChangeOPProcessMessage.objects.filter(change_op_process=self.change_op_process).count())
+
     def test_add_message_with_files(self):
         self.login_op1_viewer_user()
         file_obj1 = SimpleUploadedFile('filename.xlsx', b'text content',
@@ -275,29 +297,32 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                                        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         file_obj3 = SimpleUploadedFile('filename.docx', b'another text content',
                                        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-        message = 'yes, another custom message'
+        message_obj = 'yes, another custom message'
         data = {
-            "message": message,
-            "files": [file_obj1, file_obj2, file_obj3]
+            "message": message_obj,
+            "files": [file_obj1, file_obj2, file_obj3],
+            "related_requests": [self.change_op_request.id]
         }
         self.change_op_process_add_message(self.client, self.change_op_process.pk, data)
 
         change_op_process_obj = ChangeOPProcess.objects.prefetch_related(
             'change_op_process_messages__change_op_process_message_files').order_by('-created_at').first()
-        messages = change_op_process_obj.change_op_process_messages.all()
-        for message in messages:
-            files = message.change_op_process_message_files.all()
+        message_objs = change_op_process_obj.change_op_process_messages.all()
+        for message_obj in message_objs:
+            files = message_obj.change_op_process_message_files.all()
             self.assertEqual(3, len(files))
             for file_obj in files:
                 self.assertIn(file_obj.filename, ['filename.xlsx', 'filename.docx'])
                 file_obj.file.delete()
+            self.assertEqual(1, message_obj.related_requests.count())
 
     def test_add_message_without_files(self):
         self.login_op1_viewer_user()
         message = 'yes, another custom message'
         data = {
             "message": message,
-            "files": []
+            "files": [],
+            "related_requests": [self.change_op_request.id]
         }
         self.change_op_process_add_message(self.client, self.change_op_process.pk, data)
 
@@ -307,6 +332,17 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         for message in messages:
             files = message.change_op_process_message_files.all()
             self.assertEqual(0, len(files))
+
+    def test_add_message_without_content(self):
+        self.login_op1_viewer_user()
+        data = {
+            "message": "",
+            "files": [],
+            "related_requests": [self.change_op_request.id]
+        }
+        self.change_op_process_add_message(self.client, self.change_op_process.pk, data,
+                                           status_code=HTTP_400_BAD_REQUEST)
+        self.assertEqual(0, ChangeOPProcessMessage.objects.filter(change_op_process=self.change_op_process).count())
 
     def test_update(self):
         self.login_op1_viewer_user()

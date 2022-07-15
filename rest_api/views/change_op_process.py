@@ -1,11 +1,12 @@
 import logging
 
+from django.db import transaction
 from django.db.models import Q, Count
 from django.utils import timezone
 from rest_framework import filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.exceptions import NotFound, ParseError, ValidationError
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
@@ -121,19 +122,27 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     @action(detail=True, methods=["post"])
     def add_message(self, request, *args, **kwargs):
         obj = self.get_object()
-
-        message = request.data.get("message")
-        message_obj = ChangeOPProcessMessage.objects.create(creator=request.user, message=message,
-                                                            change_op_process=obj)
-
         try:
-            files = request.FILES.getlist("files")
-            for file in files:
-                ChangeOPProcessMessageFile.objects.create(filename=file.name, file=file,
-                                                          change_op_process_message=message_obj)
-        except Exception as e:
+            with transaction.atomic():
+                message = request.data.get("message")
+                files = request.FILES.getlist("files")
+                related_requests = request.data.getlist("related_requests", [])
+                if len(related_requests) == 0:
+                    raise ValidationError('Mensaje debe estar relacionado a una o más solicitudes de modificación')
+                if message == "" and len(files) == 0:
+                    raise ValidationError('Mensaje no puede ser vacío')
+
+                message_obj = ChangeOPProcessMessage.objects.create(creator=request.user, message=message,
+                                                                    change_op_process=obj)
+                for file in files:
+                    ChangeOPProcessMessageFile.objects.create(filename=file.name, file=file,
+                                                              change_op_process_message=message_obj)
+                for related_request in related_requests:
+                    change_op_request_obj = ChangeOPRequest.objects.get(change_op_process=obj, pk=related_request)
+                    message_obj.related_requests.add(change_op_request_obj)
+        except (ValidationError, ChangeOPRequest.DoesNotExist) as e:
             logger.error(e)
-            raise ParseError(detail='Error al cargar archivo')
+            raise ParseError(detail=str(e))
 
         return Response(None, status=HTTP_201_CREATED)
 

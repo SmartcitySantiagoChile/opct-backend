@@ -394,6 +394,7 @@ class ChangeOPProcessMessage(models.Model):
     message = models.TextField("Mensaje")
     change_op_process = models.ForeignKey(ChangeOPProcess, related_name="change_op_process_messages",
                                           on_delete=models.PROTECT, null=False, verbose_name="¨Proceso de cambio de PO")
+    related_requests = models.ManyToManyField(ChangeOPRequest)
 
     def __str__(self):
         return str(self.message)
