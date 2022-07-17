@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.db import transaction
@@ -124,9 +125,9 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         obj = self.get_object()
         try:
             with transaction.atomic():
-                message = request.data.get("message")
-                files = request.FILES.getlist("files")
-                related_requests = request.data.getlist("related_requests", [])
+                message = request.data.get("message", "")
+                files = request.FILES.getlist("files", [])
+                related_requests = json.loads(request.data.get("related_requests", "[]"))
                 if len(related_requests) == 0:
                     raise ValidationError('Mensaje debe estar relacionado a una o más solicitudes de modificación')
                 if message == "" and len(files) == 0:
