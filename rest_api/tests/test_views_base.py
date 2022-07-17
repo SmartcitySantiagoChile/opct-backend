@@ -35,17 +35,17 @@ class BaseTestCase(APITestCase):
         self.op1_contract_type = ContractType.objects.get(id=ContractType.OLD)
         self.op2_contract_type = ContractType.objects.get(id=ContractType.NEW)
 
-        self.dtpm_organization = self.create_organization("DTPM", self.dtpm_contract_type)
+        self.dtpm_organization = self.create_organization("DTPM", self.dtpm_contract_type, None)
         self.dtpm_contact_user = self.create_user("contact@dtpm.com", "testpassword1",
                                                   organization=self.dtpm_organization)
 
         # organization uses old contract
-        self.op1_organization = self.create_organization("OP1", self.op1_contract_type)
+        self.op1_organization = self.create_organization("OP1", self.op1_contract_type, self.dtpm_organization)
         self.op1_contact_user = self.create_user("contact@op1.com", "testpassword1",
                                                  organization=self.op1_organization)
 
         # organization uses new contract
-        self.op2_organization = self.create_organization("OP2", self.op2_contract_type)
+        self.op2_organization = self.create_organization("OP2", self.op2_contract_type, self.dtpm_organization)
         self.op2_contact_user = self.create_user("contact@op2.com", "testpassword1",
                                                  organization=self.op2_organization)
 
@@ -108,11 +108,12 @@ class BaseTestCase(APITestCase):
         return get_user_model().objects.create_user(**user_user_attributes)
 
     @staticmethod
-    def create_organization(name, contract_type):
+    def create_organization(name, contract_type, default_counterpart):
         organization_params = {
             "name": name,
             "created_at": timezone.now(),
             "contract_type": contract_type,
+            "default_counterpart": default_counterpart
         }
         return Organization.objects.create(**organization_params)
 

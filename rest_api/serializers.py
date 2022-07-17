@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ChoiceField
 
 from rest_api.models import User as ApiUser, OperationProgram, OperationProgramType, Organization, ContractType, \
@@ -346,10 +347,14 @@ class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
         data['updated_at'] = timezone.now()
         data['creator'] = user
 
-        # TODO: revisar que la organización del usuario puede elegir esa contraparte
+        if contract_type.pk != ContractType.BOTH and \
+                organization.default_counterpart != data['counterpart']:
+            raise ValidationError('Usuario no puede elegir la contraparte "{0}"'.format(data['counterpart'].name))
 
         if contract_type.pk == ContractType.BOTH:
             data['contract_type'] = data['counterpart'].contract_type
+        elif organization.default_counterpart != data['counterpart']:
+            raise ValidationError('Usuario no puede elegir la contraparte indicada')
         else:
             data['contract_type'] = contract_type
 

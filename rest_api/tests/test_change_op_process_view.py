@@ -177,6 +177,17 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.assertIsNone(change_op_process_obj.operation_program)
         self.assertIsNone(change_op_process_obj.op_release_date)
 
+    def test_create_but_user_can_not_select_organization(self):
+        self.login_op1_viewer_user()
+        title = 'Another title again'
+        data = {
+            "title": title,
+            "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op2_organization.pk)),
+            "change_op_requests": []
+        }
+
+        self.change_op_process_create(self.client, data, status_code=HTTP_400_BAD_REQUEST)
+
     def test_create_with_contract_type_old(self):
         self.login_op1_viewer_user()
         title = 'Another title again'
@@ -444,7 +455,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         reason = ChangeOPRequest.REASON_CHOICES[0][0]
 
         status_url = 'http://localhost:8000/api/change-op-request-statuses/12/'
-        operation_program_url = 'http://localhost:8000/api/operation-programs/1/'
+        operation_program_url = 'http://localhost:8000/api/operation-programs/{}/'.format(self.op_program.pk)
         data = {
             "change_op_request": {
                 "id": None,

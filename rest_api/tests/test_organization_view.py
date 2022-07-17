@@ -49,7 +49,7 @@ class OrganizationViewSetTest(BaseTestCase):
         self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
 
     def test_retrieve_with_group_permissions(self):
-        organization = self.create_organization("Test Organization", self.dtpm_contract_type)
+        organization = self.create_organization("Test Organization", self.dtpm_contract_type, None)
         self.login_dtpm_admin_user()
         json_response = self.organization_retrieve(self.client, organization.pk)
 
@@ -63,7 +63,7 @@ class OrganizationViewSetTest(BaseTestCase):
         self.assertDictEqual(OrganizationSerializer(organization, context=serializer_context).data, json_response)
 
     def test_retrieve_without_group_permissions(self):
-        organization = self.create_organization("Test Organization", self.dtpm_contract_type)
+        organization = self.create_organization("Test Organization", self.dtpm_contract_type, None)
         self.login_dtpm_viewer_user()
         self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
 
@@ -106,7 +106,7 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_update_with_group_permissions(self):
         self.login_dtpm_admin_user()
-        organization = self.create_organization("Organization Test", self.dtpm_contract_type)
+        organization = self.create_organization("Organization Test", self.dtpm_contract_type, None)
         contract_type_url = reverse("contracttype-detail", kwargs=dict(pk=1))
         organization_url = reverse(
             "organization-detail", kwargs=dict(pk=self.dtpm_organization.pk)
@@ -120,7 +120,7 @@ class OrganizationViewSetTest(BaseTestCase):
         self.organization_patch(self.client, organization.pk, data)
 
     def test_update_without_group_permissions(self):
-        organization = self.create_organization("Organization Test", self.dtpm_contract_type)
+        organization = self.create_organization("Organization Test", self.dtpm_contract_type, None)
         contract_type_url = reverse("contracttype-detail", kwargs=dict(pk=1))
         organization_url = reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk))
         data = {
@@ -138,7 +138,7 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_delete_with_permissions_and_no_users(self):
         self.login_dtpm_admin_user()
-        organization = self.create_organization("Organization Test", self.dtpm_contract_type)
+        organization = self.create_organization("Organization Test", self.dtpm_contract_type, None)
         self.organization_delete(self.client, organization.pk)
 
     def test_delete_with_permissions_and_not_found(self):
@@ -147,7 +147,7 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_delete_with_permissions_with_users(self):
         self.login_dtpm_admin_user()
-        organization = self.create_organization("Organization Test", self.dtpm_contract_type)
+        organization = self.create_organization("Organization Test", self.dtpm_contract_type, None)
         self.create_user('aaa@test.com', 'pass', organization)
         self.organization_delete(self.client, organization.pk, HTTP_409_CONFLICT)
 
