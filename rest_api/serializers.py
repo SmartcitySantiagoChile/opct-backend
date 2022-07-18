@@ -141,7 +141,7 @@ class OPChangeLogSerializer(serializers.HyperlinkedModelSerializer):
 class OperationProgramSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OperationProgram
-        fields = ("url", "start_at", "op_type", "op_change_logs")
+        fields = ("id", "url", "start_at", "op_type", "op_change_logs")
         ordering = ["-start_at"]
 
     op_type = OperationProgramTypeSerializer(many=False, read_only=True)
