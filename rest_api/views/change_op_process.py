@@ -136,7 +136,7 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                 message_obj = ChangeOPProcessMessage.objects.create(creator=request.user, message=message,
                                                                     change_op_process=obj)
                 for file in files:
-                    ChangeOPProcessMessageFile.objects.create(filename=file.name, file=file,
+                    ChangeOPProcessMessageFile.objects.create(filename=file.name, file=file, size=file.size,
                                                               change_op_process_message=message_obj)
                 for related_request in related_requests:
                     change_op_request_obj = ChangeOPRequest.objects.get(change_op_process=obj, pk=related_request)

@@ -220,20 +220,22 @@ class CreateChangeOPProcessMessageSerializer(serializers.HyperlinkedModelSeriali
         ordering = ["-created_at"]
 
 
-class ChangeOPProcessMessageSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ChangeOPProcessMessage
-        fields = ["url", "created_at", "message", "creator", "change_op_process", "change_op_process_message_files"]
-        ordering = ["-created_at"]
-
-    change_op_process_message_files = ChangeOPProcessMessageFileSerializer(many=True, read_only=True)
-    creator = BasicUserSerializer(many=False, read_only=True)
-
-
 class ChangeOPRequestDetailMiniSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = ["url", "operation_program", "title", "reason"]
+        fields = ["id", "url", "operation_program", "title", "reason", "related_routes", "get_reason_display"]
+
+
+class ChangeOPProcessMessageSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ChangeOPProcessMessage
+        fields = ["url", "created_at", "message", "creator", "change_op_process", "change_op_process_message_files",
+                  "related_requests"]
+        ordering = ["-created_at"]
+
+    change_op_process_message_files = ChangeOPProcessMessageFileSerializer(many=True, read_only=True)
+    related_requests = ChangeOPRequestDetailMiniSerializer(many=True, read_only=True)
+    creator = BasicUserSerializer(many=False, read_only=True)
 
 
 class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):

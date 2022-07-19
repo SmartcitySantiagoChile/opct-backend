@@ -406,6 +406,7 @@ class ChangeOPProcessMessage(models.Model):
 
 class ChangeOPProcessMessageFile(models.Model):
     filename = models.CharField(max_length=128, null=False)
+    size = models.IntegerField(null=False, help_text="The size, in bytes, of the uploaded file.")
     file = models.FileField("Archivo")
     change_op_process_message = models.ForeignKey(ChangeOPProcessMessage,
                                                   related_name="change_op_process_message_files",
