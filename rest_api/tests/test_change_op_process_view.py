@@ -294,7 +294,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         data = {
             "message": "test message",
             "files": [],
-            "related_requests": [100]
+            "related_requests": json.dumps([100])
         }
         self.change_op_process_add_message(self.client, self.change_op_process.pk, data,
                                            status_code=HTTP_400_BAD_REQUEST)
@@ -312,7 +312,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         data = {
             "message": message_obj,
             "files": [file_obj1, file_obj2, file_obj3],
-            "related_requests": [self.change_op_request.id]
+            "related_requests": json.dumps([self.change_op_request.id])
         }
         self.change_op_process_add_message(self.client, self.change_op_process.pk, data)
 
@@ -333,7 +333,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         data = {
             "message": message,
             "files": [],
-            "related_requests": [self.change_op_request.id]
+            "related_requests": json.dumps([self.change_op_request.id])
         }
         self.change_op_process_add_message(self.client, self.change_op_process.pk, data)
 
@@ -349,7 +349,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         data = {
             "message": "",
             "files": [],
-            "related_requests": [self.change_op_request.id]
+            "related_requests": json.dumps([self.change_op_request.id])
         }
         self.change_op_process_add_message(self.client, self.change_op_process.pk, data,
                                            status_code=HTTP_400_BAD_REQUEST)
