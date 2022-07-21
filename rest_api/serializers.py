@@ -226,9 +226,17 @@ class CreateChangeOPProcessMessageSerializer(serializers.HyperlinkedModelSeriali
 
 
 class ChangeOPRequestDetailMiniSerializer(serializers.HyperlinkedModelSerializer):
+    operation_program = serializers.SerializerMethodField()
+
     class Meta:
         model = ChangeOPRequest
         fields = ["id", "url", "operation_program", "title", "reason", "related_routes", "get_reason_display"]
+
+    def get_operation_program(self, obj):
+        if obj.operation_program:
+            return '{0}({1})'.format(obj.operation_program.start_at.strftime("%d-%m-%Y"),
+                                     obj.operation_program.op_type.name)
+        return ""
 
 
 class ChangeOPProcessMessageSerializer(serializers.HyperlinkedModelSerializer):
