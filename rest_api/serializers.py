@@ -194,7 +194,7 @@ class ChangeOPRequestCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChangeOPRequest
-        fields = ['title', 'reason', 'related_requests', 'related_routes']
+        fields = ['id', 'title', 'reason', 'related_requests', 'related_routes']
 
 
 class ChangeOPRequestCreateWithStatusAndOPSerializer(serializers.HyperlinkedModelSerializer):
@@ -211,6 +211,11 @@ class ChangeOPProcessMessageFileSerializer(serializers.HyperlinkedModelSerialize
         model = ChangeOPProcessMessageFile
         fields = "__all__"
         ordering = ["-file"]
+
+    extension = serializers.SerializerMethodField()
+
+    def get_extension(self, obj):
+        return obj.filename.split(".")[-1].lower()
 
 
 class CreateChangeOPProcessMessageSerializer(serializers.HyperlinkedModelSerializer):
@@ -252,7 +257,7 @@ class OperationProgramDetailSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPProcessStatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcessStatus
-        fields = "__all__"
+        fields = ["id", "url", "name", "contract_type"]
 
     contract_type = ContractTypeSerializer(many=False, read_only=True)
 
@@ -319,7 +324,7 @@ class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
         depth = 2
 
     creator = BasicUserSerializer(many=False, read_only=True)
-    status = ChangeOPRequestStatusSerializer(many=False, read_only=True)
+    status = ChangeOPProcessStatusSerializer(many=False, read_only=True)
     counterpart = OrganizationSerializer(many=False, read_only=True)
     contract_type = ContractTypeSerializer(many=False, read_only=True)
     operation_program = OperationProgramSerializer(many=False, read_only=True)
