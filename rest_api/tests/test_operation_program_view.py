@@ -1,5 +1,3 @@
-import json
-
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.request import Request
@@ -8,7 +6,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
 from rest_framework.test import APIRequestFactory
 
 from rest_api.models import OperationProgram, OPChangeLog, OperationProgramType
-from rest_api.serializers import OperationProgramSerializer
+from rest_api.serializers import OperationProgramDetailSerializer
 from rest_api.tests.test_views_base import BaseTestCase
 
 
@@ -65,9 +63,8 @@ class OperationProgramViewSetTest(BaseTestCase):
         factory = APIRequestFactory()
         request = factory.get('/')
         serializer_context = {'request': Request(request)}
-
-        self.assertDictEqual(OperationProgramSerializer(self.op_program, context=serializer_context).data,
-                             json_response)
+        expected_response = OperationProgramDetailSerializer(self.op_program, context=serializer_context).data
+        self.assertDictEqual(expected_response, json_response)
 
     def test_retrieve_with_group_permissions_and_logs(self):
         self.login_dtpm_admin_user()
@@ -78,8 +75,7 @@ class OperationProgramViewSetTest(BaseTestCase):
         factory = APIRequestFactory()
         request = factory.get('/')
         serializer_context = {'request': Request(request)}
-        expected_response = json.loads(
-            json.dumps(OperationProgramSerializer(self.op_program, context=serializer_context).data))
+        expected_response = OperationProgramDetailSerializer(self.op_program, context=serializer_context).data
 
         self.assertEqual(expected_response, json_response)
 
