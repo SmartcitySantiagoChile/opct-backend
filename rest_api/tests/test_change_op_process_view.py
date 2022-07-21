@@ -65,6 +65,10 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         url = reverse("changeopprocess-create-change-op-request", kwargs=dict(pk=pk))
         return self._make_request(client, self.POST_REQUEST, url, data, status_code)
 
+    def change_op_process_update_change_op_request(self, client, pk, data, status_code=HTTP_200_OK):
+        url = reverse("changeopprocess-update-change-op-requests", kwargs=dict(pk=pk))
+        return self._make_request(client, self.PUT_REQUEST, url, data, status_code)
+
     # ------------------------------ tests ----------------------------------------
     def test_list_with_user_related_to_owner_organization(self):
         self.login_dtpm_viewer_user()
@@ -486,3 +490,74 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                                  operation_program=dict(date='01-01-2022', type="Base"),
                                  related_routes=", ".join(['T506 00I', 'T507 00R']), status='Solicitud observada')
         self.assertDictEqual(expected_new_data, log_obj.new_data)
+
+    def test_update_change_op_request_with_new_data(self):
+        self.login_dtpm_viewer_user()
+        title = 'new title'
+        related_routes = ['T506 00I', 'T507 00R']
+        operation_program_url = 'http://localhost:8000/api/operation-programs/{}/'.format(self.op_program.pk)
+        reason = ChangeOPRequest.REASON_CHOICES[0][0]
+        status_url = 'http://localhost:8000/api/change-op-request-statuses/12/'
+
+        # change that al values are different
+        self.assertNotEqual(title, self.change_op_request.title)
+        self.assertListEqual([], self.change_op_request.related_routes)
+        self.assertNotEqual(self.op_program.pk, self.change_op_request.operation_program_id)
+        self.assertNotEqual(reason, self.change_op_request.reason)
+        self.assertNotEqual(12, self.change_op_request.status_id)
+
+        data = {
+            "change_op_requests": [{
+                "id": self.change_op_request.id,
+                "title": title,
+                "reason": reason,
+                "related_requests": [],
+                "related_routes": related_routes,
+                "status": status_url,
+                "operation_program": operation_program_url
+            }]
+        }
+        self.change_op_process_update_change_op_request(self.client, self.change_op_process.pk, data)
+
+        self.assertEqual(1, ChangeOPRequest.objects.count())
+        self.change_op_request.refresh_from_db()
+        self.assertEqual(title, self.change_op_request.title)
+        self.assertEqual(reason, self.change_op_request.reason)
+        self.assertListEqual([], list(self.change_op_request.related_requests.all()))
+        self.assertListEqual(related_routes, self.change_op_request.related_routes)
+        self.assertEqual(self.op_program.pk, self.change_op_request.operation_program_id)
+        self.assertEqual(12, self.change_op_request.status_id)
+
+        self.assertEqual(1, ChangeOPProcessLog.objects.count())
+        log_obj = ChangeOPProcessLog.objects.first()
+        self.assertEqual(self.dtpm_viewer_user, log_obj.user)
+        self.assertEqual(self.change_op_process, log_obj.change_op_process)
+        self.assertEqual(ChangeOPProcessLog.CHANGE_OP_REQUEST_UPDATE, log_obj.type)
+        expected_previous_data = dict(
+            operation_program=dict(date='', type=''),
+            reason='Modificación de Trazado', related_routes='', status='Evaluando admisibilidad',
+            title='Change OP Request test')
+        self.assertDictEqual(expected_previous_data, log_obj.previous_data)
+        expected_new_data = dict(title=title, reason="Acortamiento",
+                                 operation_program=dict(date='01-01-2022', type="Base"),
+                                 related_routes=", ".join(['T506 00I', 'T507 00R']), status='Solicitud observada')
+        self.assertDictEqual(expected_new_data, log_obj.new_data)
+
+    def test_update_change_op_request_without_new_data(self):
+        self.login_dtpm_viewer_user()
+
+        status_url = 'http://localhost:8000/api/change-op-request-statuses/{}/'.format(self.change_op_request.status_id)
+        data = {
+            "change_op_requests": [{
+                "id": self.change_op_request.id,
+                "title": self.change_op_request.title,
+                "reason": self.change_op_request.reason,
+                "related_routes": self.change_op_request.related_routes,
+                "status": status_url,
+                "operation_program": self.change_op_request.operation_program
+            }]
+        }
+        self.change_op_process_update_change_op_request(self.client, self.change_op_process.pk, data)
+
+        self.assertEqual(1, ChangeOPRequest.objects.count())
+        self.assertEqual(0, ChangeOPProcessLog.objects.count())

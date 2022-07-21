@@ -3,6 +3,7 @@ import logging
 
 from django.db import transaction
 from django.db.models import Q, Count
+from django.forms.models import model_to_dict
 from django.utils import timezone
 from rest_framework import filters
 from rest_framework import mixins, viewsets
@@ -185,10 +186,54 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         obj = self.get_object()
         change_op_requests = request.data.get("change_op_requests")
 
-        for change_op_request in change_op_requests:
-            print(change_op_request)
+        try:
+            with transaction.atomic():
+                for change_op_request in change_op_requests:
+                    instance = ChangeOPRequest.objects.get(id=change_op_request['id'], change_op_process=obj)
+                    previous_values = model_to_dict(instance, fields=['title', 'related_routes'])
+                    previous_status_id = instance.status_id
+                    previous_status = instance.status.name
+                    previous_operation_program_id = instance.operation_program_id
+                    previous_operation_program_data = dict(date='', type='')
+                    if instance.operation_program:
+                        previous_operation_program_data = dict(
+                            date=instance.operation_program.start_at.strftime('%d-%m-%Y'),
+                            type=instance.operation_program.op_type.name)
+                    previous_reason_display = instance.get_reason_display()
 
-        # ChangeOPRequestLog.objects.create()
+                    # update instance
+                    serializer = ChangeOPRequestCreateWithStatusAndOPSerializer(instance, data=change_op_request)
+                    serializer.is_valid(raise_exception=True)
+                    instance = serializer.save()
+
+                    new_operation_program_data = dict(date='', type='')
+                    if instance.operation_program:
+                        new_operation_program_data = dict(
+                            date=instance.operation_program.start_at.strftime('%d-%m-%Y'),
+                            type=instance.operation_program.op_type.name)
+
+                    if instance.title != previous_values['title'] or \
+                            instance.related_routes != previous_values['related_routes'] or \
+                            instance.get_reason_display() != previous_reason_display or \
+                            instance.operation_program_id != previous_operation_program_id or \
+                            instance.status_id != previous_status_id:
+                        ChangeOPProcessLog.objects.create(
+                            created_at=timezone.now(), user=request.user, change_op_process=obj,
+                            type=ChangeOPProcessLog.CHANGE_OP_REQUEST_UPDATE,
+                            previous_data=dict(title=previous_values['title'],
+                                               reason=previous_reason_display,
+                                               related_routes=", ".join(previous_values['related_routes']),
+                                               operation_program=previous_operation_program_data,
+                                               status=previous_status),
+                            new_data=dict(title=instance.title,
+                                          reason=instance.get_reason_display(),
+                                          related_routes=", ".join(instance.related_routes),
+                                          operation_program=new_operation_program_data,
+                                          status=instance.status.name))
+        except ChangeOPRequest.DoesNotExist:
+            raise NotFound()
+
+        return Response(None, status=HTTP_200_OK)
 
     @action(detail=True, methods=["put"], url_path="change-related-requests")
     def change_related_requests(self, request, *args, **kwargs):
