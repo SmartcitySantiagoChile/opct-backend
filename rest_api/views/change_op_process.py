@@ -141,9 +141,12 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                 for related_request in related_requests:
                     change_op_request_obj = ChangeOPRequest.objects.get(change_op_process=obj, pk=related_request)
                     message_obj.related_requests.add(change_op_request_obj)
-        except (ValidationError, ChangeOPRequest.DoesNotExist) as e:
+        except ChangeOPRequest.DoesNotExist as e:
             logger.error(e)
-            raise ParseError(detail=str(e))
+            raise ParseError(detail="Una de las solicitudes de modificación no existe")
+        except ValidationError as e:
+            logger.error(e)
+            raise ParseError(detail=e.detail)
 
         return Response(None, status=HTTP_201_CREATED)
 
@@ -167,8 +170,8 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             ChangeOPProcessLog.objects.create(created_at=timezone.now(), user=request.user,
                                               type=ChangeOPProcessLog.CHANGE_OP_REQUEST_CREATION,
                                               previous_data=dict(),
-                                              new_data=dict(title=copr.title, reason=copr.reason,
-                                                            related_routes=copr.related_routes,
+                                              new_data=dict(title=copr.title, reason=copr.get_reason_display(),
+                                                            related_routes=", ".join(copr.related_routes),
                                                             operation_program=operation_program_data,
                                                             status=copr.status.name),
                                               change_op_process=obj)
