@@ -484,8 +484,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         log_obj = ChangeOPRequestLog.objects.first()
         self.assertEqual(self.dtpm_viewer_user, log_obj.user)
         new_change_op_request = ChangeOPRequest.objects.exclude(id=self.change_op_request.pk).first()
-        self.assertEqual(new_change_op_request,
-                         log_obj.change_op_request)
+        self.assertEqual(new_change_op_request, log_obj.change_op_request)
         self.assertEqual(ChangeOPRequestLog.CHANGE_OP_REQUEST_CREATION, log_obj.type)
         self.assertDictEqual(dict(), log_obj.previous_data)
         expected_new_data = dict(title=title, reason="Acortamiento",
