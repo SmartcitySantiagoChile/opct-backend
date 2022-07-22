@@ -14,7 +14,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, \
     ChangeOPProcessMessage, ChangeOPProcessMessageFile, ChangeOPProcess, ChangeOPProcessStatus, \
-    ChangeOPProcessLog, OPChangeLog
+    ChangeOPProcessLog, OPChangeLog, ChangeOPRequestLog
 from rest_api.serializers import OPChangeLogSerializer, ChangeOPProcessMessageSerializer, \
     CreateChangeOPProcessMessageSerializer, ChangeOPProcessMessageFileSerializer, ChangeOPProcessSerializer, \
     ChangeOPProcessStatusSerializer, ChangeOPProcessDetailSerializer, ChangeOPProcessCreateSerializer, \
@@ -168,14 +168,15 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             if copr.operation_program:
                 operation_program_data = dict(date=copr.operation_program.start_at.strftime('%d-%m-%Y'),
                                               type=copr.operation_program.op_type.name)
-            ChangeOPProcessLog.objects.create(created_at=timezone.now(), user=request.user,
-                                              type=ChangeOPProcessLog.CHANGE_OP_REQUEST_CREATION,
+            ChangeOPRequestLog.objects.create(created_at=timezone.now(), user=request.user,
+                                              change_op_request=copr,
+                                              type=ChangeOPRequestLog.CHANGE_OP_REQUEST_CREATION,
                                               previous_data=dict(),
-                                              new_data=dict(title=copr.title, reason=copr.get_reason_display(),
+                                              new_data=dict(id=copr.id, title=copr.title,
+                                                            reason=copr.get_reason_display(),
                                                             related_routes=", ".join(copr.related_routes),
                                                             operation_program=operation_program_data,
-                                                            status=copr.status.name),
-                                              change_op_process=obj)
+                                                            status=copr.status.name))
 
             return Response(None, status=HTTP_200_OK)
         except ChangeOPRequestStatus.DoesNotExist:
@@ -217,15 +218,15 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                             instance.get_reason_display() != previous_reason_display or \
                             instance.operation_program_id != previous_operation_program_id or \
                             instance.status_id != previous_status_id:
-                        ChangeOPProcessLog.objects.create(
-                            created_at=timezone.now(), user=request.user, change_op_process=obj,
-                            type=ChangeOPProcessLog.CHANGE_OP_REQUEST_UPDATE,
-                            previous_data=dict(title=previous_values['title'],
+                        ChangeOPRequestLog.objects.create(
+                            created_at=timezone.now(), user=request.user, change_op_request=instance,
+                            type=ChangeOPRequestLog.CHANGE_OP_REQUEST_UPDATE,
+                            previous_data=dict(id=instance.id, title=previous_values['title'],
                                                reason=previous_reason_display,
                                                related_routes=", ".join(previous_values['related_routes']),
                                                operation_program=previous_operation_program_data,
                                                status=previous_status),
-                            new_data=dict(title=instance.title,
+                            new_data=dict(id=instance.id, title=instance.title,
                                           reason=instance.get_reason_display(),
                                           related_routes=", ".join(instance.related_routes),
                                           operation_program=new_operation_program_data,

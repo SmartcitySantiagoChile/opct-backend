@@ -8,7 +8,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
     HTTP_405_METHOD_NOT_ALLOWED, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 
 from rest_api.models import OperationProgramType, ChangeOPProcess, ChangeOPRequest, ChangeOPProcessLog, \
-    ChangeOPProcessStatus, ChangeOPProcessMessage
+    ChangeOPProcessStatus, ChangeOPProcessMessage, ChangeOPRequestLog
 from rest_api.serializers import ChangeOPProcessSerializer
 from rest_api.tests.test_views_base import BaseTestCase
 
@@ -480,13 +480,15 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.assertListEqual([], list(change_op_request_obj.related_requests.all()))
         self.assertListEqual(related_routes, change_op_request_obj.related_routes)
 
-        self.assertEqual(1, ChangeOPProcessLog.objects.count())
-        log_obj = ChangeOPProcessLog.objects.first()
+        self.assertEqual(1, ChangeOPRequestLog.objects.count())
+        log_obj = ChangeOPRequestLog.objects.first()
         self.assertEqual(self.dtpm_viewer_user, log_obj.user)
-        self.assertEqual(self.change_op_process, log_obj.change_op_process)
-        self.assertEqual(ChangeOPProcessLog.CHANGE_OP_REQUEST_CREATION, log_obj.type)
+        new_change_op_request = ChangeOPRequest.objects.exclude(id=self.change_op_request.pk).first()
+        self.assertEqual(new_change_op_request,
+                         log_obj.change_op_request)
+        self.assertEqual(ChangeOPRequestLog.CHANGE_OP_REQUEST_CREATION, log_obj.type)
         self.assertDictEqual(dict(), log_obj.previous_data)
-        expected_new_data = dict(title=title, reason="Acortamiento",
+        expected_new_data = dict(id=new_change_op_request.pk, title=title, reason="Acortamiento",
                                  operation_program=dict(date='01-01-2022', type="Base"),
                                  related_routes=", ".join(['T506 00I', 'T507 00R']), status='Solicitud observada')
         self.assertDictEqual(expected_new_data, log_obj.new_data)
@@ -528,11 +530,11 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         self.assertEqual(self.op_program.pk, self.change_op_request.operation_program_id)
         self.assertEqual(12, self.change_op_request.status_id)
 
-        self.assertEqual(1, ChangeOPProcessLog.objects.count())
-        log_obj = ChangeOPProcessLog.objects.first()
+        self.assertEqual(1, ChangeOPRequestLog.objects.count())
+        log_obj = ChangeOPRequestLog.objects.first()
         self.assertEqual(self.dtpm_viewer_user, log_obj.user)
-        self.assertEqual(self.change_op_process, log_obj.change_op_process)
-        self.assertEqual(ChangeOPProcessLog.CHANGE_OP_REQUEST_UPDATE, log_obj.type)
+        self.assertEqual(self.change_op_request, log_obj.change_op_request)
+        self.assertEqual(ChangeOPRequestLog.CHANGE_OP_REQUEST_UPDATE, log_obj.type)
         expected_previous_data = dict(
             operation_program=dict(date='', type=''),
             reason='Modificación de Trazado', related_routes='', status='Evaluando admisibilidad',

@@ -312,15 +312,11 @@ class ChangeOPRequestLog(models.Model):
     Historial de modificaciones a una solicitud de modificación
     """
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    STATUS_CHANGE = 'status_change'
-    OP_CHANGE = 'op_change'
-    OP_CHANGE_WITH_DEADLINE_UPDATED = 'op_change_with_deadline_updated'
-    REASON_CHANGE = 'reason_change'
+    CHANGE_OP_REQUEST_CREATION = 'change_op_request_creation'
+    CHANGE_OP_REQUEST_UPDATE = 'change_op_request_update'
     TYPE_CHOICES = (
-        (STATUS_CHANGE, 'Cambio de estado'),
-        (OP_CHANGE, 'Cambio de programa de operación'),
-        (OP_CHANGE_WITH_DEADLINE_UPDATED, 'Cambio de programa de operación con actualización de deadlines'),
-        (REASON_CHANGE, 'Se actualizó el motivo de modificación'),
+        (CHANGE_OP_REQUEST_UPDATE, 'Actualización de datos'),
+        (CHANGE_OP_REQUEST_CREATION, 'Creación de solicitud'),
     )
     type = models.CharField(max_length=50, choices=TYPE_CHOICES, null=False)
     user = models.ForeignKey(User, related_name="+", on_delete=models.PROTECT,
@@ -362,14 +358,10 @@ class ChangeOPProcessLog(models.Model):
     Historial de modificaciones a un proceso de cambio de programa de operación
     """
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
-    CHANGE_OP_REQUEST_CREATION = 'change_op_request_creation'
-    CHANGE_OP_REQUEST_UPDATE = 'change_op_request_update'
     STATUS_CHANGE = 'status_change'
     OP_CHANGE = 'op_change'
     OP_CHANGE_WITH_DEADLINE_UPDATED = 'op_change_with_deadline_updated'
     TYPE_CHOICES = (
-        (CHANGE_OP_REQUEST_CREATION, 'Creación de Solicitud de modificación'),
-        (CHANGE_OP_REQUEST_UPDATE, 'Actualización de Solicitud de modificación'),
         (STATUS_CHANGE, 'Cambio de estado'),
         (OP_CHANGE, 'Cambio de programa de operación'),
         (OP_CHANGE_WITH_DEADLINE_UPDATED, 'Cambio de programa de operación con actualización de deadlines'),
