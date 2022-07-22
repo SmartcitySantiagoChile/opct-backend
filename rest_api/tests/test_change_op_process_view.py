@@ -488,7 +488,7 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
                          log_obj.change_op_request)
         self.assertEqual(ChangeOPRequestLog.CHANGE_OP_REQUEST_CREATION, log_obj.type)
         self.assertDictEqual(dict(), log_obj.previous_data)
-        expected_new_data = dict(id=new_change_op_request.pk, title=title, reason="Acortamiento",
+        expected_new_data = dict(title=title, reason="Acortamiento",
                                  operation_program=dict(date='01-01-2022', type="Base"),
                                  related_routes=", ".join(['T506 00I', 'T507 00R']), status='Solicitud observada')
         self.assertDictEqual(expected_new_data, log_obj.new_data)
