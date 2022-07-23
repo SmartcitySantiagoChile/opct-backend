@@ -165,7 +165,7 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPRequest
-        fields = ["url", "title", "created_at", "creator", "operation_program", "status", "updated_at", "reason",
+        fields = ["id", "url", "title", "created_at", "creator", "operation_program", "status", "updated_at", "reason",
                   "related_requests", "related_routes"]
         depth = 1
         ordering = ["-start_at"]
@@ -178,7 +178,7 @@ class ChangeOPRequestSerializer(serializers.HyperlinkedModelSerializer):
     related_routes = serializers.ListField(child=serializers.CharField(), allow_empty=True)
 
 
-class ChangeOPRequestLogSerializer(serializers.HyperlinkedModelSerializer):
+class ChangeOPRequestLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChangeOPRequestLog
         fields = "__all__"
