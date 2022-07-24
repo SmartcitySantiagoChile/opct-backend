@@ -150,7 +150,12 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
             "title": title,
             "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk)),
             "operation_program": reverse("operationprogram-detail", kwargs=dict(pk=self.op_program.pk)),
-            "change_op_requests": []
+            "change_op_requests": [{
+                "title": "request title 1",
+                "reason": ChangeOPRequest.REASON_CHOICES[0][0],
+                "related_requests": [],
+                "related_routes": []
+            }]
         }
 
         self.change_op_process_create(self.client, data)
@@ -172,7 +177,12 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         data = {
             "title": title,
             "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk)),
-            "change_op_requests": []
+            "change_op_requests": [{
+                "title": "request title 1",
+                "reason": ChangeOPRequest.REASON_CHOICES[0][0],
+                "related_requests": [],
+                "related_routes": []
+            }]
         }
 
         self.change_op_process_create(self.client, data)
@@ -187,7 +197,12 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         data = {
             "title": title,
             "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op2_organization.pk)),
-            "change_op_requests": []
+            "change_op_requests": [{
+                "title": "request title 1",
+                "reason": ChangeOPRequest.REASON_CHOICES[0][0],
+                "related_requests": [],
+                "related_routes": []
+            }]
         }
 
         self.change_op_process_create(self.client, data, status_code=HTTP_400_BAD_REQUEST)
@@ -198,7 +213,12 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         data = {
             "title": title,
             "counterpart": reverse("organization-detail", kwargs=dict(pk=self.dtpm_organization.pk)),
-            "change_op_requests": []
+            "change_op_requests": [{
+                "title": "request title 1",
+                "reason": ChangeOPRequest.REASON_CHOICES[0][0],
+                "related_requests": [],
+                "related_routes": []
+            }]
         }
 
         self.change_op_process_create(self.client, data)
@@ -211,7 +231,12 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         title = 'Another title again!'
         data = {
             "title": title,
-            "change_op_requests": []
+            "change_op_requests": [{
+                "title": "request title 1",
+                "reason": ChangeOPRequest.REASON_CHOICES[0][0],
+                "related_requests": [],
+                "related_routes": []
+            }]
         }
 
         self.change_op_process_create(self.client, data, HTTP_400_BAD_REQUEST)
@@ -265,14 +290,12 @@ class ChangeOPProcessViewSetTest(BaseTestCase):
         data = {
             "title": 'change op process title',
             "counterpart": reverse("organization-detail", kwargs=dict(pk=self.op1_organization.pk)),
-            "change_op_requests": [
-                {
-                    "title": "request title 1",
-                    "reason": ChangeOPRequest.REASON_CHOICES[0][0],
-                    "related_requests": [change_op_request_pk],
-                    "related_routes": []
-                }
-            ]
+            "change_op_requests": [{
+                "title": "request title 1",
+                "reason": ChangeOPRequest.REASON_CHOICES[0][0],
+                "related_requests": [change_op_request_pk],
+                "related_routes": []
+            }]
         }
         self.change_op_process_create(self.client, data)
         change_op_process_obj = ChangeOPProcess.objects.prefetch_related('change_op_requests'). \

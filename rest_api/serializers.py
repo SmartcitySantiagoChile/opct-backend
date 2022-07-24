@@ -345,6 +345,11 @@ class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
 class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
     change_op_requests = ChangeOPRequestCreateSerializer(many=True, required=True)
 
+    def validate_change_op_requests(self, data):
+        if len(data) == 0:
+            raise ValidationError("Debe incorporar una o más solicitudes de modificación en el proceso")
+        return data
+
     class Meta:
         model = ChangeOPProcess
         fields = ['url', 'title', 'counterpart', 'operation_program', 'change_op_requests']
