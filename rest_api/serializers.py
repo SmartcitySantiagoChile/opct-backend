@@ -352,7 +352,7 @@ class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ChangeOPProcess
-        fields = ['url', 'title', 'counterpart', 'operation_program', 'change_op_requests']
+        fields = ['id', 'url', 'title', 'counterpart', 'operation_program', 'change_op_requests']
 
     def create(self, validated_data):
         user = self.context['request'].user
