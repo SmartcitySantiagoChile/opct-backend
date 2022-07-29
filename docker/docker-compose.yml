@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   web:
+    restart: always
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -20,6 +21,7 @@ services:
       - cache_network
 
   worker:
+    restart: always
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -41,7 +43,7 @@ services:
       context: ..
       dockerfile: docker/nginx/NginxDockerfile
     ports:
-      - "8000:80"
+      - 8000:80
     volumes:
       - static_volume_opct:/app/static
       - media_volume_opct:/app/media
@@ -51,11 +53,13 @@ services:
       - nginx_network
 
   cache:
+    restart: always
     image: redis:latest
     networks:
       - cache_network
 
   db:
+    restart: always
     image: postgres:9.6-alpine
     volumes:
       - postgres_opct:/var/lib/postgresql/data/
