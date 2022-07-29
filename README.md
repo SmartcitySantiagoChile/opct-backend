@@ -91,9 +91,9 @@ docker build -f docker\Dockerfile -t opct .
 
 ## Build and run docker-compose
 
-Build commad:
+Build command:
 ```
-docker-compose -p opct -f docker\docker-compose.yml build
+docker-compose -p opct -f docker\docker-compose.yml build --build-arg GIT_PERSONAL_TOKEN=<git_personal_token>
 ```
 
 Run command:
@@ -106,7 +106,7 @@ Stop command:
 docker-compose -p opct -f docker\docker-compose.yml down
 ```
 
-Sometimes you want to update frontend code without upgrade everything else, so in this cases you should call:
+Sometimes you want to update frontend code without upgrade everything else, so in these cases you should call:
 ```
-docker-compose -p opct -f docker\docker-compose.yml build --no-cache nginx
+docker-compose -p opct -f docker\docker-compose.yml build --build-arg GIT_PERSONAL_TOKEN=<git_personal_token> --no-cache nginx
 ```
