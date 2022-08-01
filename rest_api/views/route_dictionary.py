@@ -10,9 +10,13 @@ from django.db import transaction
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
+from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import ParseError
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
 
 from rest_api.models import RouteDictionary
 from rest_api.serializers import RouteDictionarySerializer
@@ -64,7 +68,7 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile) -> dict:
 
 class UploadRouteDictionaryFileAPIView(CreateAPIView):
     """
-    API endpoint to upload route dictionary file
+    API endpoint to upload route dictionary file from django admin
     """
     permission_classes = (IsAdminUser,)
 
@@ -98,3 +102,22 @@ class RouteDictionaryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RouteDictionary.objects.all().order_by("auth_route_code")
     serializer_class = RouteDictionarySerializer
     pagination_class = None
+
+    @action(detail=False, methods=["post"], url_path="update-definitions")
+    def update_definitions(self, request, *args, **kwargs):
+        csv_file = request.FILES.get('files', None)
+        if not csv_file:
+            raise ParseError("Archivo no encontrado")
+        elif csv_file.size == 0:
+            raise ParseError("Archivo no puede ser vacío")
+        else:
+            try:
+                message = upload_csv_op_dictionary(csv_file)
+            except ValueError as e:
+                message = str(e)
+                raise ParseError(message)
+            except Exception as e:
+                message = "Archivo en formato incorrecto " + str(e)
+                raise ParseError(message)
+
+        return Response(message, status=status.HTTP_200_OK)
