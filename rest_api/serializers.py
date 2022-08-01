@@ -48,7 +48,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ["url", "email", "first_name", "last_name", "organization", "role", "access_to_ops", "access_to_users",
-                  "access_to_organizations"]
+                  "access_to_organizations", "access_to_upload_route_dictionary"]
 
     organization = OrganizationSerializer(many=False, read_only=True)
 

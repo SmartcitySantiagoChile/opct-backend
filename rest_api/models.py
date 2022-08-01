@@ -12,6 +12,7 @@ class UserManager(BaseUserManager):
     use_in_migrations = True
 
     def _create_user(self, email, password, organization, access_to_ops, access_to_organizations, access_to_users,
+                     access_to_upload_route_dictionary,
                      **extra_fields):
         """Create and save a User with the given email and password."""
         if not email:
@@ -23,6 +24,7 @@ class UserManager(BaseUserManager):
             access_to_ops=access_to_ops,
             access_to_organizations=access_to_organizations,
             access_to_users=access_to_users,
+            access_to_upload_route_dictionary=access_to_upload_route_dictionary,
             **extra_fields
         )
         user.set_password(password)
@@ -33,6 +35,8 @@ class UserManager(BaseUserManager):
             user.groups.add(Group.objects.get(name="Organization"))
         if access_to_users:
             user.groups.add(Group.objects.get(name="User"))
+        if access_to_upload_route_dictionary:
+            user.groups.add(Group.objects.get(name="Upload Route Dictionary"))
         user.save()
         return user
 
@@ -48,6 +52,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("access_to_ops", True)
         extra_fields.setdefault("access_to_organizations", True)
         extra_fields.setdefault("access_to_users", True)
+        extra_fields.setdefault("access_to_upload_route_dictionary", True)
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -165,6 +170,7 @@ class User(AbstractUser):
     access_to_ops = models.BooleanField("Acceso a Programas de Operación", default=False)
     access_to_organizations = models.BooleanField("Acceso a Organizaciones", default=False)
     access_to_users = models.BooleanField("Acceso a Usuarios", default=False)
+    access_to_upload_route_dictionary = models.BooleanField("Acceso a subir diccionario de servicios", default=False)
 
     CONTRACT_ADMINISTRATOR = "contract_administrator"
     PLANNING_TECHNICIAN = "planning_technician"

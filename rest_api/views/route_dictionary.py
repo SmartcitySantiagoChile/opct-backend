@@ -19,6 +19,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from rest_api.models import RouteDictionary
+from rest_api.permissions import HasGroupPermission
 from rest_api.serializers import RouteDictionarySerializer
 
 
@@ -103,7 +104,12 @@ class RouteDictionaryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = RouteDictionarySerializer
     pagination_class = None
 
-    @action(detail=False, methods=["post"], url_path="update-definitions")
+    required_groups = {
+        "POST": ["Upload Route Dictionary"],
+    }
+
+    @action(detail=False, methods=["post"], url_path="update-definitions",
+            permission_classes=[HasGroupPermission])
     def update_definitions(self, request, *args, **kwargs):
         csv_file = request.FILES.get('files', None)
         if not csv_file:

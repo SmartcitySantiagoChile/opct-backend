@@ -19,5 +19,12 @@
     "fields": {
       "name": "User"
     }
+  },
+  {
+    "model": "auth.group",
+    "pk": 4,
+    "fields": {
+      "name": "Upload Route Dictionary"
+    }
   }
 ]
