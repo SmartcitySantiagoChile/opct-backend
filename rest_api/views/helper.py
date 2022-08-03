@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.generics import UpdateAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_409_CONFLICT, HTTP_204_NO_CONTENT
 
@@ -124,7 +124,7 @@ class ContractTypeViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @api_view(["GET"])
-@permission_classes((AllowAny,))
+@permission_classes((IsAuthenticated,))
 def change_op_request_reasons(request):
     """
     API endpoint that allows Operation Programs Request Reasons to be viewed.
