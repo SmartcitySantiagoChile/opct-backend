@@ -15,7 +15,7 @@ RUN touch '.env.production' && \
   echo 'VUE_APP_I18N_LOCALE=es' >> '.env' && \
   echo 'VUE_APP_I18N_FALLBACK_LOCALE=en' >> '.env' && \
   echo 'VUE_APP_I18N_SUPPORTED_LOCALE=en,es' >> '.env'
-RUN npm run build
+RUN npm run build -- --mode production
 
 FROM nginx:1.17
 
