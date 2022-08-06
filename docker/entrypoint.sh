@@ -28,6 +28,7 @@ case "$1" in
     echo "starting webserver"
     python manage.py migrate
     python manage.py collectstatic --no-input
+    python manage.py loaddata contracttypes operationprogramstatuses operationprogramtypes groups grouppermissions changeoprequeststatuses changeopprocessstatuses
 
     gunicorn --chdir opct --access-logfile - --bind :8000 opct.wsgi:application -t 1200
   ;;
