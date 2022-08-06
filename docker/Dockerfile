@@ -22,7 +22,7 @@ RUN /bin/sh -c 'apk update && apk add --no-cache openjdk11 postgresql-dev geos'
 
 WORKDIR /app
 RUN mkdir ./static && \
-    mkdir ./media
+    mkdir ./files
 
 # copy project files on /app folder
 COPY . .

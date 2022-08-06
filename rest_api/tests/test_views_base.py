@@ -95,7 +95,7 @@ class BaseTestCase(APITestCase):
 
     @staticmethod
     def create_user(email, password, organization=None, access_to_ops=False, access_to_organizations=False,
-                    access_to_users=False, role='default role'):
+                    access_to_users=False, access_to_upload_route_dictionary=False, role='default role'):
         user_user_attributes = {
             "email": email,
             "password": password,
@@ -103,6 +103,7 @@ class BaseTestCase(APITestCase):
             "access_to_ops": access_to_ops,
             "access_to_organizations": access_to_organizations,
             "access_to_users": access_to_users,
+            "access_to_upload_route_dictionary": access_to_upload_route_dictionary,
             "role": role,
         }
         return get_user_model().objects.create_user(**user_user_attributes)

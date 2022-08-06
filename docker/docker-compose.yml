@@ -43,7 +43,7 @@ services:
       - LETSENCRYPT_HOST=opct.adatrap.cl
     volumes:
       - static_volume_opct:/app/static
-      - media_volume_opct:/app/media
+      - media_volume_opct:/app/files
     depends_on:
       - web
     networks:
@@ -58,7 +58,7 @@ services:
     command: webserver
     volumes:
       - static_volume_opct:/app/static
-      - media_volume_opct:/app/media
+      - media_volume_opct:/app/files
     env_file:
       - ./docker_env
     depends_on:
@@ -77,7 +77,7 @@ services:
     command: worker
     volumes:
       - static_volume_opct:/app/static
-      - media_volume_opct:/app/media
+      - media_volume_opct:/app/files
     env_file:
       - ./docker_env
     depends_on:
