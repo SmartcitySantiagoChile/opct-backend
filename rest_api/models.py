@@ -404,10 +404,14 @@ class ChangeOPProcessMessage(models.Model):
         verbose_name_plural = "Mensajes de proceso de cambio de PO"
 
 
+def get_upload_to(instance, filename):
+    return '{0}/{1}'.format(instance.change_op_process_message.change_op_process_id, filename)
+
+
 class ChangeOPProcessMessageFile(models.Model):
     filename = models.CharField(max_length=128, null=False)
     size = models.IntegerField(null=False, help_text="The size, in bytes, of the uploaded file.")
-    file = models.FileField("Archivo")
+    file = models.FileField("Archivo", upload_to=get_upload_to)
     change_op_process_message = models.ForeignKey(ChangeOPProcessMessage,
                                                   related_name="change_op_process_message_files",
                                                   on_delete=models.PROTECT,
