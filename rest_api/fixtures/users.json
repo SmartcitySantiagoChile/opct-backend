@@ -1,0 +1,127 @@
+[
+  {
+    "model": "rest_api.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$QilSaLpO2XONgN6bKOCEgJ$TNViEV2lq9pWUap/rqEm35x7ilID+T0dprkcMGhHAWo=",
+      "last_login": "2022-08-01T00:00:00.000Z",
+      "is_superuser": true,
+      "is_staff": true,
+      "first_name": "Felipe",
+      "last_name": "Hernández",
+      "is_active": true,
+      "date_joined": "2022-08-01T00:00:00.000Z",
+      "email": "cephei.1313@gmail.com",
+      "organization": 1,
+      "access_to_ops": true,
+      "access_to_organizations": true,
+      "access_to_users": true,
+      "access_to_upload_route_dictionary": true,
+      "role": "",
+      "groups": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "rest_api.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$QilSaLpO2XONgN6bKOCEgJ$TNViEV2lq9pWUap/rqEm35x7ilID+T0dprkcMGhHAWo=",
+      "last_login": "2022-08-01T00:00:00.000Z",
+      "is_superuser": false,
+      "is_staff": false,
+      "first_name": "Vicente",
+      "last_name": "Iglesias",
+      "is_active": true,
+      "date_joined": "2022-08-01T00:00:00.000Z",
+      "email": "vicente.iglesias@dtpm.gob.cl",
+      "organization": 1,
+      "access_to_ops": false,
+      "access_to_organizations": false,
+      "access_to_users": false,
+      "access_to_upload_route_dictionary": false,
+      "role": "",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "rest_api.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$QilSaLpO2XONgN6bKOCEgJ$TNViEV2lq9pWUap/rqEm35x7ilID+T0dprkcMGhHAWo=",
+      "last_login": "2022-08-01T00:00:00.000Z",
+      "is_superuser": false,
+      "is_staff": false,
+      "first_name": "María Fernanda",
+      "last_name": "Viveros",
+      "is_active": true,
+      "date_joined": "2022-08-01T00:00:00.000Z",
+      "email": "mariaferviveros@gmail.com",
+      "organization": 2,
+      "access_to_ops": false,
+      "access_to_organizations": false,
+      "access_to_users": false,
+      "access_to_upload_route_dictionary": false,
+      "role": "",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "rest_api.user",
+    "pk": 4,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$QilSaLpO2XONgN6bKOCEgJ$TNViEV2lq9pWUap/rqEm35x7ilID+T0dprkcMGhHAWo=",
+      "last_login": "2022-08-01T00:00:00.000Z",
+      "is_superuser": false,
+      "is_staff": false,
+      "first_name": "Mónica",
+      "last_name": "Muñoz",
+      "is_active": true,
+      "date_joined": "2022-08-01T00:00:00.000Z",
+      "email": "monica.munoz@dtpm.gob.cl",
+      "organization": 1,
+      "access_to_ops": true,
+      "access_to_organizations": true,
+      "access_to_users": true,
+      "access_to_upload_route_dictionary": true,
+      "role": "",
+      "groups": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "rest_api.user",
+    "pk": 5,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$QilSaLpO2XONgN6bKOCEgJ$TNViEV2lq9pWUap/rqEm35x7ilID+T0dprkcMGhHAWo=",
+      "last_login": "2022-08-01T00:00:00.000Z",
+      "is_superuser": false,
+      "is_staff": false,
+      "first_name": "Nathalia Maira",
+      "last_name": "Durán",
+      "is_active": true,
+      "date_joined": "2022-08-01T00:00:00.000Z",
+      "email": "nathalia.maira@dtpm.gob.cl",
+      "organization": 1,
+      "access_to_ops": false,
+      "access_to_organizations": false,
+      "access_to_users": false,
+      "access_to_upload_route_dictionary": false,
+      "role": "",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]

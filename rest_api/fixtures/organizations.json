@@ -1,0 +1,132 @@
+[
+  {
+    "model": "rest_api.organization",
+    "pk": 1,
+    "fields": {
+      "name": "DTPM",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 3,
+      "default_counterpart_id": null
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 2,
+    "fields": {
+      "name": "UN2",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 1,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 3,
+    "fields": {
+      "name": "UN3",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 1,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 4,
+    "fields": {
+      "name": "UN4",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 1,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 5,
+    "fields": {
+      "name": "UN5",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 1,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 6,
+    "fields": {
+      "name": "UN6",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 1,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 7,
+    "fields": {
+      "name": "UN7",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 1,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 8,
+    "fields": {
+      "name": "US1",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 2,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 9,
+    "fields": {
+      "name": "US2",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 2,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 10,
+    "fields": {
+      "name": "US3",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 2,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 11,
+    "fields": {
+      "name": "US4",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 2,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 12,
+    "fields": {
+      "name": "US5",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 2,
+      "default_counterpart_id": 1
+    }
+  },
+  {
+    "model": "rest_api.organization",
+    "pk": 13,
+    "fields": {
+      "name": "US6",
+      "created_at": "2022-08-01T00:00:00.000Z",
+      "contract_type_id": 2,
+      "default_counterpart_id": 1
+    }
+  }
+]
