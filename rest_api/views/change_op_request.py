@@ -26,8 +26,6 @@ class ChangeOPRequestStatusViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows ChangeOPRequestStatus to be viewed.
     """
-
-    pagination_class = StandardResultsSetPagination
     queryset = ChangeOPRequestStatus.objects.all().order_by("-name")
     serializer_class = ChangeOPRequestStatusSerializer
     filter_backends = [filters.SearchFilter]
