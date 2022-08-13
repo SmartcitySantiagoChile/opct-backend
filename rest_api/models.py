@@ -231,6 +231,15 @@ class ChangeOPProcessStatus(models.Model):
         verbose_name_plural = "Estados de proceso de cambio PO"
 
 
+class ChangeOPProcessDeadline(models.Model):
+    operation_program_deadline = models.ForeignKey(OperationProgramStatus, on_delete=models.PROTECT, null=False,
+                                                   blank=False, )
+    deadline = models.DateField("Fecha límite", blank=True, null=True)
+    change_op_process = models.ForeignKey(ChangeOPProcess, related_name="deadlines",
+                                          on_delete=models.PROTECT, null=False, blank=False,
+                                          verbose_name="Proceso de cambio de PO")
+
+
 class ChangeOPRequest(models.Model):
     title = models.CharField("Titulo", max_length=50)
     created_at = models.DateTimeField("Fecha de Creación", default=timezone.now)

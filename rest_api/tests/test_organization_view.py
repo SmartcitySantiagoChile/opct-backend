@@ -42,7 +42,7 @@ class OrganizationViewSetTest(BaseTestCase):
 
     def test_list_without_group_permissions(self):
         self.login_dtpm_viewer_user()
-        self.organization_list(self.client, {}, HTTP_403_FORBIDDEN)
+        self.organization_list(self.client, {})
 
     def test_list_without_active_session(self):
         self.client.logout()
@@ -65,7 +65,7 @@ class OrganizationViewSetTest(BaseTestCase):
     def test_retrieve_without_group_permissions(self):
         organization = self.create_organization("Test Organization", self.dtpm_contract_type, None)
         self.login_dtpm_viewer_user()
-        self.organization_retrieve(self.client, organization.pk, HTTP_403_FORBIDDEN)
+        self.organization_retrieve(self.client, organization.pk)
 
     def test_retrieve_without_active_session(self):
         self.client.logout()

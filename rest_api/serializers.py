@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
@@ -9,7 +11,7 @@ from rest_framework.fields import ChoiceField
 from rest_api.models import User as ApiUser, OperationProgram, OperationProgramType, Organization, ContractType, \
     ChangeOPRequest, ChangeOPRequestStatus, OPChangeLog, OperationProgramStatus, \
     ChangeOPProcessMessageFile, ChangeOPProcessMessage, ChangeOPProcess, ChangeOPProcessStatus, \
-    ChangeOPProcessLog, ChangeOPRequestLog, RouteDictionary
+    ChangeOPProcessLog, ChangeOPRequestLog, RouteDictionary, ChangeOPProcessDeadline
 
 
 class ContractTypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -304,6 +306,15 @@ class OperationProgramStatusSerializer(serializers.HyperlinkedModelSerializer):
     contract_type = ContractTypeSerializer(many=False, read_only=True)
 
 
+class ChangeOPProcessDeadlineSerializer(serializers.ModelSerializer):
+    name = serializers.SlugRelatedField(many=False, read_only=True, slug_field='name',
+                                        source='operation_program_deadline')
+
+    class Meta:
+        model = ChangeOPProcessDeadline
+        fields = ['deadline', 'name']
+
+
 class ChangeOPProcessSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ChangeOPProcess
@@ -327,7 +338,7 @@ class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
         model = ChangeOPProcess
         fields = ["id", "url", "title", "created_at", "updated_at", "counterpart", "contract_type", "creator", "status",
                   "op_release_date", "operation_program",
-                  "change_op_requests", "change_op_process_messages", "change_op_process_logs"]
+                  "change_op_requests", "change_op_process_messages", "change_op_process_logs", "deadlines"]
         ordering = ["-start_at"]
         depth = 2
 
@@ -340,6 +351,7 @@ class ChangeOPProcessDetailSerializer(serializers.HyperlinkedModelSerializer):
     change_op_requests = ChangeOPRequestDetailSerializer(many=True)
     change_op_process_messages = ChangeOPProcessMessageSerializer(many=True, read_only=True)
     change_op_process_logs = ChangeOPProcessLogSerializer(many=True, read_only=True)
+    deadlines = ChangeOPProcessDeadlineSerializer(many=True, read_only=True)
 
 
 class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
@@ -385,6 +397,14 @@ class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
             data['op_release_date'] = data['operation_program'].start_at
 
         change_op_process_obj = ChangeOPProcess.objects.create(**data)
+
+        if change_op_process_obj.op_release_date is not None:
+            for deadline_obj in OperationProgramStatus.objects.filter(
+                    contract_type=change_op_process_obj.contract_type):
+                deadline = change_op_process_obj.op_release_date - datetime.timedelta(days=deadline_obj.time_threshold)
+                ChangeOPProcessDeadline.objects.create(change_op_process=change_op_process_obj,
+                                                       operation_program_deadline=deadline_obj,
+                                                       deadline=deadline)
 
         for change_op_request_data in change_op_requests:
             related_requests = change_op_request_data.pop('related_requests')

@@ -79,14 +79,14 @@ class ChangePasswordAPIView(UpdateAPIView):
 class OrganizationViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows Organizations to be viewed, created, updated and delete.
-    Only can delete if does not exist a related User.
+    Only can delete if it does not exist a related User.
     """
     queryset = Organization.objects.all().order_by("-name")
-    permission_classes = [HasGroupPermission]
+    permission_classes = [IsAuthenticated, HasGroupPermission]
     pagination_class = None
 
     required_groups = {
-        "GET": ["Organization"],
+        "GET": [],
         "POST": ["Organization"],
         "PUT": ["Organization"],
         "DELETE": ["Organization"],
