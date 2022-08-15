@@ -412,4 +412,4 @@ class ChangeOPProcessCreateSerializer(serializers.HyperlinkedModelSerializer):
 class RouteDictionarySerializer(serializers.ModelSerializer):
     class Meta:
         model = RouteDictionary
-        fields = ['auth_route_code', 'user_route_code']
+        fields = ['ts_code']

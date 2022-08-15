@@ -39,32 +39,41 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile) -> dict:
     csv_file = io.StringIO(csv_file.read().decode('utf-8'))
     upload_time = timezone.now()
 
+    to_update_dict = dict()
     to_create = []
-    csv_reader = csv.reader(csv_file, delimiter=";")
-    if not csv_reader:
-        raise ValueError("Archivo con datos en blanco")
-    # skip header
-    next(csv_reader)
+    csv_reader = csv.DictReader(csv_file, delimiter=";")
+
+    previous_ts_code_in_file = set()
+    previous_ts_code_in_db = RouteDictionary.objects.values_list('ts_code', flat=True)
     for row in csv_reader:
-        auth_route_code = str(row[11])
-        op_route_code = str(row[9]) + str(row[7])
-        user_route_code = row[8]
-        route_type = row[1]
-        operator = row[3]
+        attributes = dict(ts_code=row['COD_TS'],
+                          user_route_code=row['COD_USUARI'],
+                          service_name=row['SERVICE_NA'],
+                          operator=row['UN'],
+                          updated_at=upload_time)
 
-        if auth_route_code == '' or op_route_code == '' or user_route_code == '' or route_type == '':
+        if row['COD_TS'] in previous_ts_code_in_file:
             continue
-        to_create.append(RouteDictionary(auth_route_code=auth_route_code,
-                                         op_route_code=op_route_code,
-                                         user_route_code=user_route_code,
-                                         route_type=route_type,
-                                         created_at=upload_time,
-                                         operator=operator))
-    with transaction.atomic():
-        RouteDictionary.objects.all().delete()
-        RouteDictionary.objects.bulk_create(to_create)
+        if row['COD_TS'] in previous_ts_code_in_db:
+            to_update_dict[row['COD_TS']] = attributes
+            previous_ts_code_in_file.add(row['COD_TS'])
+            continue
+        to_create.append(RouteDictionary(**attributes))
+        previous_ts_code_in_file.add(row['COD_TS'])
 
-    return {"created": len(to_create)}
+    objs_to_update = RouteDictionary.objects.filter(ts_code__in=to_update_dict.keys())
+    for obj in objs_to_update:
+        obj.user_route_code = to_update_dict[obj.ts_code]['user_route_code']
+        obj.service_name = to_update_dict[obj.ts_code]['service_name']
+        obj.operator = to_update_dict[obj.ts_code]['operator']
+        obj.updated_at = to_update_dict[obj.ts_code]['updated_at']
+
+    with transaction.atomic():
+        RouteDictionary.objects.bulk_create(to_create)
+        RouteDictionary.objects.bulk_update(objs_to_update,
+                                            ['user_route_code', 'service_name', 'operator', 'updated_at'])
+
+    return {'created': len(to_create), 'updated': len(objs_to_update)}
 
 
 class UploadRouteDictionaryFileAPIView(CreateAPIView):
@@ -100,7 +109,7 @@ class RouteDictionaryViewSet(viewsets.ReadOnlyModelViewSet):
     API endpoint that allows ChangeOPRequestStatus to be viewed.
     """
 
-    queryset = RouteDictionary.objects.all().order_by("auth_route_code")
+    queryset = RouteDictionary.objects.all().order_by("ts_code")
     serializer_class = RouteDictionarySerializer
     pagination_class = None
 

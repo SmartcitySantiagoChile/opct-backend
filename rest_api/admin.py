@@ -85,8 +85,8 @@ class UserAdmin(DjangoUserAdmin):
 
 class RouteDictionaryAdmin(admin.ModelAdmin):
     actions = None
-    search_fields = ['auth_route_code', 'user_route_code', 'op_route_code', 'route_type']
-    list_display = ('auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'operator')
+    search_fields = ['ts_code', 'user_route_code', 'service_name', 'operator']
+    list_display = ('ts_code', 'user_route_code', 'service_name', 'operator', 'updated_at', 'created_at')
     change_list_template = os.path.join('rest_api', 'routedictionary', 'change_list.html')
 
 

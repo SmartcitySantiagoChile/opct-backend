@@ -456,12 +456,12 @@ class ChangeOPProcessMessageFile(models.Model):
 
 class RouteDictionary(models.Model):
     """ Operation program to know routes available """
-    auth_route_code = models.CharField("Código transantiago", max_length=30, unique=True)
-    op_route_code = models.CharField("Código de operación", max_length=30)
-    user_route_code = models.CharField("Código de usuario", max_length=30, null=True)
-    route_type = models.CharField("Tipo de ruta", max_length=30, null=True)
-    created_at = models.DateTimeField("Fecha de creación", null=True)
+    ts_code = models.CharField("Código TS", max_length=30, unique=True)
+    user_route_code = models.CharField("Código de usuario", max_length=30)
+    service_name = models.CharField("Nombre servicio", max_length=100)
     operator = models.CharField(max_length=30)
+    created_at = models.DateTimeField("Fecha de creación", default=timezone.now, null=False)
+    updated_at = models.DateTimeField("Fecha de actualización", default=timezone.now, null=False)
 
     class Meta:
         verbose_name = "diccionario PO "
