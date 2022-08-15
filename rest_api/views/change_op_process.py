@@ -1,4 +1,4 @@
-import datetime
+import json
 import json
 import logging
 
@@ -15,7 +15,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from rest_api.models import OperationProgram, ChangeOPRequest, ChangeOPRequestStatus, \
     ChangeOPProcessMessage, ChangeOPProcessMessageFile, ChangeOPProcess, ChangeOPProcessStatus, \
-    ChangeOPProcessLog, OPChangeLog, ChangeOPRequestLog, ChangeOPProcessDeadline, OperationProgramStatus
+    ChangeOPProcessLog, OPChangeLog, ChangeOPRequestLog, ChangeOPProcessDeadline
 from rest_api.serializers import OPChangeLogSerializer, ChangeOPProcessMessageSerializer, \
     CreateChangeOPProcessMessageSerializer, ChangeOPProcessMessageFileSerializer, ChangeOPProcessSerializer, \
     ChangeOPProcessStatusSerializer, ChangeOPProcessDetailSerializer, ChangeOPProcessCreateSerializer, \
@@ -89,13 +89,7 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         obj.save()
 
         if update_deadlines or new_op_release_date is None:
-            obj.deadlines.all().delete()
-            if obj.op_release_date is not None:
-                for deadline_obj in OperationProgramStatus.objects.filter(contract_type=obj.contract_type):
-                    deadline = obj.op_release_date - datetime.timedelta(days=deadline_obj.time_threshold)
-                    ChangeOPProcessDeadline.objects.create(change_op_process=obj,
-                                                           operation_program_deadline=deadline_obj,
-                                                           deadline=deadline)
+            ChangeOPProcessDeadline.objects.update_deadlines(obj)
 
         if update_deadlines:
             log_type = ChangeOPProcessLog.OP_CHANGE_WITH_DEADLINE_UPDATED

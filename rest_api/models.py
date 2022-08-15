@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.models import Group
 from django.contrib.postgres.fields import ArrayField
@@ -231,13 +233,31 @@ class ChangeOPProcessStatus(models.Model):
         verbose_name_plural = "Estados de proceso de cambio PO"
 
 
+class ChangeOPProcessDeadlineManager(models.Manager):
+    def update_deadlines(self, change_op_process_obj):
+        # remove previous deadlines
+        change_op_process_obj.deadlines.all().delete()
+        # if we assigned an op_release_date, we will create new deadlines
+        if change_op_process_obj.op_release_date is not None:
+            for deadline_obj in OperationProgramStatus.objects.filter(
+                    contract_type=change_op_process_obj.contract_type):
+                deadline = change_op_process_obj.op_release_date - datetime.timedelta(days=deadline_obj.time_threshold)
+                deadline = datetime.datetime.fromisoformat(deadline.isoformat())
+                deadline = deadline.replace(hour=23, minute=59, second=59)
+                deadline = deadline.astimezone(timezone.get_default_timezone())
+                ChangeOPProcessDeadline.objects.create(change_op_process=change_op_process_obj,
+                                                       operation_program_deadline=deadline_obj, deadline=deadline)
+
+
 class ChangeOPProcessDeadline(models.Model):
     operation_program_deadline = models.ForeignKey(OperationProgramStatus, on_delete=models.PROTECT, null=False,
                                                    blank=False, )
-    deadline = models.DateField("Fecha límite", blank=True, null=True)
+    deadline = models.DateTimeField("Fecha límite", blank=True, null=True)
     change_op_process = models.ForeignKey(ChangeOPProcess, related_name="deadlines",
                                           on_delete=models.PROTECT, null=False, blank=False,
                                           verbose_name="Proceso de cambio de PO")
+
+    objects = ChangeOPProcessDeadlineManager()
 
 
 class ChangeOPRequest(models.Model):
