@@ -1,5 +1,4 @@
 import json
-import json
 import logging
 
 from django.db import transaction
@@ -31,9 +30,8 @@ class ChangeOPProcessViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     """
     queryset = ChangeOPProcess.objects.order_by("-created_at")
     filter_backends = [filters.SearchFilter]
-    search_fields = ["operation_program__start_at", "id", "title"]
+    search_fields = ["id", "title", 'counterpart__name', 'creator__organization__name', 'contract_type__name']
 
-    # TODO: verificar si está filtrando por motivo
     def get_queryset(self):
         queryset = ChangeOPProcess.objects.order_by("-created_at")
         user = self.request.user
