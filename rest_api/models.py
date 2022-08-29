@@ -193,7 +193,7 @@ class User(AbstractUser):
 
 
 class ChangeOPProcess(models.Model):
-    title = models.CharField("Titulo", max_length=50)
+    title = models.CharField("Titulo", max_length=70)
     created_at = models.DateTimeField("Fecha de creación", default=timezone.now)
     updated_at = models.DateTimeField("Fecha de la última actualización", default=timezone.now)
     counterpart = models.ForeignKey(Organization, related_name="change_op_processes", on_delete=models.PROTECT,
