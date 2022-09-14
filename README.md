@@ -91,22 +91,46 @@ docker build -f docker\Dockerfile -t opct .
 
 ## Build and run docker-compose
 
+### development mode
+
 Build command:
 ```
-docker-compose -p opct -f docker\docker-compose.yml build --build-arg GIT_PERSONAL_TOKEN=<git_personal_token>
+docker-compose -p opct -f docker\docker-compose.yml -f docker\docker-compose.dev.yml build --build-arg GIT_PERSONAL_TOKEN=<git_personal_token>
 ```
 
 Run command:
 ```
-docker-compose -p opct -f docker\docker-compose.yml up
+docker-compose -p opct -f docker\docker-compose.yml -f docker\docker-compose.dev.yml up
 ```
 
 Stop command:
 ```
-docker-compose -p opct -f docker\docker-compose.yml down
+docker-compose -p opct -f docker\docker-compose.yml -f docker\docker-compose.dev.yml down
 ```
 
 Sometimes you want to update frontend code without upgrade everything else, so in these cases you should call:
 ```
-docker-compose -p opct -f docker\docker-compose.yml build --build-arg GIT_PERSONAL_TOKEN=<git_personal_token> --no-cache nginx
+docker-compose -p opct -f docker\docker-compose.yml -f docker\docker-compose.dev .yml build --build-arg GIT_PERSONAL_TOKEN=<git_personal_token> --no-cache nginx
+```
+
+### production mode
+
+Build command:
+```
+docker-compose -p opct -f docker\docker-compose.yml -f docker\docker-compose.prod.yml build --build-arg GIT_PERSONAL_TOKEN=<git_personal_token>
+```
+
+Run command:
+```
+docker-compose -p opct -f docker\docker-compose.yml -f docker\docker-compose.prod.yml up
+```
+
+Stop command:
+```
+docker-compose -p opct -f docker\docker-compose.yml -f docker\docker-compose.prod.yml down
+```
+
+Sometimes you want to update frontend code without upgrade everything else, so in these cases you should call:
+```
+docker-compose -p opct -f docker\docker-compose.yml -f docker\docker-compose.prod .yml build --build-arg GIT_PERSONAL_TOKEN=<git_personal_token> --no-cache nginx
 ```

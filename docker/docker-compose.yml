@@ -1,46 +1,12 @@
 version: '3.7'
 
 services:
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy
-    restart: always
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs:ro
-      - certs_vhost:/etc/nginx/vhost.d
-      - certs_html:/usr/share/nginx/html
-    depends_on:
-      - nginx
-    networks:
-      - nginx_proxy_network
-
-  letsencrypt:
-    image: nginxproxy/acme-companion
-    restart: always
-    environment:
-      - DEFAULT_EMAIL:cephei.1313@gmail.com
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - certs:/etc/nginx/certs:rw
-      - certs_vhost:/etc/nginx/vhost.d
-      - certs_html:/usr/share/nginx/html
-      - acme:/etc/acme.sh
-    volumes_from:
-      - nginx-proxy
-
   nginx:
-    restart: always
     build:
       context: ..
       dockerfile: docker/nginx/NginxDockerfile
     expose:
       - 80
-    environment:
-      - VIRTUAL_HOST=opct.adatrap.cl
-      - LETSENCRYPT_HOST=opct.adatrap.cl
     volumes:
       - static_volume_opct:/app/static
       - media_volume_opct:/app/files
@@ -48,10 +14,8 @@ services:
       - web
     networks:
       - nginx_network
-      - nginx_proxy_network
 
   web:
-    restart: always
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -70,7 +34,6 @@ services:
       - cache_network
 
   worker:
-    restart: always
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -88,13 +51,11 @@ services:
       - cache_network
 
   cache:
-    restart: always
     image: redis:latest
     networks:
       - cache_network
 
   db:
-    restart: always
     image: postgres:9.6-alpine
     volumes:
       - postgres_opct:/var/lib/postgresql/data/
@@ -105,8 +66,6 @@ services:
       - database_network
 
 networks:
-  nginx_proxy_network:
-    driver: bridge
   nginx_network:
     driver: bridge
   database_network:
@@ -115,10 +74,6 @@ networks:
     driver: bridge
 
 volumes:
-  acme:
-  certs:
-  certs_vhost:
-  certs_html:
   postgres_opct:
   static_volume_opct:
   media_volume_opct:
