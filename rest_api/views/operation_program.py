@@ -43,7 +43,7 @@ class OperationProgramViewSet(viewsets.ModelViewSet):
     serializer_class = OperationProgramSerializer
     permission_classes = [HasGroupPermission]
     required_groups = {
-        "GET": ["Operation Program"],
+        "GET": [],
         "POST": ["Operation Program"],
         "PUT": ["Operation Program"],
         "DELETE": ["Operation Program"],
